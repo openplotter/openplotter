@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -35,14 +35,14 @@ class N2K_send:
 
 		time_ = time.time()
 		date_16 = int(int(time_) / 86400)
-		time_32 = long((time_ - date_16 * 86400) * 10000)
+		time_32 = int((time_ - date_16 * 86400) * 10000)
 
 		i = 8
 		self.data[i + 0] = 0x01
 		self.data[i + 1] = 0x01
 
 		self.set_data16(2, int(date_16), date_16)
-		self.set_data32(4, long(time_32), time_32)
+		self.set_data32(4, int(time_32), time_32)
 		self.send_UDP()
 
 	def Send_Rudder(self, angle):
@@ -104,11 +104,11 @@ class N2K_send:
 		self.set_data16(5, int(Temperature * 100), Temperature)
 		self.set_data16(7, int(AlternatorPotential * 100), AlternatorPotential)
 		self.set_data16(9, int(FuelRate * 10.0), FuelRate)
-		self.set_data32(11, long(TotalEngineHours), TotalEngineHours)
+		self.set_data32(11, int(TotalEngineHours), TotalEngineHours)
 		self.set_data16(15, int(CoollantPressure * 10.0), CoollantPressure)
 		self.set_data16(17, int(FuelPressure * 10.0), FuelPressure)
 		self.set_data8(19, self.empty8, self.empty8)
-		self.set_data32(20, long(Status), Status)
+		self.set_data32(20, int(Status), Status)
 		self.set_data8(24, int(EngineLoad), EngineLoad)
 		self.set_data8(25, int(EngineTorque), EngineTorque)
 		self.send_UDP()
@@ -144,7 +144,7 @@ class N2K_send:
 		self.data[i + 0] = (Instance & 15) + (ftype & 15) * 16
 
 		self.set_data16(1, int(Level * 250), Level)
-		self.set_data32(3, long(Capacity * 10.0), Capacity)
+		self.set_data32(3, int(Capacity * 10.0), Capacity)
 		self.set_data8(7, self.empty8, self.empty8)
 		self.send_UDP()
 
@@ -175,7 +175,7 @@ class N2K_send:
 		lPGN = 128267
 		self.set_header(length, lPGN)
 
-		self.set_data32(1, long(Depth * 100), Depth)
+		self.set_data32(1, int(Depth * 100), Depth)
 		self.set_data16(5, int(Offset * 1.0), Offset)
 		self.set_data8(7, self.empty8, self.empty8)
 		self.send_UDP()
@@ -187,12 +187,12 @@ class N2K_send:
 
 		time_ = time.time()
 		date_16 = int(int(time_) / 86400)
-		time_32 = long((time_ - date_16 * 86400) * 10000)
+		time_32 = int((time_ - date_16 * 86400) * 10000)
 
 		self.set_data16(0, date_16, date_16)
 		self.set_data32(2, time_32, time_32)
-		self.set_data32(6, long(Log), Log)
-		self.set_data32(10, long(TripLog), TripLog)
+		self.set_data32(6, int(Log), Log)
+		self.set_data32(10, int(TripLog), TripLog)
 		self.send_UDP()
 
 	def Send_Position_Rapid(self, Latitude, Longitude):
@@ -200,8 +200,8 @@ class N2K_send:
 		lPGN = 129025
 		self.set_header(length, lPGN)
 		try:
-			self.set_data32(0, long(Latitude * 10000000), Latitude)
-			self.set_data32(4, long(Longitude * 10000000), Longitude)
+			self.set_data32(0, int(Latitude * 10000000), Latitude)
+			self.set_data32(4, int(Longitude * 10000000), Longitude)
 			self.send_UDP()
 		except:
 			pass
@@ -221,12 +221,12 @@ class N2K_send:
 		self.send_UDP()
 
 	def Send_Wind_Data(self, Speed, Angle, type):
-		# type 
+		# type
 		# 0=True (referenced to North)
 		# 1=Magnetic
 		# 2=Apparent
 		# 3=True (boat referenced)
-	
+
 		length = 8
 		lPGN = 130306
 		self.set_header(length, lPGN)
@@ -240,33 +240,33 @@ class N2K_send:
 		self.send_UDP()
 
 	def Send_Environmental_Parameters(self, WaterTemp, OutsideAirTemp, Pressure):
-		#	length = 8
-		#	self.data = bytearray(length+9)
-		#	lPGN = 130310
-		#	WaterTemp_16 = int(WaterTemp * 100 + 27315)
-		#	OutsideAirTemp_16 = int(OutsideAirTemp * 100 + 27315)
-		#	Pressure_16 = int(Pressure)
-		#	i=8
-		#	data[i+1] = WaterTemp_16 & 255
-		#	data[i+2] = (WaterTemp_16 >> 8) & 255
-		#	data[i+3] = OutsideAirTemp_16 & 255
-		#	data[i+4] = (OutsideAirTemp_16 >> 8) & 255
-		#	data[i+5] = Pressure_16 & 255
-		#	data[i+6] = (Pressure_16 >> 8) & 255
-		#	if not b1:data[i+1] = data[i+2] = 255
-		#	if not b2:data[i+3] = data[i+4] = 255
-		#	if not b3:data[i+5] = data[i+6] = 255
+		#   length = 8
+		#   self.data = bytearray(length+9)
+		#   lPGN = 130310
+		#   WaterTemp_16 = int(WaterTemp * 100 + 27315)
+		#   OutsideAirTemp_16 = int(OutsideAirTemp * 100 + 27315)
+		#   Pressure_16 = int(Pressure)
+		#   i=8
+		#   data[i+1] = WaterTemp_16 & 255
+		#   data[i+2] = (WaterTemp_16 >> 8) & 255
+		#   data[i+3] = OutsideAirTemp_16 & 255
+		#   data[i+4] = (OutsideAirTemp_16 >> 8) & 255
+		#   data[i+5] = Pressure_16 & 255
+		#   data[i+6] = (Pressure_16 >> 8) & 255
+		#   if not b1:data[i+1] = data[i+2] = 255
+		#   if not b2:data[i+3] = data[i+4] = 255
+		#   if not b3:data[i+5] = data[i+6] = 255
 		#
-		#	data[0] = 0x94 #command
-		#	data[1] = (length + 6) #Actisense length
-		#	data[2] = 6 #priority
-		#	data[3] = lPGN &255#PGN
-		#	data[4] = (lPGN >> 8)&255 #PGN
-		#	data[5] = (lPGN >> 16)&255 #PGN
-		#	data[6] = 255 #receiver
-		#	data[7] = length #NMEA len
-		#	print " ".join("%s"% (('0'+hex(n)[2:])[-2:]) for n in data)
-		#	sock.sendto(data, ('127.0.0.1', 7778))
+		#   data[0] = 0x94 #command
+		#   data[1] = (length + 6) #Actisense length
+		#   data[2] = 6 #priority
+		#   data[3] = lPGN &255#PGN
+		#   data[4] = (lPGN >> 8)&255 #PGN
+		#   data[5] = (lPGN >> 16)&255 #PGN
+		#   data[6] = 255 #receiver
+		#   data[7] = length #NMEA len
+		#   print " ".join("%s"% (('0'+hex(n)[2:])[-2:]) for n in data)
+		#   sock.sendto(data, ('127.0.0.1', 7778))
 
 		length = 8
 		lPGN = 130310
@@ -275,7 +275,7 @@ class N2K_send:
 		self.set_data16(1, int(WaterTemp * 100), WaterTemp)
 		self.set_data16(3, int(OutsideAirTemp * 100), OutsideAirTemp)
 		self.set_data16(5, int(Pressure / 100), Pressure)
-		#	print " ".join("%s"% (('0'+hex(n)[2:])[-2:]) for n in data)
+		#   print " ".join("%s"% (('0'+hex(n)[2:])[-2:]) for n in data)
 		self.send_UDP()
 
 	def Send_Environmental_Parameters2(self, WaterTemp, Humidity, Pressure):
@@ -293,7 +293,7 @@ class N2K_send:
 		lPGN = 130316
 		self.set_header(length, lPGN)
 
-		Temp_24 = long(Temp * 1000)
+		Temp_24 = int(Temp * 1000)
 
 		i = 8
 		if 'water.temperature' in SK_name:

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import platform
 import wx, subprocess, os
 
@@ -26,7 +27,7 @@ class addI2c(wx.Dialog):
 
 		title = _('Add I2C sensor without compass')
 
-		wx.Dialog.__init__(self, None, title=title, size=(450, 400))
+		wx.Dialog.__init__(self, None, title=title, size=(450,400))
 
 		panel = wx.Panel(self)
 		self.conf = parent.conf
@@ -36,8 +37,8 @@ class addI2c(wx.Dialog):
 		label_detected = wx.StaticText(panel, label=_('detected'))
 
 		self.list_detected = wx.ListCtrl(panel, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
-		self.list_detected.InsertColumn(0, _('Name'), width=210)
-		self.list_detected.InsertColumn(1, _('Address'), width=116)
+		self.list_detected.InsertColumn(0, _('Name'), width=200)
+		self.list_detected.InsertColumn(1, _('Address'))
 		self.list_detected.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onSelectDetected)
 
 		self.reset = wx.Button(panel, label=_('Reset'))
@@ -53,7 +54,7 @@ class addI2c(wx.Dialog):
 		self.list_sensors = []
 		for i in parent.i2c_sensors_def:
 			self.list_sensors.append(i[0])
-		self.sensor_select = wx.ComboBox(panel, choices=self.list_sensors, style=wx.CB_READONLY)
+		self.sensor_select = wx.ComboBox(panel, choices=self.list_sensors, style=wx.CB_READONLY, size = (200,-1))
 		self.sensor_select.Bind(wx.EVT_COMBOBOX, self.onSelectSensor)
 
 		self.address = wx.TextCtrl(panel)
@@ -62,13 +63,13 @@ class addI2c(wx.Dialog):
 		okBtn = wx.Button(panel, wx.ID_OK)
 
 		vbox1 = wx.BoxSizer(wx.VERTICAL)
-		vbox1.Add(self.reset, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
+		vbox1.Add(self.reset, 0, wx.RIGHT | wx.LEFT | wx.DOWN | wx.EXPAND, 5)
 		vbox1.Add(self.check_addresses, 0, wx.RIGHT | wx.LEFT | wx.UP | wx.EXPAND, 5)
 		vbox1.Add((0, 0), 1, wx.ALL | wx.EXPAND, 5)
 
 		hbox2 = wx.BoxSizer(wx.HORIZONTAL)
 		hbox2.Add(self.list_detected, 1, wx.LEFT | wx.EXPAND, 5)
-		hbox2.Add(vbox1, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
+		hbox2.Add(vbox1, 0, wx.LEFT | wx.EXPAND, 5)
 
 		hbox3 = wx.BoxSizer(wx.HORIZONTAL)
 		hbox3.Add(self.sensor_select, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
@@ -81,10 +82,10 @@ class addI2c(wx.Dialog):
 
 		vbox = wx.BoxSizer(wx.VERTICAL)
 		vbox.AddSpacer(5)
-		vbox.Add(label_detected, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
-		vbox.Add(hbox2, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)	
+		vbox.Add(label_detected, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 10)
+		vbox.Add(hbox2, 1, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
 		vbox.Add(hline1, 0, wx.ALL | wx.EXPAND, 5)
-		vbox.Add(label_add, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
+		vbox.Add(label_add, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 10)
 		vbox.Add(hbox3, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
 		vbox.Add((0, 0), 1, wx.ALL | wx.EXPAND, 0)
 		vbox.Add(hbox, 0, wx.RIGHT | wx.LEFT | wx.EXPAND, 5)
@@ -117,12 +118,12 @@ class addI2c(wx.Dialog):
 		addresses = ''
 		try:
 			addresses = subprocess.check_output(['i2cdetect', '-y', '1'])
-		except: 
+		except:
 			addresses = subprocess.check_output(['i2cdetect', '-y', '2'])
 		wx.MessageBox(addresses, _('Detected I2C addresses'), wx.OK | wx.ICON_INFORMATION)
 
 	def detection(self):
-		if platform.machine()[0:3] == 'arm':		
+		if platform.machine()[0:3] == 'arm':
 			self.list_detected.DeleteAllItems()
 			#RTIMULIB sensors
 			rtimulib = self.parent.check_imu()
@@ -140,7 +141,9 @@ class addI2c(wx.Dialog):
 
 	def printRtimulibResults(self,rtimulib):
 		try:
+			print(1)
 			temp_list = eval(rtimulib)
+			print(temp_list)
 		except:
 			temp_list = []
 		if temp_list:

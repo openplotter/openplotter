@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,7 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
-import ConfigParser, os
+
+import configparser, os
 
 class Conf_analog:
 	def __init__(self):
@@ -22,7 +23,7 @@ class Conf_analog:
 		if 'root' in self.home:
 			self.home = '/home/'+os.path.expanduser(os.environ["SUDO_USER"])
 		self.conf_folder = self.home+'/.openplotter'
-		self.data_conf = ConfigParser.SafeConfigParser()
+		self.data_conf = configparser.SafeConfigParser()
 		self.read()
 
 	def read(self):
@@ -43,13 +44,13 @@ class Conf_analog:
 
 	def has_option(self,section,item):
 		return self.data_conf.has_option(section,item)
-		
+
 	def has_section(self,section):
 		return self.data_conf.has_section(section)
-		
+
 	def add_section(self,section):
 		return self.data_conf.add_section(section)
-		
+
 	def set(self,section,item,value):
 		self.read()
 		self.data_conf.set(section, item, value)

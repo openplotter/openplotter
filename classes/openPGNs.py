@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
 # Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -26,15 +26,15 @@ class CheckListCtrl(wx.ListCtrl, CheckListCtrlMixin, ListCtrlAutoWidthMixin):
 		ListCtrlAutoWidthMixin.__init__(self)
 
 class openPGNs(wx.Dialog):
-		
+
 	def __init__(self,parent,alias,bauds):
 		self.error = ''
 		self.can_device = alias
-		self.baud_ = bauds								
+		self.baud_ = bauds
 		self.parent = parent
 		self.conf = parent.conf
 		self.currentpath = parent.currentpath
-		self.ttimer = 100	
+		self.ttimer = 100
 		Language(self.conf)
 		Buf_ = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 		self.Buffer = bytearray(Buf_)
@@ -62,7 +62,7 @@ class openPGNs(wx.Dialog):
 		self.txLabel = wx.StaticText(panel, wx.ID_ANY, style=wx.ALIGN_CENTER)
 		self.printing = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE | wx.TE_READONLY, size=(-1,50))
 		self.printing.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
-		
+
 		apply_b = wx.Button(panel, label=_('Apply'))
 		self.Bind(wx.EVT_BUTTON, self.apply, apply_b)
 		close_b = wx.Button(panel, label=_('Close'))
@@ -83,7 +83,7 @@ class openPGNs(wx.Dialog):
 		self.Centre()
 
 		try:
-			self.ser = serial.Serial(self.can_device, self.baud_, timeout=0.5)
+			self.ser = serial.Serial('/dev'+self.can_device, self.baud_, timeout=0.5)
 		except:
 			self.printing.SetValue(_('Error connecting with device ')+self.can_device)
 			apply_b.Disable()
@@ -92,7 +92,7 @@ class openPGNs(wx.Dialog):
 			self.read_N2K()
 			self.check(0)
 			self.timer.Start(self.ttimer)
-		
+
 	def check(self,e):
 		self.printing.SetValue('')
 
@@ -116,7 +116,7 @@ class openPGNs(wx.Dialog):
 				self.work = False
 		self.read_stick_check()
 		if len(self.PGN_list)<1: self.printing.SetValue(_('The list of enabled PGNs is empty, you may need to try a different baudrate or reset your device to 115200 bauds'))
-	
+
 	def apply(self,e):
 		new = _('open PGNs: ')
 		close = _('close PGNs: ')
@@ -136,8 +136,8 @@ class openPGNs(wx.Dialog):
 						self.sendTX_PGN(int(ii[0]),1)
 						self.PGN_list.append(ii[0])
 						time.sleep(0.2)
-					else: maxpgns = True		
-			counter+=1		
+					else: maxpgns = True
+			counter+=1
 		new += st
 
 		st=''
@@ -152,7 +152,7 @@ class openPGNs(wx.Dialog):
 						st+=ii[0]+' '
 						self.sendTX_PGN(int(ii[0]),0)
 						time.sleep(0.2)
-				counter+=1		
+				counter+=1
 		close += st
 
 		self.Send_Command(1, 0x01, 0)
@@ -160,7 +160,7 @@ class openPGNs(wx.Dialog):
 		msg += new+'\n'+close
 		wx.MessageBox(msg, 'Info', wx.OK | wx.ICON_INFORMATION)
 		self.check(0)
-		
+
 	def sendTX_PGN(self,lPGN,add):
 		if add:
 			data_ = (0,0,0,0,1,0xFE,0xFF,0xFF,0xFF,0xFE,0xFF,0xFF,0xFF)
@@ -170,9 +170,9 @@ class openPGNs(wx.Dialog):
 		data[0]=lPGN&255
 		data[1]=(lPGN >> 8)&255
 		data[2]=(lPGN >> 16)&255
-		
+
 		self.Send_Command(14, 0x47, data)
-		
+
 	def Send_Command(self, length, command, arg):
 		data_ = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 		data = bytearray(data_)
@@ -185,14 +185,14 @@ class openPGNs(wx.Dialog):
 			data[i] = arg[i-3]
 			i+=1
 		self.SendCommandtoSerial(data)
-		
+
 	def timer_act(self,e):
 		self.getCharfromSerial()
 
 	def OnClose(self, event):
 		self.timer.Stop()
 		self.EndModal(wx.OK)
-					
+
 	def SendCommandtoSerial(self, TXs):
 		crc = 0
 		#start = codecs.decode('1002', 'hex_codec')
@@ -219,7 +219,7 @@ class openPGNs(wx.Dialog):
 	def getCharfromSerial(self):
 		bytesToRead = self.ser.inWaiting()
 		if bytesToRead>0:
-			buffer=self.ser.read(bytesToRead)			
+			buffer=self.ser.read(bytesToRead)
 			for i in buffer:
 				self.parse(ord(i))
 
@@ -268,16 +268,16 @@ class openPGNs(wx.Dialog):
 					i=j*4
 					lPGN=self.Buffer[15+i]+self.Buffer[16+i]*256+self.Buffer[17+i]*256*256
 					if lPGN in self.PGN_list:
-						print lPGN,'already exists'
+						print(lPGN,'already exists')
 					else:
 						self.PGN_list.append(lPGN)
 						st+=str(lPGN)+' '
-						
+
 					j+=1
 				self.printing.SetValue(st)
 				self.txLabel.SetLabel(str(j)+_(" enabled transmission PGNs (max. 30):"))
 				self.work = False
-				
+
 	def getCommandfromSerial(self, RXs):
 		crc = 0
 		start = (0x10, 0x02)
@@ -299,27 +299,27 @@ class openPGNs(wx.Dialog):
 			i += 1
 		self.ser.write(chr(ende[0]))
 		self.ser.write(chr(ende[1]))
-		
+
 	def read_N2K(self):
 		if self.list_N2K.GetItemCount()<3:
 			while self.list_N2K.GetItemCount()>3:
 				self.list_N2K.DeleteItem(self.list_N2K.GetItemCount()-1)
-			
+
 			self.list_N2K_txt=[]
 			with open(self.currentpath+'/classes/N2K_PGN.csv') as f:
 				self.list_N2K_txt = [x.strip('\n\r').split(',') for x in f.readlines()]
-			
+
 			for ii in self.list_N2K_txt:
 				pgn=int(ii[0])
 				self.list_N2K.Append([pgn,ii[1]])
 
-	def read_stick_check(self):		
+	def read_stick_check(self):
 		counter=0
 		self.list_N2K.CheckItem(0,False)
 		for ii in self.list_N2K_txt:
 			for jj in self.PGN_list:
 				if ii[0]==str(jj):
-					self.list_N2K.CheckItem(counter)					
+					self.list_N2K.CheckItem(counter)
 			counter+=1
 		self.list_N2K.Update()
-		
+

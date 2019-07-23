@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -15,13 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
-import ConfigParser, ujson, os, io, pyudev, re, requests, subprocess, sys, time, webbrowser, wx, wx.lib.scrolledpanel, serial, shutil
+import configparser, ujson, os, io, pyudev, re, requests, subprocess, sys, time, webbrowser, wx, wx.lib.scrolledpanel, serial, shutil
 from datetime import datetime
 from wx.lib.mixins.listctrl import CheckListCtrlMixin, ListCtrlAutoWidthMixin
 try:
 	from classes.add_DS18B20 import addDS18B20
 except:
-        addDS18B20 = None
+	addDS18B20 = None
+		
 from classes.edit_MCP import editMCP
 from classes.add_i2c import addI2c
 from classes.edit_i2c import editI2c
@@ -38,7 +39,7 @@ from classes.openPGNs import openPGNs
 
 class CheckListCtrl(wx.ListCtrl, CheckListCtrlMixin, ListCtrlAutoWidthMixin):
 	def __init__(self, parent, width, height):
-		wx.ListCtrl.__init__(self, parent, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER, size=(width, height))
+		wx.ListCtrl.__init__(self, parent, -1, style=wx.LC_REPORT | wx.BORDER_SIMPLE, size=(width, height))
 		CheckListCtrlMixin.__init__(self)
 		ListCtrlAutoWidthMixin.__init__(self)
 
@@ -52,9 +53,9 @@ class MainFrame(wx.Frame):
 		self.version = self.conf.get('GENERAL', 'version')
 		self.state = self.conf.get('GENERAL', 'state')
 
-		wx.Frame.__init__(self, None, title='OpenPlotter'+' '+self.version+' '+self.state, size=(710, 460))
+		wx.Frame.__init__(self, None, title='OpenPlotter'+' '+self.version+' '+self.state, size=(710, 460)) 
 		if self.util_process_exist('startup.py'):
-			print "System not ready, try later."
+			print("System not ready, try later.")
 			sys.exit(0)
 		self.Bind(wx.EVT_CLOSE, self.when_closed)
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
@@ -63,7 +64,9 @@ class MainFrame(wx.Frame):
 		self.p = wx.lib.scrolledpanel.ScrolledPanel(self, -1, style=wx.TAB_TRAVERSAL | wx.SUNKEN_BORDER)
 		self.p.SetAutoLayout(1)
 		self.p.SetupScrolling()
+		self.p.SetBackgroundColour(wx.Colour(220,220,220,230))
 		self.nb = wx.Notebook(self.p)
+		self.nb.SetBackgroundColour(wx.Colour(230,230,230,230))
 		self.p_serial = wx.Panel(self.nb)
 		self.p_n2k = wx.Panel(self.nb)
 		self.p_wifi = wx.Panel(self.nb)
@@ -152,7 +155,7 @@ class MainFrame(wx.Frame):
 		self.lang_item2 = self.lang.Append(wx.ID_ANY, _('Catalan'), _('Set Catalan language'), kind=wx.ITEM_CHECK)
 		self.Bind(wx.EVT_MENU, self.lang_ca, self.lang_item2)
 		self.lang_item5 = self.lang.Append(wx.ID_ANY, _('Dutch'), _('Set Dutch language'), kind=wx.ITEM_CHECK)
-		self.Bind(wx.EVT_MENU, self.lang_nl, self.lang_item5)		
+		self.Bind(wx.EVT_MENU, self.lang_nl, self.lang_item5)       
 		self.lang_item1 = self.lang.Append(wx.ID_ANY, _('English'), _('Set English language'), kind=wx.ITEM_CHECK)
 		self.Bind(wx.EVT_MENU, self.lang_en, self.lang_item1)
 		self.lang_item10 = self.lang.Append(wx.ID_ANY, _('Finnish'), _('Set Finnish language'), kind=wx.ITEM_CHECK)
@@ -178,7 +181,7 @@ class MainFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.update_opencpn_plugins, self.opencpn_item2)
 		self.update.AppendSeparator()
 		self.system_item2 = self.update.Append(wx.ID_ANY, _('Set default OpenPlotter desktop'), _('Run this after a major update'))
-		self.Bind(wx.EVT_MENU, self.default_desktop, self.system_item2)		
+		self.Bind(wx.EVT_MENU, self.default_desktop, self.system_item2)     
 		self.update.AppendSeparator()
 		self.openplotter_item1 = self.update.Append(wx.ID_ANY, _('Update OpenPlotter'), _('Apply latest changes on OpenPlotter and update the system if necessary'))
 		self.Bind(wx.EVT_MENU, self.update_openplotter, self.openplotter_item1)
@@ -249,18 +252,18 @@ class MainFrame(wx.Frame):
 		self.ShowStatusBar(w_msg, wx.GREEN)
 
 	def ShowStatusBarBLACK(self, w_msg):
-		self.ShowStatusBar(w_msg, wx.BLACK)	
+		self.ShowStatusBar(w_msg, wx.BLACK) 
 
 	def ShowStatusBarYELLOW(self, w_msg):
-		self.ShowStatusBar(w_msg,(255,140,0))	
+		self.ShowStatusBar(w_msg,(255,140,0))   
 
 	def open_sdr_ais(self, event):
 		subprocess.call(['pkill', '-f', 'SDR_AIS.py'])
-		subprocess.Popen(['python', self.currentpath + '/tools/SDR_AIS/SDR_AIS.py'])
+		subprocess.Popen(['python3', self.currentpath + '/tools/SDR_AIS/SDR_AIS.py'])
 
 	def onKplexTool(self, event):
 		subprocess.call(['pkill', '-f', 'kplex.py'])
-		subprocess.Popen(['python', self.currentpath + '/tools/kplex/kplex.py'])
+		subprocess.Popen(['python3', self.currentpath + '/tools/kplex/kplex.py'])
 
 	def on_deviation_table(self, e):
 		dlg = adddeviationsetting(self)
@@ -269,11 +272,11 @@ class MainFrame(wx.Frame):
 
 	def on_filter_SK(self, e):
 		subprocess.call(['pkill', '-f', 'SK_filter.py'])
-		subprocess.Popen(['python', self.currentpath + '/tools/SK_filter/SK_filter.py'])
+		subprocess.Popen(['python3', self.currentpath + '/tools/SK_filter/SK_filter.py'])
 
 	def onMoitessierHat(self, e):
 		subprocess.call(['pkill', '-f', 'moitessier_hat.py'])
-		subprocess.Popen(['python', self.currentpath + '/tools/moitessier_hat/moitessier_hat.py'])
+		subprocess.Popen(['python3', self.currentpath + '/tools/moitessier_hat/moitessier_hat.py'])
 
 	def tool10(self, event):
 		menuId = event.Id
@@ -285,20 +288,20 @@ class MainFrame(wx.Frame):
 			folder = self.tools_py[menuId][2]
 			file = folder+'.py'
 			if os.path.isfile(self.conf_folder + '/tools/'+folder+'/'+file):
-				subprocess.call(['pkill', '-9', '-f', file])					
+				subprocess.call(['pkill', '-9', '-f', file])                    
 				if res == 2:
-					subprocess.Popen(['python', self.conf_folder + '/tools/'+folder+'/'+file])
+					subprocess.Popen(['python3', self.conf_folder + '/tools/'+folder+'/'+file])
 				elif res == 1:
-					subprocess.Popen(['python', self.conf_folder + '/tools/'+folder+'/'+file, 'settings'])
+					subprocess.Popen(['python3', self.conf_folder + '/tools/'+folder+'/'+file, 'settings'])
 			else:
 				if os.path.isfile(self.currentpath + '/tools/'+folder+'/'+file):
-					subprocess.call(['pkill', '-9', '-f', file])					
+					subprocess.call(['pkill', '-9', '-f', file])                    
 					if res == 2:
-						subprocess.Popen(['python', self.currentpath + '/tools/'+folder+'/'+file])
+						subprocess.Popen(['python3', self.currentpath + '/tools/'+folder+'/'+file])
 					elif res == 1:
-						subprocess.Popen(['python', self.currentpath + '/tools/'+folder+'/'+file, 'settings'])
+						subprocess.Popen(['python3', self.currentpath + '/tools/'+folder+'/'+file, 'settings'])
 				else:
-					print 'file not found: ', file
+					print('file not found: ', file)
 
 	def clear_lang(self):
 		self.lang.Check(self.lang_item1.GetId(), False)
@@ -394,7 +397,7 @@ class MainFrame(wx.Frame):
 			self.ShowStatusBarRED(_('It was not possible to connect to Github.'))
 			return
 		try:
-			data_conf = ConfigParser.SafeConfigParser()
+			data_conf = configparser.SafeConfigParser()
 			data_conf.readfp(io.StringIO(r_stable.text))
 			vr = data_conf.get('GENERAL','version')
 			sr = data_conf.get('GENERAL','state')
@@ -412,7 +415,7 @@ class MainFrame(wx.Frame):
 		elif remote_xxx == local_xxx and remote_oxx == local_oxx and remote_oox > local_oox: check_beta = False
 		if check_beta:
 			try:
-				data_conf = ConfigParser.SafeConfigParser()
+				data_conf = configparser.SafeConfigParser()
 				data_conf.readfp(io.StringIO(r_beta.text))
 				vr = data_conf.get('GENERAL','version')
 				sr = data_conf.get('GENERAL','state')
@@ -425,23 +428,23 @@ class MainFrame(wx.Frame):
 				return
 		msg = ''
 		if sl == 'stable' and sr != 'stable':
-			msg += _('You are running a stable version. If you update to a non stable version you will have to keep updating until a stable stage is reached again.\n\n').decode('utf8')
+			msg += _('You are running a stable version. If you update to a non stable version you will have to keep updating until a stable stage is reached again.\n\n')
 		if remote_xxx > local_xxx:
-			msg += _('There is a major Raspbian upgrade, you have to download the new OpenPlotter image: v').decode('utf8')+str(remote_xxx)+'.x.x '+sr+'.\n'
+			msg += _('There is a major Raspbian upgrade, you have to download the new OpenPlotter image: v')+str(remote_xxx)+'.x.x '+sr+'.\n'
 			self.ShowMessage(msg)
 			return
 		elif remote_xxx == local_xxx and remote_oxx > local_oxx:
-			msg += _('There is a major OpenPlotter update.\n').decode('utf8')
-			msg += _('Please make a backup image of your system before updating.\n\n').decode('utf8')
+			msg += _('There is a major OpenPlotter update.\n')
+			msg += _('Please make a backup image of your system before updating.\n\n')
 			update_type = 'major'
 		elif remote_xxx == local_xxx and remote_oxx == local_oxx and remote_oox > local_oox:
-			msg += _('There is a minor OpenPlotter update.\n\n').decode('utf8')
+			msg += _('There is a minor OpenPlotter update.\n\n')
 			update_type = 'minor'
 		else:
-			msg += 'OpenPlotter '+vl+' '+sl+_(' is up to date.\n').decode('utf8')
+			msg += 'OpenPlotter '+vl+' '+sl+_(' is up to date.\n')
 			self.ShowMessage(msg)
 			return
-		msg += _('Are you sure you want to update: ').decode('utf8')+vl+' '+sl+' --> '+vr+' '+sr+'?'
+		msg += _('Are you sure you want to update: ')+vl+' '+sl+' --> '+vr+' '+sr+'?'
 		if sr == 'stable': branch = 'stable'
 		else: branch = 'beta'
 		dlg = wx.MessageDialog(None, msg, _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
@@ -500,7 +503,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		exist = False
 		for pid in pids:
 			try:
-				if process_name in open(os.path.join('/proc', pid, 'cmdline'), 'rb').read():
+				if process_name in str(open(os.path.join('/proc', pid, 'cmdline'), 'rb').read(),'utf-8', 'ignore'):
 					exist = True
 			except IOError:  # proc has already terminated
 				continue
@@ -628,7 +631,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 	def on_select_sound(self, e):
 		dlg = wx.FileDialog(self, message=_('Choose a file'), defaultDir=self.currentpath + '/sounds', defaultFile='',
-							wildcard=_('Audio files').decode('utf8') + ' (*.mp3)|*.mp3|' + _('All files').decode('utf8') + ' (*.*)|*.*',
+							wildcard=_('Audio files') + ' (*.mp3)|*.mp3|' + _('All files') + ' (*.*)|*.*',
 							style=wx.OPEN | wx.CHANGE_DIR)
 		if dlg.ShowModal() == wx.ID_OK:
 			file_path = dlg.GetPath()
@@ -868,9 +871,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		h_ap = wx.BoxSizer(wx.HORIZONTAL)
 		h_ap.Add(self.ap_device_label, 0, wx.TOP | wx.BOTTOM, 6)
-		h_ap.Add(self.ap_device, 0, wx.LEFT, 5)	
+		h_ap.Add(self.ap_device, 0, wx.LEFT, 5) 
 		#h_ap.Add(self.ap_device_label, 0, wx.RIGHT | wx.UP |wx.EXPAND, 10)
-		#h_ap.Add(self.ap_device, 0, wx.RIGHT | wx.EXPAND, 10)	
+		#h_ap.Add(self.ap_device, 0, wx.RIGHT | wx.EXPAND, 10)  
 		
 		self.ap_5 = wx.CheckBox(self.p_wifi, label=_('5 GHz'))
 		self.bridge = wx.CheckBox(self.p_wifi, label=_('Add ethernet port to the AP'))
@@ -881,10 +884,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		h_set.Add(self.bridge, 0, wx.TOP | wx.BOTTOM | wx.EXPAND, 6)
 
 		self.wifi_button_apply1 = wx.Button(self.p_wifi, label=_('Apply')+' 1')
-		self.wifi_button_apply1.Bind(wx.EVT_BUTTON, self.on_wifi_apply1)		
+		self.wifi_button_apply1.Bind(wx.EVT_BUTTON, self.on_wifi_apply1)        
 
 		self.drivers_button = wx.Button(self.p_wifi, label=_('Install drivers'))
-		self.drivers_button.Bind(wx.EVT_BUTTON, self.on_drivers_button)			
+		self.drivers_button.Bind(wx.EVT_BUTTON, self.on_drivers_button)         
 		
 		h_button0 = wx.BoxSizer(wx.HORIZONTAL)
 		h_button0.Add(self.wifi_button_apply1, 0, wx.EXPAND, 0)
@@ -956,13 +959,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		
 		v_leftside = wx.BoxSizer(wx.VERTICAL)
 		v_leftside.Add(v_leftbox, 0, wx.LEFT | wx.EXPAND, 10)
-		v_leftside.AddSpacer(5)		
+		v_leftside.AddSpacer(5)     
 		v_leftside.Add(v_leftbox2, 1, wx.LEFT | wx.EXPAND, 10)
 
 		
 		rigthbox = wx.StaticBox(self.p_wifi, label=_(' Addresses '), size=(290, -1))
 		self.ip_info = wx.TextCtrl(self.p_wifi, -1, style=wx.TE_MULTILINE | wx.TE_READONLY)
-		self.ip_info.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
+		self.ip_info.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
 
 		self.button_refresh_ip_info = wx.Button(self.p_wifi, label=_('Refresh'))
 		self.button_refresh_ip_info.Bind(wx.EVT_BUTTON, self.on_refresh_ip_info)
@@ -974,10 +977,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		h_rbutton.Add(self.button_refresh_ip_info, 0, wx.RIGHT | wx.EXPAND, 10)
 		h_rbutton.Add(self.button_net_status, 0, wx.RIGHT | wx.EXPAND, 10)
 
-		v_rigthbox = wx.StaticBoxSizer(rigthbox, wx.VERTICAL)	
-		v_rigthbox.AddSpacer(5)		
+		v_rigthbox = wx.StaticBoxSizer(rigthbox, wx.VERTICAL)   
+		v_rigthbox.AddSpacer(5)     
 		v_rigthbox.Add(self.ip_info, 1, wx.LEFT | wx.EXPAND, 10)
-		v_rigthbox.AddSpacer(6)		
+		v_rigthbox.AddSpacer(6)     
 		v_rigthbox.Add(h_rbutton, 0, wx.LEFT | wx.EXPAND, 10)
 		v_rigthbox.AddSpacer(6)
 
@@ -989,7 +992,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		v_box = wx.BoxSizer(wx.VERTICAL)
 		v_box.Add(h_box, 1, wx.LEFT | wx.EXPAND, 0)
 		
-		self.p_wifi.SetSizer(v_box)		
+		self.p_wifi.SetSizer(v_box)     
 		
 	def find_line_split_set(self,data,search,_setvalue,pos):
 		i=data.find(search)
@@ -1016,7 +1019,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 	def read_network_interfaces(self):
 		network_info = ''
 		try:
-			network_info = subprocess.check_output('ls /sys/class/net'.split())
+			network_info = subprocess.check_output('ls /sys/class/net'.split()).decode()
 		except:
 			pass
 
@@ -1025,7 +1028,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		if self.bridge.GetValue():
 			unavailable_net.append('eth0')
 
-		for i in network_info.split():		
+		for i in network_info.split():      
 			if i in unavailable_net:
 				pass
 			else:
@@ -1033,7 +1036,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		self.share.Clear()
 		for i in self.available_share:
-			self.share.Append(i)				
+			self.share.Append(i)                
 		
 		type=''
 		phy=''
@@ -1042,22 +1045,23 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		
 		self.available_ap_device = []
 		self.available_ap_device.append([_('none'),'',-1,-1,'none'])
+		
 		for i in network_info.split():
 			if 'wlan' in i:
 				wlan = 'wlan9'
-				mac = (subprocess.check_output(('cat /sys/class/net/'+i+'/address').split())[:-1])
-				if 'usb' in subprocess.check_output(('ls -l /sys/class/net/'+i).split()):
+				mac = subprocess.check_output(('cat /sys/class/net/'+i+'/address').split()).decode()[:-1]
+				if b'usb' in subprocess.check_output(('ls -l /sys/class/net/'+i).split()):
 					type  = 'usb'
-					ni = subprocess.check_output(('ls -l /sys/class/net/'+i+'/').split())
+					ni = subprocess.check_output(('ls -l /sys/class/net/'+i+'/').split()).decode()
 					phy = ni[ni.find('/phy')+1:ni.find('/phy')+5]
-					ni = subprocess.check_output(('iw '+phy+' info').split())
+					ni = subprocess.check_output(('iw '+phy+' info').split()).decode()
 					AP = ni.find('* AP\n')
 					GHz = ni.find('Band 2:')
 					if AP > -1:
 						self.available_ap_device.append([mac+' '+type, mac, type, GHz, wlan])
 				else:
 					type = 'on board'
-					if 'Raspberry Pi 3 Model B Plus' in self.rpimodel:
+					if 'Raspberry Pi 3 Model B Plus' in self.rpimodel or 'Raspberry Pi 4 Model B R' in self.rpimodel:
 						GHz = 1
 					else:
 						GHz = -1
@@ -1093,7 +1097,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.bak_share=''
 		self.hostapd_interface=''
 		self.hostapd_bridge=''
-		if self.bak_net_sys<>'' and self.bak_net_sys<>'default':
+		if self.bak_net_sys!='' and self.bak_net_sys!='default':
 			self.ap_enable2()
 		
 			#read settings from hostapd.conf  GHz, bridge, ssid, password, channel
@@ -1119,7 +1123,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				
 				self.wifi_channel.Clear()
 				for i in self.wifi_channel_list:
-					self.wifi_channel.Append(i)				
+					self.wifi_channel.Append(i)             
 				self.find_line_split_set(bak,"channel",self.wifi_channel,1)
 				
 				i=bak.find("bridge=br0")
@@ -1134,12 +1138,12 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			#search selected AP device 
 			found = False
 			#if 'uap' == self.hostapd_interface:
-			#	for i in self.available_ap_device:
-			#		if 'AP and Station' == i[2]:
-			#			self.ap_device.SetStringSelection(i[0])
-			#			self.ap_5.Disable()
-			#			if i[3]>=1: self.ap_5.Enable()
-			#			found = True;
+			#   for i in self.available_ap_device:
+			#       if 'AP and Station' == i[2]:
+			#           self.ap_device.SetStringSelection(i[0])
+			#           self.ap_5.Disable()
+			#           if i[3]>=1: self.ap_5.Enable()
+			#           found = True;
 			#else:
 			try:
 				wififile = open(self.conf_network+'/udev/rules.d/72-wireless.rules', 'r', 2000)
@@ -1186,7 +1190,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			except:
 				bak=''
 			i=self.find_line_split(bak,"internet=",1)
-			if i<>None:
+			if i!=None:
 				if i in self.available_share:
 					pass
 				else: self.share.Append(i)
@@ -1267,7 +1271,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.ShowStatusBarBLACK('')
 
 	def on_drivers_button(self,e):
-		subprocess.Popen(['lxterminal', '-e', 'bash', self.currentpath+'/classes/install-wifi.sh'])	
+		subprocess.Popen(['lxterminal', '-e', 'bash', self.currentpath+'/classes/install-wifi.sh']) 
 
 	#leftbox 2
 	def on_share(self, e):
@@ -1289,7 +1293,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		process = subprocess.Popen(['bash', self.currentpath+'/Network/.openplotter/iptables.sh',share,text])
 
 	def on_wifi_apply2(self, e):
-		if 'none' <> self.ap_device.GetValue():
+		if 'none' != self.ap_device.GetValue():
 			if '*****' in self.passw.GetValue():
 				passw = self.bak_passw
 			else:
@@ -1299,13 +1303,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			channel = self.wifi_channel.GetValue()
 			share = self.share.GetValue()
 			
-			if self.bak_net_sys<>'' and self.bak_net_sys<>'default':
+			if self.bak_net_sys!='' and self.bak_net_sys!='default':
 				if (len(ssid) > 32 or len(passw) < 8):
 					self.ShowStatusBarRED(_('Your SSID must have a maximum of 32 characters and your password a minimum of 8.'))
 					return
 
 			used_interfaces=[self.hostapd_interface]
-			if self.hostapd_bridge<>'':
+			if self.hostapd_bridge!='':
 				used_interfaces.append('eth0')
 			if share in used_interfaces:
 				self.ShowStatusBarRED(_('The device you want to share is in use (bridge or AP).'))
@@ -1335,7 +1339,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				wififile.close()
 			
 			if os.path.isfile(self.conf_network+'/'+self.bak_net_sys+'/.openplotter/Network/start-ap-managed-wifi.sh'):
-				if self.bak_share<>share:
+				if self.bak_share!=share:
 					wififile = open(self.conf_network+'/'+self.bak_net_sys+'/.openplotter/Network/start-ap-managed-wifi.sh', 'r', 2000)
 					lines = wififile.readlines()
 					wififile.close()
@@ -1351,7 +1355,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 	
 	#rightbox
 	def on_show_ip_info_txt(self,port,ips,ip_hostname):
-		out='   '+ip_hostname + '.local:'+port+'\n'
+		out='   '+str(ip_hostname) + '.local:'+str(port)+'\n'
 		if port != '':
 			port=':'+port
 		for ip in ips:
@@ -1360,14 +1364,14 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			elif ':' in ip:
 				pass
 			else:
-				out +='   '+ ip + port+'\n'
-		return out		
+				out +='   '+ str(ip) + str(port)+'\n'
+		return out      
 			
 	def on_refresh_ip_info(self, e):
-		ip_hostname = subprocess.check_output(['hostname'])[:-1]
-		ip_info = subprocess.check_output(['hostname', '-I'])
+		ip_hostname = subprocess.check_output(['hostname']).decode('utf-8')[:-1]
+		ip_info = subprocess.check_output(['hostname', '-I']).decode('utf-8')
 		out = _(' Multiplexed NMEA 0183:\n')
-		ips = ip_info.split()		
+		ips = ip_info.split()       
 		out += self.on_show_ip_info_txt('10110',ips,ip_hostname)
 		out += _('\n Signal K Server:\n')
 		out += self.on_show_ip_info_txt('3000',ips,ip_hostname)
@@ -1388,17 +1392,17 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		for i in wlan_interfaces:
 			network_info = ''
 			try:
-				network_info = subprocess.check_output(('iw '+str(i)+' info').split())
+				network_info = subprocess.check_output(('iw '+i+' info').split()).decode('utf-8')
 			except:
 				pass
-			if 'AP' in network_info: msg1 += str(i)+_(' is AP')
-		if msg1 == '': msg1 += _('no AP')
+			if 'AP' in network_info: msg1 += _('wifi access point: ')+i
+		if msg1 == '': msg1 += _('wifi access point: ')+_('none')
 		msg += msg1 + '\n'
 
 		msg1 = ''
 		network_info = ''
 		try:
-			network_info = subprocess.check_output('ifconfig'.split())
+			network_info = subprocess.check_output('ifconfig'.split()).decode('utf-8')
 		except:
 			pass
 		net=['wlan0','wlan1','wlan2','wlan9','usb0','br0','eth0','eth1']
@@ -1409,7 +1413,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				if net[j] in i: 
 					netactiv[j]=True
 					if j<3: msg1 += net[j]+' '
-		msg += _('up network: ') + msg1 + '\n'
+		msg += _('wifi client: ') + msg1 + '\n'
 
 		service=['dnsmasq','hostapd','dhcpcd','avahi-daemon']
 		servicetxt=['dnsmasq (dhcp-server):\t','hostapd (AP):\t\t\t','dhcpcd:\t\t\t\t\t','avahi-daemon:\t\t\t']
@@ -1418,7 +1422,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			msg1 = ''
 			network_info = ''
 			try:
-				network_info = subprocess.check_output(('service '+service[j]+' status').split())
+				network_info = subprocess.check_output(('service '+service[j]+' status').split()).decode('utf-8')
 			except:
 				pass
 			for i in network_info.split('\n'):
@@ -1431,11 +1435,11 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		for j in range(7):
 			if netactiv[j]:
-				network_info = subprocess.check_output(('ip addr show '+net[j]).split())
+				network_info = subprocess.check_output(('ip addr show '+net[j]).split()).decode('utf-8')
 				for i in network_info.split('\n'):
 					if 'inet ' in i:
 						if not '169.254' in i.split(' ')[5]: 
-							msg1 += i.split(' ')[5][0:-3] + ' ' + net[j] + '\n'
+							msg1 += net[j] + '\t' + i.split(' ')[5][0:-3] + '\n'
 				network_info = ''
 		msg += _('IP address\n') + msg1 + '\n'
 
@@ -1505,10 +1509,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		hbox2.Add(self.imu_detected, 0, wx.ALL | wx.EXPAND, 5)
 
 		hbox5 = wx.BoxSizer(wx.HORIZONTAL)
-		hbox5.Add(self.calibration, 1, wx.ALL | wx.EXPAND, 5)
-		hbox5.Add(self.scope, 1, wx.ALL | wx.EXPAND, 5)
-		hbox5.Add(self.client, 1, wx.ALL | wx.EXPAND, 5)
-		hbox5.Add(self.reset_imu, 1, wx.ALL | wx.EXPAND, 5)
+		hbox5.Add(self.calibration, 0, wx.ALL | wx.EXPAND, 5)
+		hbox5.Add(self.scope, 0, wx.ALL | wx.EXPAND, 5)
+		hbox5.Add(self.client, 0, wx.ALL | wx.EXPAND, 5)
+		hbox5.Add(self.reset_imu, 0, wx.ALL | wx.EXPAND, 5)
 
 		hbox3 = wx.BoxSizer(wx.HORIZONTAL)
 		hbox3.Add(translation_rate_label, 0, wx.TOP | wx.BOTTOM, 5)
@@ -1614,7 +1618,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		try: self.pypilot_webapp_port.SetValue(int(self.conf.get('PYPILOT', 'webapp_port')))
 		except: pass
 
-		check_imu = self.check_imu()
+		check_imu = self.check_imu().split('\\')[0]
 		if not check_imu: self.imu_detected.SetLabel(_('Error'))
 		else:
 			imu_data = eval(check_imu) 
@@ -1633,9 +1637,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 	def check_imu(self):
 		detected_imu = 'Error: ~/.pypilot not found.'
 		if  os.path.exists(self.home + '/.pypilot'):
-			detected_imu = subprocess.check_output(['python', self.currentpath + '/check_rtimulib.py'], cwd=self.home + '/.pypilot')
+			detected_imu = subprocess.check_output(['python', self.currentpath + '/check_rtimulib.py'], cwd=self.home + '/.pypilot').decode('utf-8')
 		if 'Error:' in detected_imu: 
-			print detected_imu
+			print(detected_imu)
 			return
 		else:
 			l_detected = detected_imu.split('\n')
@@ -1704,9 +1708,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		
 	def reset_sensors(self, e=0):
 		self.stop_sensors()
+		print(1)
 		self.read_i2c()
+		print(2)
 		self.read_pypilot()
+		print(3)
 		self.start_sensors()
+		print(4)
 
 	###########################################I2C
 
@@ -1723,14 +1731,14 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		#self.i2c_sensors_def.append(['Si7020-A20','0x40',['humidity','temperature'],['environment.inside.humidity','']])
 		title = wx.StaticText(self.p_i2c, label=_(' Sensors '))
 
-		self.list_i2c = wx.ListCtrl(self.p_i2c, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
-		self.list_i2c.InsertColumn(0, ' ', width=15)
-		self.list_i2c.InsertColumn(1, _('Name'), width=150)
+		self.list_i2c = wx.ListCtrl(self.p_i2c, -1, style=wx.LC_REPORT | wx.BORDER_SIMPLE)
+		self.list_i2c.InsertColumn(0, ' ', width=16)
+		self.list_i2c.InsertColumn(1, _('Name'), width=115)
 		self.list_i2c.InsertColumn(2, _('Address'), width=45)
-		self.list_i2c.InsertColumn(3, _('Magnitude'), width=90)
-		self.list_i2c.InsertColumn(4, _('Signal K key'), width=200)
+		self.list_i2c.InsertColumn(3, _('Magnitude'), width=95)
+		self.list_i2c.InsertColumn(4, _('Signal K key'), width=220)
 		self.list_i2c.InsertColumn(5, _('Rate'), width=40)
-		self.list_i2c.InsertColumn(6, _('Offset'), width=50)
+		self.list_i2c.InsertColumn(6, _('Offset'), width=48)
 		self.list_i2c.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.edit_i2c)
 		self.list_i2c.Bind(wx.EVT_LIST_ITEM_SELECTED, self.edit_i2c)
 
@@ -1786,14 +1794,14 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		dlg = editI2c(name,magn,sk,rate,offset)
 		res = dlg.ShowModal()
 		if res == wx.ID_OK:
-			sk = dlg.SKkey.GetValue()
+			sk = str(dlg.SKkey.GetValue())
 			rate = dlg.rate.GetValue()
 			offset = dlg.offset.GetValue()
 			if not offset: offset = 0.0
 			c = 0
 			for i in self.i2c_sensors:
 				if i[0] == name:
-					self.i2c_sensors[c][2][int(index)][0] = sk.encode('utf8')
+					self.i2c_sensors[c][2][int(index)][0] = sk
 					self.i2c_sensors[c][2][int(index)][1] = float(rate)
 					self.i2c_sensors[c][2][int(index)][2] = float(offset)
 				c = c + 1
@@ -1804,7 +1812,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		dlg = addI2c(self)
 		res = dlg.ShowModal()
 		if res == wx.ID_OK:
-			name = dlg.sensor_select.GetValue()
+			name = str(dlg.sensor_select.GetValue())
 			if not name:
 				self.ShowMessage(_('Failed. You must select a sensor.'))
 				dlg.Destroy()
@@ -1816,13 +1824,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				return
 			new_sensor = []
 			for item in self.i2c_sensors_def:
-				if name == item[0]:
-					new_sensor.append(name.encode('utf8'))
+				if name == item[0]:                    
+					new_sensor.append(name)
 					if 'rtimulib' in item[1]:
-						new_sensor.append((item[1]+address).encode('utf8'))
+						new_sensor.append((item[1]+address))
 					else:
-						new_sensor.append(address.encode('utf8'))
-					new_sensor.append([])	
+						new_sensor.append(address)
+					new_sensor.append([])   
 					for ii in item[3]:
 						new_sensor[2].append([ii, 1.0, 0.0])
 			if new_sensor:
@@ -1853,8 +1861,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 										data += line
 						with open(self.home + '/.pypilot/RTIMULib2.ini', "w") as outfile:
 							outfile.write(data) 
-					except Exception, e: 
-						print "RTIMU setting failed: "+str(e)
+					except Exception as e: 
+						print("RTIMU setting failed: "+str(e))
 						dlg.Destroy()
 						return
 				exist = False
@@ -1895,16 +1903,18 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		name = name.GetText()
 		c = 0
 		for i in self.i2c_sensors:
-			if i[0] == name: 
+			if str(i[0]) == name: 
 				del self.i2c_sensors[c]
 				break
 			c = c + 1
+
 		self.apply_changes_i2c()
 
 	def read_i2c(self):
 		self.i2c_sensors = []
 		self.list_i2c.DeleteAllItems()
 		data = self.conf.get('I2C', 'sensors')
+		magn_list = '0123456789'
 		try:
 			self.i2c_sensors = eval(data)
 		except:
@@ -1921,6 +1931,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				address = tmp[3]
 			c = 0
 			for iii in i[2]:
+				#print(str(c), name, address, magn_list[c], iii[0], str(iii[1]), str(iii[2]))
 				self.list_i2c.Append([str(c), name, address, magn_list[c], iii[0], str(iii[1]), str(iii[2])])
 				if iii[0]: self.list_i2c.SetItemBackgroundColour(self.list_i2c.GetItemCount()-1,(255,215,0))
 				c = c + 1
@@ -1949,9 +1960,6 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		restart = wx.Button(self.p_spi, label=_('Restart'))
 		restart.Bind(wx.EVT_BUTTON, self.on_restart_MCP)
 
-		value_setting = wx.Button(self.p_spi, label=_('value setting'))
-		value_setting.Bind(wx.EVT_BUTTON, self.on_value_setting)
-
 		hlistbox = wx.BoxSizer(wx.HORIZONTAL)
 		hlistbox.Add(self.list_MCP, 1, wx.ALL | wx.EXPAND, 5)
 
@@ -1959,7 +1967,6 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		hbox.Add(diagnostic, 0, wx.RIGHT | wx.LEFT, 5)
 		hbox.Add(restart, 0, wx.RIGHT | wx.LEFT, 5)
 		hbox.Add((0, 0), 1, wx.RIGHT | wx.EXPAND, 5)
-		hbox.Add(value_setting, 0, wx.RIGHT | wx.LEFT, 5)
 
 		vbox = wx.BoxSizer(wx.VERTICAL)
 		vbox.Add(title, 0, wx.ALL | wx.EXPAND, 5)
@@ -2032,7 +2039,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		dlg = editMCP(aktiv, channel, SKkey, convert,self)
 		res = dlg.ShowModal()
 		if res == wx.ID_OK:
-			SKkey = dlg.SKkey.GetValue().encode('utf8')
+			SKkey = str(dlg.SKkey.GetValue())
 			aktiv = dlg.aktiv.GetValue()
 			if aktiv:
 				aktiv = 1
@@ -2123,10 +2130,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		remotemqtt0 = wx.BoxSizer(wx.HORIZONTAL)
 		remotemqtt0.Add(self.remotemqtt, 0, wx.TOP | wx.BOTTOM, 2)
-		remotemqtt0.AddSpacer(10)		
+		remotemqtt0.AddSpacer(10)       
 		remotemqtt0.Add(serverremotemqttlabel, 0, wx.TOP | wx.BOTTOM, 6)
 		remotemqtt0.Add(self.serverremotemqtt, 1, wx.LEFT, 5)
-		remotemqtt0.AddSpacer(10)		
+		remotemqtt0.AddSpacer(10)       
 		remotemqtt0.Add(portremotemqttlabel, 0, wx.TOP | wx.BOTTOM, 6)
 		remotemqtt0.Add(self.portremotemqtt, 0, wx.LEFT, 5)
 
@@ -2180,30 +2187,30 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		main = wx.BoxSizer(wx.VERTICAL)
 		main.Add(self.localmqtt, 0, wx.TOP | wx.BOTTOM, 2)
 		main.Add(localmqtt, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(10)		
+		main.AddSpacer(10)      
 		main.Add(remotemqtt0, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(3)		
+		main.AddSpacer(3)       
 		main.Add(remotemqtt, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(10)		
+		main.AddSpacer(10)      
 		main.Add(twitter0, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(3)		
+		main.AddSpacer(3)       
 		main.Add(twitter1, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(3)		
+		main.AddSpacer(3)       
 		main.Add(twitter2, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(10)		
+		main.AddSpacer(10)      
 		main.Add(telegram0, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddStretchSpacer(1)		
+		main.AddStretchSpacer(1)        
 		main.Add(buttons, 0, wx.ALL | wx.EXPAND, 5)
 
 		self.p_credentials.SetSizer(main)
 
 	def on_encrypt(self, e):
 		add_nodes = []
-		remove_ids = []			
+		remove_ids = []         
 		dlg = wx.MessageDialog(None, _(
 			'All current credentials will be deleted and actions that use them will stop working. Actions that need credentials should be defined in the Node-RED admin interface.\n\nAre you sure?'),
 							   _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-		if dlg.ShowModal() != wx.ID_YES:	
+		if dlg.ShowModal() != wx.ID_YES:    
 			dlg.Destroy()
 			return
 
@@ -2249,11 +2256,11 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			time.sleep(1)
 		self.ShowStatusBarGREEN(_('Signal K server restarted')+' | '+_('Node-Red restarted'))
 
-	def on_decrypt(self, e):	
+	def on_decrypt(self, e):    
 		dlg = wx.MessageDialog(None, _(
 			'Credentials created outside of OpenPlotter interface will be deleted and its nodes will stop working. Your new credentials will be stored without encryption, do not use your usual passwords.\n\nAre you sure?'),
 							   _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-		if dlg.ShowModal() != wx.ID_YES:	
+		if dlg.ShowModal() != wx.ID_YES:    
 			dlg.Destroy()
 			return
 
@@ -2292,7 +2299,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			return credentials
 		except:
 			return {}
-			print "ERROR reading credentials file"
+			print("ERROR reading credentials file")
 
 	def print_credentials(self):
 		if self.conf.get('CREDENTIALS', 'encrypted') == '1':
@@ -2449,7 +2456,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			data = ujson.dumps(credentials, indent=4)
 			with open(self.cred_file, "w") as outfile:
 				outfile.write(data)
-		except: print "ERROR writing credentials file"
+		except: print("ERROR writing credentials file")
 
 	def on_localmqtt(self, e):
 		if self.localmqtt.GetValue():
@@ -2520,28 +2527,28 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			subprocess.call(['sudo', 'service', 'mosquitto', 'restart'])
 
 			localbroker_node_template = '''
-		    {
-		        "id": "",
-		        "type": "mqtt-broker",
-		        "z": "",
-		        "name": "configuration|localbroker",
-		        "broker": "localhost",
-		        "port": "1883",
-		        "clientid": "",
-		        "usetls": false,
-		        "compatmode": true,
-		        "keepalive": "60",
-		        "cleansession": true,
-		        "birthTopic": "",
-		        "birthQos": "0",
-		        "birthPayload": "",
-		        "closeTopic": "",
-		        "closeQos": "0",
-		        "closePayload": "",
-		        "willTopic": "",
-		        "willQos": "0",
-		        "willPayload": ""
-		    }'''
+			{
+				"id": "",
+				"type": "mqtt-broker",
+				"z": "",
+				"name": "configuration|localbroker",
+				"broker": "localhost",
+				"port": "1883",
+				"clientid": "",
+				"usetls": false,
+				"compatmode": true,
+				"keepalive": "60",
+				"cleansession": true,
+				"birthTopic": "",
+				"birthQos": "0",
+				"birthPayload": "",
+				"closeTopic": "",
+				"closeQos": "0",
+				"closePayload": "",
+				"willTopic": "",
+				"willQos": "0",
+				"willPayload": ""
+			}'''
 			localbroker_node = ujson.loads(localbroker_node_template)
 			localbroker_node['id'] = self.localbrokerid
 			add_credentials[self.localbrokerid] = {"user":self.userlocalmqtt.GetValue(),"password":self.passlocalmqtt.GetValue()}
@@ -2554,28 +2561,28 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		if self.remotemqtt.GetValue():
 			remotebroker_node_template = '''
-		    {
-		        "id": "",
-		        "type": "mqtt-broker",
-		        "z": "",
-		        "name": "configuration|remotebroker",
-		        "broker": "",
-		        "port": "",
-		        "clientid": "",
-		        "usetls": false,
-		        "compatmode": true,
-		        "keepalive": "60",
-		        "cleansession": true,
-		        "birthTopic": "",
-		        "birthQos": "0",
-		        "birthPayload": "",
-		        "closeTopic": "",
-		        "closeQos": "0",
-		        "closePayload": "",
-		        "willTopic": "",
-		        "willQos": "0",
-		        "willPayload": ""
-		    }'''
+			{
+				"id": "",
+				"type": "mqtt-broker",
+				"z": "",
+				"name": "configuration|remotebroker",
+				"broker": "",
+				"port": "",
+				"clientid": "",
+				"usetls": false,
+				"compatmode": true,
+				"keepalive": "60",
+				"cleansession": true,
+				"birthTopic": "",
+				"birthQos": "0",
+				"birthPayload": "",
+				"closeTopic": "",
+				"closeQos": "0",
+				"closePayload": "",
+				"willTopic": "",
+				"willQos": "0",
+				"willPayload": ""
+			}'''
 			remotebroker_node = ujson.loads(remotebroker_node_template)
 			remotebroker_node['id'] = self.remotebrokerid
 			remotebroker_node['broker'] = self.serverremotemqtt.GetValue()
@@ -2590,12 +2597,12 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		if self.twitter.GetValue():
 			twitter_node_template = '''
-		        {
-			        "id":"",
-			        "type":"twitter-credentials",
-			        "z":"",
-			        "screen_name":""
-			    }'''
+				{
+					"id":"",
+					"type":"twitter-credentials",
+					"z":"",
+					"screen_name":""
+				}'''
 			twitter_node = ujson.loads(twitter_node_template)
 			twitter_node['id'] = self.twitterid
 			twitter_node['screen_name'] = self.twitteraccount.GetValue()
@@ -2610,89 +2617,89 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		if self.telegram.GetValue():
 			telegram_node_template = '''
 				{
-				    "id":"",
-				    "type":"chatbot-telegram-node",
-				    "z":"",
-				    "usernames":"",
-				    "botname":"",
-				    "parseMode":"",
-				    "providerToken":"",
-				    "log":"",
-				    "polling":"1000",
-				    "debug":false,
-				    "store":""
+					"id":"",
+					"type":"chatbot-telegram-node",
+					"z":"",
+					"usernames":"",
+					"botname":"",
+					"parseMode":"",
+					"providerToken":"",
+					"log":"",
+					"polling":"1000",
+					"debug":false,
+					"store":""
 				}'''
 			start1_node_template = '''
-			    {
-			        "id": "",
-			        "type": "chatbot-telegram-receive",
-			        "z": "",
-			        "bot": "",
-			        "botProduction": "",
-			        "x": 380,
-			        "y": 120,
-			        "wires": [[]]
-			    }'''
+				{
+					"id": "",
+					"type": "chatbot-telegram-receive",
+					"z": "",
+					"bot": "",
+					"botProduction": "",
+					"x": 380,
+					"y": 120,
+					"wires": [[]]
+				}'''
 			start2_node_template = '''
-			    {
-			        "id": "",
-			        "type": "chatbot-authorized",
-			        "z": "",
-			        "x": 380,
-			        "y": 120,
-			        "wires": [[],[]]
-			    }'''
+				{
+					"id": "",
+					"type": "chatbot-authorized",
+					"z": "",
+					"x": 380,
+					"y": 120,
+					"wires": [[],[]]
+				}'''
 			start3_node_template = '''
-			    {
-			        "id": "",
-			        "type": "function",
-			        "z": "",
-			        "name": "",
-			        "func": "if (msg.payload.content=='/start'){return msg;}",
-			        "outputs": 1,
-			        "noerr": 0,
-			        "x": 380,
-			        "y": 120,
-			        "wires": [[]]
-			    }'''
+				{
+					"id": "",
+					"type": "function",
+					"z": "",
+					"name": "",
+					"func": "if (msg.payload.content=='/start'){return msg;}",
+					"outputs": 1,
+					"noerr": 0,
+					"x": 380,
+					"y": 120,
+					"wires": [[]]
+				}'''
 			start4_node_template = '''
-			    {
-			        "id": "",
-			        "type": "change",
-			        "z": "",
-			        "name": "",
-			        "rules": [
-			            {
-			                "t": "set",
-			                "p": "payload.content",
-			                "pt": "msg",
-			                "to": "'Chat ID: ' & $string(payload.chatId)",
-			                "tot": "jsonata"
-			            }
-			        ],
-			        "action": "",
-			        "property": "",
-			        "from": "",
-			        "to": "",
-			        "reg": false,
-			        "x": 380,
-			        "y": 120,
-			        "wires": [[]]
-			    }'''
+				{
+					"id": "",
+					"type": "change",
+					"z": "",
+					"name": "",
+					"rules": [
+						{
+							"t": "set",
+							"p": "payload.content",
+							"pt": "msg",
+							"to": "'Chat ID: ' & $string(payload.chatId)",
+							"tot": "jsonata"
+						}
+					],
+					"action": "",
+					"property": "",
+					"from": "",
+					"to": "",
+					"reg": false,
+					"x": 380,
+					"y": 120,
+					"wires": [[]]
+				}'''
 			start5_node_template = '''
-			    {
-			        "id": "",
-			        "type": "chatbot-telegram-send",
-			        "z": "",
-			        "bot": "",
-			        "botProduction": "",
-			        "track": false,
-			        "passThrough": false,
-			        "outputs": 0,
-			        "x": 380,
-			        "y": 120,
-			        "wires": []
-			    }'''
+				{
+					"id": "",
+					"type": "chatbot-telegram-send",
+					"z": "",
+					"bot": "",
+					"botProduction": "",
+					"track": false,
+					"passThrough": false,
+					"outputs": 0,
+					"x": 380,
+					"y": 120,
+					"wires": []
+				}'''
 			telegram_node = ujson.loads(telegram_node_template)
 			telegram_node['id'] = self.telegramid
 			telegram_node['botname'] = 'telegrambot'
@@ -2786,7 +2793,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.available_conditions = ['=', '!=', '<', '<=', '>', '>=', _('is between'), _('contains'), _('is true'), ('is false'), _('is null'), _('is not null'), _('is empty'), _('is not empty')]
 		#self.available_operators_select = wx.Choice(self.p_action, choices=self.available_conditions, style=wx.CB_READONLY)
 
-		self.list_conditions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.SUNKEN_BORDER, size=(-1,85))
+		self.list_conditions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.BORDER_SIMPLE, size=(-1,85))
 		self.list_conditions.InsertColumn(0, _('Conditions'), width= 100)
 		self.list_conditions.InsertColumn(1, _(' '), width= 150)
 		self.list_conditions.InsertColumn(2, _(' '), width= 150)
@@ -2801,7 +2808,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		delete_condition = wx.Button(self.p_action, label=_('delete'))
 		delete_condition.Bind(wx.EVT_BUTTON, self.on_delete_condition)
 
-		self.list_actions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.SUNKEN_BORDER, size=(-1,85))
+		self.list_actions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.BORDER_SIMPLE, size=(-1,85))
 		self.list_actions.InsertColumn(0, _('Actions'), width= 150)
 		self.list_actions.InsertColumn(1, _(' '), width= 170)
 		self.list_actions.InsertColumn(2, _(' '), width= 100)
@@ -2817,6 +2824,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		_('Send e-mail'),
 		_('Play sound'),
 		_('Run command'),
+		_('Messagebox'),
 		_('Reset system'),
 		_('Shutdown system'),
 		_('Send Telegram message')]
@@ -2854,7 +2862,6 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		vlistbox_cond = wx.BoxSizer(wx.VERTICAL)
 		vlistbox_cond.AddSpacer(35)
-		#vlistbox_cond.Add(self.available_operators_select, 0, wx.ALL | wx.EXPAND, 5)
 		vlistbox_cond.Add(hlistbox_but2, 0, wx.ALL, 0)
 
 		hlistbox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -2904,7 +2911,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.remove_credentials = []
 		self.on_print_triggers()
 
-	def on_print_triggers(self):	
+	def on_print_triggers(self):    
 		self.list_triggers.DeleteAllItems()
 		self.list_conditions.DeleteAllItems()
 		self.list_actions.DeleteAllItems()
@@ -2949,10 +2956,11 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 						field3 = _('Seconds')
 				if node['id'] == trigger["trigger_node_out_id"]:
 					if 'func' in node:
-						if 	node['func'] == 'return msg;': enabled = True
+						if  node['func'] == 'return msg;': enabled = True
 					else:
 						enabled = True
-			self.list_triggers.Append([self.available_triggers[int(trigger["type"])].decode('utf8'), field2.decode('utf8'), field3.decode('utf8'), field4.decode('utf8')])
+						
+			self.list_triggers.Append([self.available_triggers[int(trigger["type"])], field2, field3, field4])
 			last = self.list_triggers.GetItemCount()-1
 			if enabled: self.list_triggers.CheckItem(last)
 
@@ -2997,7 +3005,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 										field3 = local_time.strftime("%Y-%m-%d %H:%M:%S")
 									except: pass
 								else: field3 = node['rules'][0]['v2']
-			self.list_conditions.Append([self.available_conditions[int(condition["operator"])].decode('utf8'), field2.decode('utf8'), field3.decode('utf8')])
+			self.list_conditions.Append([self.available_conditions[int(condition["operator"])], field2, field3])
 
 	def on_print_actions(self, e):
 		self.list_actions.DeleteAllItems()
@@ -3049,7 +3057,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 						if node['type'] == 'chatbot-image' and not field2: field2 = node['image']
 						if node['type'] == 'msg-resend': field3 = _('repeat')
 						if node['type'] == 'delay': field3 = _('rate limit')
-			self.list_actions.Append([self.available_actions[int(action["type"])].decode('utf8'), field2.decode('utf8'), field3.decode('utf8')])
+			self.list_actions.Append([self.available_actions[int(action["type"])], field2, field3])
 
 	def on_select_actions(self, e):
 		self.selected_action = self.list_actions.GetFirstSelected()
@@ -3218,7 +3226,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		
 		#print 'edit'
 		#for i in edit:
-		#	print i
+		#   print i
 		
 		self.edit_add_action(edit)
 		
@@ -3233,7 +3241,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		else:
 			if 'dname' in edit[0]:
 				typesplit = edit[0]['dname'].split('|')
-			else:	
+			else:   
 				typesplit = edit[0]['name'].split('|')
 			type = int(typesplit[2])
 			self.available_actions_select.SetSelection(type)
@@ -3256,9 +3264,14 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		elif action == 4: dlg = ActionSendEmail(self,edit)
 		elif action == 5: dlg = ActionPlaySound(self,edit)
 		elif action == 6: dlg = ActionRunCommand(self,edit)
-		elif action == 7: dlg = ActionRunCommand(self,['sudo','reboot',0])
-		elif action == 8: dlg = ActionRunCommand(self,['sudo', 'shutdown -h now',0])
-		elif action == 9:
+		elif action == 7: 
+			if edit == 0:
+				dlg = ActionRunCommand(self,[self.currentpath+'/message','Hello',0])
+			else:
+				dlg = ActionRunCommand(self,edit)
+		elif action == 8: dlg = ActionRunCommand(self,['sudo','reboot',0])
+		elif action == 9: dlg = ActionRunCommand(self,['sudo', 'shutdown -h now',0])
+		elif action == 10:
 			telegram =  int(self.conf.get('CREDENTIALS', 'telegram'))
 			if not telegram:
 				self.ShowStatusBarRED(_('Go to the Credentials tab and enable a Telegram bot'))
@@ -3484,9 +3497,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		#find idnum for id
 		for i in shortcut:
-			if i[8] <> '':
-				i[6] = idabs.index(i[8])			
-				idabs_parent[i[6]] = -1				
+			if i[8] != '':
+				i[6] = idabs.index(i[8])            
+				idabs_parent[i[6]] = -1             
 
 		#print 'idabs_parent'
 		#for i in idabs_parent: print idabs_parent.index(i),i
@@ -3513,7 +3526,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				if i[3] == j:
 					for ii in shortcut:
 						if ii[5] == i[6]:
-							if ii[3] == -1:						
+							if ii[3] == -1:                     
 								ii[3] = j+1
 								ii[2] = i[2]
 
@@ -3595,7 +3608,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 							i['x'] = xstart + xstep * ii[3]
 							i['y'] = ystart + ystep * ii[4]
 							if i['y'] > ymax:
-								ymax = i['y']						
+								ymax = i['y']                       
 					
 		self.nodes.write_flow(all_flows)
 		self.edit_credentials(self.add_credentials, self.remove_credentials)
@@ -3618,11 +3631,11 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 	def page_1w(self):
 		title = wx.StaticText(self.p_1w, label=_(' Temperature sensors '))
 
-		self.list_DS18B20 = wx.ListCtrl(self.p_1w, style=wx.LC_REPORT)
+		self.list_DS18B20 = wx.ListCtrl(self.p_1w, style=wx.LC_REPORT | wx.BORDER_SIMPLE)
 		self.list_DS18B20.InsertColumn(0, _('Name'), width=100)
-		self.list_DS18B20.InsertColumn(1, _('ID'), width=105)
+		self.list_DS18B20.InsertColumn(1, _('Signal K key'), width=215)
 		self.list_DS18B20.InsertColumn(2, _('Offset'), width=50)
-		self.list_DS18B20.InsertColumn(3, _('Signal K key'), width=215)
+		self.list_DS18B20.InsertColumn(3, _('ID'), width=105)
 		self.list_DS18B20.InsertColumn(4, _('Source'), width=120)
 		self.list_DS18B20.Bind(wx.EVT_LIST_ITEM_SELECTED, self.edit_DS18B20)
 		self.list_DS18B20.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.edit_DS18B20)
@@ -3659,7 +3672,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.p_1w.SetSizer(vbox)
 
 	def start_1w(self):
-		subprocess.Popen(['python', self.currentpath + '/1w_d.py'])
+		subprocess.Popen(['python3', self.currentpath + '/1w_d.py'])
 		self.ShowStatusBarGREEN(_('1W sensors restarted'))
 
 	def stop_1w(self):
@@ -3681,7 +3694,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			temp_list = []
 		for ii in temp_list:
 			self.DS18B20.append(ii)
-			self.list_DS18B20.Append([ii[0], ii[2], ii[3], ii[1],'1W.'+ii[0]])
+			self.list_DS18B20.Append([ii[0], ii[1], ii[3], ii[2],'1W.'+str(ii[0])])
 
 	def edit_DS18B20(self, e):
 		selected = e.GetIndex()
@@ -3693,26 +3706,25 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.edit_add_DS18B20(0)
 
 	def edit_add_DS18B20(self, edit):
-                if not addDS18B20:
-                	print '1-Wire must be enabled in "Raspberry Pi Configuration->Interfaces->1-Wire"'
-                        app = wx.App(False)
-                        wx.Frame( None, title="OpenPlotter", size=(710, 460))
-                        wx.MessageBox('1-Wire must be enabled in "Raspberry Pi Configuration->Interfaces->1-Wire"', 'Warning', wx.OK | wx.ICON_WARNING)
-                        return
+		if 'NoneType' in str(type(addDS18B20)):
+			print('1-Wire must be enabled in "Raspberry Pi Configuration->Interfaces->1-Wire"')
+			app = wx.App(False)
+			wx.Frame( None, title="OpenPlotter", size=(710, 460))
+			wx.MessageBox('1-Wire must be enabled in "Raspberry Pi Configuration->Interfaces->1-Wire"', 'Warning', wx.OK | wx.ICON_WARNING)
+			return
 
 		dlg = addDS18B20(edit)
 		res = dlg.ShowModal()
 		if res == wx.ID_OK:
-			name = dlg.name.GetValue()
-			SKkey = dlg.SKkey.GetValue()
-			sensor_id = dlg.id_select.GetValue()
-			offset = dlg.offset.GetValue()
+			name = str(dlg.name.GetValue())
+			SKkey = str(dlg.SKkey.GetValue())
+			sensor_id = str(dlg.id_select.GetValue())
+			offset = str(dlg.offset.GetValue())
 			DS18B20Tmp = [name, SKkey, sensor_id, offset]
-			DS18B20TmpE = [x.encode('utf-8') for x in DS18B20Tmp]
 			if edit == 0:
-				self.DS18B20.append(DS18B20TmpE)
+				self.DS18B20.append(DS18B20Tmp)
 			else:
-				self.DS18B20[edit[0]]=DS18B20TmpE
+				self.DS18B20[edit[0]]=DS18B20Tmp
 				
 			self.apply_changes_DS18B20()
 		dlg.Destroy()
@@ -3735,9 +3747,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 	###########################################Serial
 
 	def page_serial(self):
-		self.list_Serialinst = wx.ListCtrl(self.p_serial, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_SINGLE_SEL, size=(-1,85))
-		self.list_Serialinst.InsertColumn(0, _('alias'), width=150)
-		self.list_Serialinst.InsertColumn(1, _('device'), width=100)
+		self.list_Serialinst = wx.ListCtrl(self.p_serial, -1, style=wx.LC_REPORT | wx.BORDER_SIMPLE | wx.LC_SINGLE_SEL, size=(-1,85))
+		self.list_Serialinst.InsertColumn(0, _('alias')+' /dev/', width=100)
+		self.list_Serialinst.InsertColumn(1, _('device')+' /dev/', width=100)
 		self.list_Serialinst.InsertColumn(2, _('vendor'), width=60)
 		self.list_Serialinst.InsertColumn(3, _('product'), width=60)
 		self.list_Serialinst.InsertColumn(4, _('serial'), width=120)
@@ -3746,12 +3758,12 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.list_Serialinst.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_SerialinstSelected)
 		self.list_Serialinst.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.on_SerialinstDeselected)
 
-		name_label = wx.StaticText(self.p_serial, label=_('alias'))
 		ttyOP_label = wx.StaticText(self.p_serial, label=_('/dev/ttyOP_'))
-		self.Serial_OPname = wx.TextCtrl(self.p_serial)
+		name_label = wx.StaticText(self.p_serial, label=_('alias'), size=(100,-1))
+		self.Serial_OPname = wx.TextCtrl(self.p_serial, size=(100,-1))
 	
-		dataLabel = wx.StaticText(self.p_serial, label=_('data'))
-		self.serialData = wx.Choice(self.p_serial, choices=['NMEA 0183','NMEA 2000'], style=wx.CB_READONLY)
+		dataLabel = wx.StaticText(self.p_serial, label=_('data'), size=(110,-1))
+		self.serialData = wx.Choice(self.p_serial, choices=['NMEA 0183','NMEA 2000'], style=wx.CB_READONLY, size=(110,-1))
 		self.serialData.Bind(wx.EVT_CHOICE, self.onSelectData)
 
 		assignment_label = wx.StaticText(self.p_serial, label=_('assignment'))
@@ -3760,9 +3772,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.Serial_assignment = wx.Choice(self.p_serial, choices=self.assignment0183, style=wx.CB_READONLY, size=(100,-1))
 		self.Serial_assignment.Bind(wx.EVT_CHOICE, self.onSelectAssigment)
 
-		bauds_label = wx.StaticText(self.p_serial, label=_('bauds'))
+		bauds_label = wx.StaticText(self.p_serial, label=_('bauds'), size=(100,-1))
 		self.bauds = ['4800', '9600', '19200', '38400', '57600', '115200', '230400', '460800', '921600']
-		self.Serial_baud_select = wx.Choice(self.p_serial, choices=self.bauds, style=wx.CB_READONLY)
+		self.Serial_baud_select = wx.Choice(self.p_serial, choices=self.bauds, style=wx.CB_READONLY, size=(100,-1))
 
 		self.Serial_rem_dev = wx.RadioButton(self.p_serial, label=_('Remember device (by vendor, product, serial)'))
 		self.Serial_rem_port = wx.RadioButton(self.p_serial, label=_('Remember port (positon on the USB-hub)'))
@@ -3787,17 +3799,17 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		row1labels = wx.BoxSizer(wx.HORIZONTAL)
 		row1labels.Add((0,0), 0, wx.LEFT | wx.EXPAND, 85)
-		row1labels.Add(name_label, 1, wx.EXPAND, 0)
-		row1labels.Add(dataLabel, 1, wx.LEFT | wx.EXPAND, 5)
+		row1labels.Add(name_label, 0, wx.LEFT | wx.EXPAND, 5)
+		row1labels.Add(dataLabel, 0, wx.LEFT | wx.EXPAND, 5)
 		row1labels.Add(assignment_label, 1, wx.LEFT | wx.EXPAND, 5)
-		row1labels.Add(bauds_label, 1, wx.LEFT | wx.EXPAND, 5)
+		row1labels.Add(bauds_label, 0, wx.LEFT | wx.EXPAND, 5)
 
 		row1 = wx.BoxSizer(wx.HORIZONTAL)
-		row1.Add(ttyOP_label, 0, wx.LEFT | wx.UP | wx.EXPAND, 10)
-		row1.Add(self.Serial_OPname, 1, wx.EXPAND, 5)
-		row1.Add(self.serialData, 1, wx.LEFT | wx.EXPAND, 5)
+		row1.Add(ttyOP_label, 0, wx.LEFT | wx.UP | wx.EXPAND, 5)
+		row1.Add(self.Serial_OPname, 0, wx.LEFT | wx.EXPAND, 5)
+		row1.Add(self.serialData, 0, wx.LEFT | wx.EXPAND, 5)
 		row1.Add(self.Serial_assignment, 1, wx.LEFT | wx.EXPAND, 5)
-		row1.Add(self.Serial_baud_select, 1, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
+		row1.Add(self.Serial_baud_select, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
 		col1 = wx.BoxSizer(wx.VERTICAL)
 		col1.Add(self.Serial_rem_dev, 0, wx.ALL | wx.EXPAND, 5)
@@ -3821,7 +3833,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		v_final = wx.BoxSizer(wx.VERTICAL)
 		v_final.Add(self.list_Serialinst, 1, wx.EXPAND, 0)
-		v_final.AddSpacer(10)	
+		v_final.AddSpacer(10)   
 		v_final.Add(row1labels, 0, wx.EXPAND, 0)
 		v_final.AddSpacer(5)
 		v_final.Add(row1, 0, wx.EXPAND, 0)
@@ -3851,35 +3863,35 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			self.context = pyudev.Context()
 
 		for device in self.context.list_devices(subsystem='tty'):
-			i = device['DEVNAME']
+			i = device.get('DEVNAME')
 			if not '/dev/moitessier' in i:
 				try:
-					ii = device['DEVLINKS']
+					ii = device.get('DEVLINKS')
 				except:
 					continue
-			if not ('/dev/moitessier' in i or '/dev/ttyACM' in i or '/dev/ttyUSB' in i or '/dev/serial0' in ii):
+			if not ('moitessier' in i or 'ttyACM' in i or 'ttyUSB' in i or 'serial0' in i):
 				continue
-			value = device['DEVPATH']
+			value = device.get('DEVPATH')
 			port = value[value.rfind('/usb1/') + 6:-(len(value) - value.find('/tty'))]
 			port = port[port.rfind('/') + 1:]
 			try:
-				serial = device['ID_SERIAL_SHORT']
+				serial = device.get('ID_SERIAL_SHORT')
 			except:
 				serial = ''
 			try:
-				vendor_db = device['ID_VENDOR_FROM_DATABASE']
+				vendor_db = device.get('ID_VENDOR_FROM_DATABASE')
 			except:
 				vendor_db = ''
 			try:
-				model_db = device['ID_MODEL_FROM_DATABASE']
+				model_db = device.get('ID_MODEL_FROM_DATABASE')
 			except:
 				model_db = ''
 			try:
-				vendor_id = device['ID_VENDOR_ID']
+				vendor_id = device.get('ID_VENDOR_ID')
 			except:
 				vendor_id = ''
 			try:
-				model_id = device['ID_MODEL_ID']
+				model_id = device.get('ID_MODEL_ID')
 			except:
 				model_id = ''
 
@@ -3894,8 +3906,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				ii = self.Serialinst[n]
 
 				if ii['remember'] == 'port' and ii['port'] == port:
-					if ii['vendor'] != vendor_id or ii['product'] != model_id or ii['serial'] != serial:
-						self.ShowStatusBarRED(_('Device with vendor ').decode('utf8') + vendor_id + ' and product '.decode('utf8') + model_id + _(' is connected to a reserved port').decode('utf8'))
+					if ii['vendor'] != vendor_id or ii['product'] != model_id or str(ii['serial']) != str(serial):
+						self.ShowStatusBarRED(_('Device with vendor ') + vendor_id + ' and product ' + model_id + _(' is connected to a reserved port'))
 						break
 					name = n
 					assignment = ii['assignment']
@@ -3905,7 +3917,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 						bauds = ii['bauds']
 					except: pass
 					break
-				elif ii['remember'] == 'dev' and ii['vendor'] == vendor_id and ii['product'] == model_id and ii['serial'] == serial:
+				elif ii['remember'] == 'dev' and ii['vendor'] == vendor_id and ii['product'] == model_id and str(ii['serial']) == str(serial):
 					#check if device with same product/vendor/serial has been added
 					exist = False
 					for i2 in range(self.list_Serialinst.GetItemCount()):
@@ -3921,9 +3933,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 							bauds = ii['bauds']
 						except: pass
 
-			l = [name, i, vendor_id, model_id, serial, port, remember]
-			self.list_Serialinst.Append(map(lambda x : x.decode('utf8'), l))
-
+			l = [name, i[5:], vendor_id, model_id, serial, port, remember]
+			#self.list_Serialinst.Append([x.decode('utf8') for x in l])
+			self.list_Serialinst.Append(l)
+			
 		for name in self.Serialinst:
 			exist = False
 			for i in range(self.list_Serialinst.GetItemCount()):
@@ -3935,9 +3948,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 					exist = True
 			if not exist:
 				l = [name, self.Serialinst[name]['device'], self.Serialinst[name]['vendor'], self.Serialinst[name]['product'], self.Serialinst[name]['serial'], self.Serialinst[name]['port'], self.Serialinst[name]['remember']]
-				self.list_Serialinst.Append(map(lambda x : x.decode('utf8'), l))
+				self.list_Serialinst.Append(l)
+				#self.list_Serialinst.Append([x.decode('utf8') for x in l])
 				self.list_Serialinst.SetItemBackgroundColour(self.list_Serialinst.GetItemCount()-1,(255,0,0))
-				self.ShowStatusBarRED(_('There are missing devices').decode('utf8'))
+				self.ShowStatusBarRED(_('There are missing devices'))
 
 	def on_SerialinstSelected(self,e):
 		i = e.GetIndex()
@@ -3958,7 +3972,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.Serial_rem_dev.Enable()
 		self.Serial_rem_port.Enable()
 
-		self.Serial_OPname.SetValue(name.replace('/dev/ttyOP_',''))
+		self.Serial_OPname.SetValue(name.replace('ttyOP_',''))
 		self.serialData.SetStringSelection(item['data'])
 		self.onSelectData()
 		if item['assignment'] == '0': self.Serial_assignment.SetSelection(0)
@@ -3979,28 +3993,28 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		index = self.list_Serialinst.GetNextItem(-1, wx.LIST_NEXT_ALL, wx.LIST_STATE_SELECTED)
 		if index < 0:
-			self.ShowStatusBarRED(_('Failed. No port selected').decode('utf8'))
+			self.ShowStatusBarRED(_('Failed. No port selected'))
 			return
 
 		name = self.Serial_OPname.GetValue()
 		if not name or not re.match('^[0-9a-z]{1,8}$', name):
-			self.ShowStatusBarYELLOW(_('The alias must be a lowercase string between 1 and 8 characters or numbers.').decode('utf8'))
+			self.ShowStatusBarYELLOW(_('The alias must be a lowercase string between 1 and 8 characters or numbers.'))
 			return
 		old_name = self.list_Serialinst.GetItemText(index, 0)
-		name  = '/dev/ttyOP_'+name
+		name  = 'ttyOP_'+name
 		for i in range(self.list_Serialinst.GetItemCount()):
 			if i != index and name == self.list_Serialinst.GetItemText(i, 0):
-				self.ShowStatusBarYELLOW(_('Same alias used for multiple devices').decode('utf8'))
+				self.ShowStatusBarYELLOW(_('Same alias used for multiple devices'))
 				return
 
 		data = self.serialData.GetStringSelection()
 		if not data:
-				self.ShowStatusBarYELLOW(_('Please select type of data').decode('utf8'))
+				self.ShowStatusBarYELLOW(_('Please select type of data'))
 				return
 
 		assignmentIndex = self.Serial_assignment.GetSelection()
 		if assignmentIndex == -1:
-				self.ShowStatusBarYELLOW(_('Please assign the device').decode('utf8'))
+				self.ShowStatusBarYELLOW(_('Please assign the device'))
 				return
 		elif assignmentIndex == 0:
 			assignment = '0'
@@ -4009,7 +4023,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		bauds = self.Serial_baud_select.GetStringSelection()
 		if assignment == 'Signal K > OpenCPN' and not bauds:
-				self.ShowStatusBarYELLOW(_('Please select bauds').decode('utf8'))
+				self.ShowStatusBarYELLOW(_('Please select bauds'))
 				return
 
 		if self.Serial_rem_dev.GetValue():
@@ -4030,32 +4044,32 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		for name2 in self.Serialinst:
 			if self.Serialinst[name2]['remember'] == 'dev' and ii['remember'] == 'dev' and name != name2:
 				if self.Serialinst[name2]['vendor'] == ii['vendor'] and self.Serialinst[name2]['product'] == ii['product'] and self.Serialinst[name2]['serial'] == ii['serial']:
-					self.ShowStatusBarYELLOW(_('Device with duplicate vendor and product must be set to "Remember port".').decode('utf8'))
+					self.ShowStatusBarYELLOW(_('Device with duplicate vendor and product must be set to "Remember port".'))
 					return
 
-		# do not allow entrees with the same port and different name
+		# do not allow entries with the same port and different name
 		for name2 in self.Serialinst:
 			if self.Serialinst[name2]['remember'] == 'port' and ii['remember'] == 'port' and name != name2:
 				if self.Serialinst[name2]['port'] == ii['port']:
-					self.ShowStatusBarYELLOW(_('This port is already reserved and must be set to "Remember device".').decode('utf8'))
+					self.ShowStatusBarYELLOW(_('This port is already reserved and must be set to "Remember device".'))
 					return
 		
 		self.Serialinst[name] = ii
 		self.conf.set('UDEV', 'Serialinst', str(self.Serialinst))
 		self.apply_changes_Serialinst()
-                                        
+										
 	def apply_changes_Serialinst(self):
 		file = open(self.home +'/10-openplotter.rules', 'w')
 		for name in self.Serialinst:
 			i = self.Serialinst[name]
 			if 'virtual' == i['port']:
-				write_str = 'KERNEL=="'+i['device'][5:]
+				write_str = 'KERNEL=="'+i['device']
 			elif 'port' == i['remember']: # non-usb serial
-				write_str = 'KERNEL=="' + i['device'][5:-1] + '*", KERNELS=="' + i['port']
+				write_str = 'KERNEL=="' + i['device'] + '*", KERNELS=="' + i['port']
 			else:
 				write_str = 'SUBSYSTEM=="tty", ATTRS{idVendor}=="' + i['vendor']
 				write_str += '",ATTRS{idProduct}=="' + i['product']
-				if i['serial'] != '':
+				if i['serial'] != '' and i['serial'] != 'None':
 					write_str += '",ATTRS{serial}=="' + i['serial']
 			name = name.replace('/dev/','')
 			write_str += '",SYMLINK+="' + name + '"\n'
@@ -4064,7 +4078,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		test = 0
 		test = os.system('sudo mv '+self.home +'/10-openplotter.rules /etc/udev/rules.d')
 
-		self.ShowStatusBarYELLOW(_('Applying changes ...').decode('utf8'))
+		self.ShowStatusBarYELLOW(_('Applying changes ...'))
 		self.start_udev()
 
 		# write gpsd config
@@ -4200,7 +4214,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				self.killDevApps()
 				resetSK = True
 
-		if resetSK:	self.restart_SK(0)
+		if resetSK: self.restart_SK(0)
 		else: time.sleep(1.5)
 
 		self.read_Serialinst()
@@ -4235,8 +4249,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		try:
 			del self.Serialinst[name]
 		except: return
-		self.list_Serialinst.SetStringItem(index, 0, '')
-		self.list_Serialinst.SetStringItem(index, 6, '')
+		self.list_Serialinst.SetItem(index, 0, '')
+		self.list_Serialinst.SetItem(index, 6, '')
 		self.reset_Serial_fields()
 		self.conf.set('UDEV', 'Serialinst', str(self.Serialinst))
 		self.apply_changes_Serialinst()
@@ -4277,15 +4291,15 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		if selected == 'Signal K > OpenCPN': self.Serial_baud_select.Enable()
 
 	def on_enable_UART(self,e):
-		msg = _('This action disables Bluetooth and enables UART. OpenPlotter will reboot.\n').decode('utf8')
-		msg += _('Are you sure?').decode('utf8')
+		msg = _('This action disables Bluetooth and enables UART. OpenPlotter will reboot.\n')
+		msg += _('Are you sure?')
 		dlg = wx.MessageDialog(None, msg, _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
 		if dlg.ShowModal() == wx.ID_YES: self.edit_boot(True)
 		dlg.Destroy()
 
 	def on_disable_UART(self,e):
-		msg = _('This action disables UART and enables Bluetooth. OpenPlotter will reboot.\n').decode('utf8')
-		msg += _('Are you sure?').decode('utf8')
+		msg = _('This action disables UART and enables Bluetooth. OpenPlotter will reboot.\n')
+		msg += _('Are you sure?')
 		dlg = wx.MessageDialog(None, msg, _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
 		if dlg.ShowModal() == wx.ID_YES: self.edit_boot(False)
 		dlg.Destroy()
@@ -4344,9 +4358,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 	###########################################CAN
 
-	def page_n2k(self):	
+	def page_n2k(self): 
 		canboatjs = wx.StaticBox(self.p_n2k, label=_(' Managed by Signal K '))
-		self.listSKcan = wx.ListCtrl(self.p_n2k, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_SINGLE_SEL, size=(-1,70))
+		self.listSKcan = wx.ListCtrl(self.p_n2k, -1, style=wx.LC_REPORT | wx.BORDER_SIMPLE | wx.LC_SINGLE_SEL, size=(-1,70))
 		self.listSKcan.InsertColumn(0, _('alias'), width=250)
 		self.listSKcan.InsertColumn(1, _('bauds'), width=250)
 		self.listSKcan.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onListSKcanSelected)
@@ -4401,26 +4415,23 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		mcp2515 = wx.StaticBox(self.p_n2k, label=_(' MCP2515 '))
 
-		c = 0
-		while True:
-			try:
-				if not subprocess.check_output('dmesg | grep -i can'+str(c)+':', shell=True): break
-			except: break
-			c = c+1
-		self.canInterface = 'can'+str(c)
-		self.mcp2515Enable = wx.CheckBox(self.p_n2k, label=_('Enable '+self.canInterface))
-		self.mcp2515Enable.Bind(wx.EVT_CHECKBOX, self.onMcp2515Enable)
-
-		canConnectionLabel = wx.StaticText(self.p_n2k, label=_('Connection'))
-		self.canConnection = wx.Choice(self.p_n2k, choices=('SPI0', 'SPI1'), style=wx.CB_READONLY)
+		canInterfaceLabel = wx.StaticText(self.p_n2k, label=_('Interface'))
+		canInterface = wx.Choice(self.p_n2k, choices=('can0', 'can1'), style=wx.CB_READONLY)
 
 		canOscillatorLabel = wx.StaticText(self.p_n2k, label=_('Oscillator'))
-		self.canOscillator = wx.Choice(self.p_n2k, choices=('8000000', '16000000'), style=wx.CB_READONLY)
+		canOscillator = wx.Choice(self.p_n2k, choices=('8000000', '16000000'), style=wx.CB_READONLY)
 
 		self.allowed_pins = ['22','29','31','32','33','35','36','37','38','40']
 		canInterruptLabel = wx.StaticText(self.p_n2k, label=_('Interrupt'))
-		self.canInterrupt = wx.Choice(self.p_n2k, choices=self.allowed_pins, style=wx.CB_READONLY)
+		canInterrupt = wx.Choice(self.p_n2k, choices=self.allowed_pins, style=wx.CB_READONLY)
 
+		mcp2515Apply = wx.Button(self.p_n2k, label=_('Apply'))
+		mcp2515Apply.Bind(wx.EVT_BUTTON, self.onMcp2515Apply)
+
+		'''
+		self.n2k_can0_enable = wx.CheckBox(self.p_n2k, label=_('Input/Output can0'))
+		self.n2k_can0_enable.Bind(wx.EVT_CHECKBOX, self.on_n2k_can0_enable) 
+		'''
 		hbox = wx.BoxSizer(wx.HORIZONTAL)
 		hbox.Add(diagnostic, 0, wx.ALL, 5)
 		hbox.AddStretchSpacer(1)
@@ -4465,28 +4476,28 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		mcp2515H1 = wx.BoxSizer(wx.HORIZONTAL)
 		mcp2515H1.AddSpacer(10)
-		mcp2515H1.Add(canConnectionLabel, 0, wx.UP, 5)
-		mcp2515H1.Add(self.canConnection, 0, wx.LEFT, 5)
+		mcp2515H1.Add(canInterfaceLabel, 0, wx.UP, 5)
+		mcp2515H1.Add(canInterface, 0, wx.LEFT, 5)
 		mcp2515H1.AddSpacer(10)
 
 		mcp2515H2 = wx.BoxSizer(wx.HORIZONTAL)
 		mcp2515H2.AddSpacer(10)
 		mcp2515H2.Add(canOscillatorLabel, 0, wx.UP, 5)
-		mcp2515H2.Add(self.canOscillator, 0, wx.LEFT, 5)
+		mcp2515H2.Add(canOscillator, 0, wx.LEFT, 5)
 		mcp2515H2.AddSpacer(10)
 
 		mcp2515H3 = wx.BoxSizer(wx.HORIZONTAL)
 		mcp2515H3.AddSpacer(10)
 		mcp2515H3.Add(canInterruptLabel, 0, wx.UP, 5)
-		mcp2515H3.Add(self.canInterrupt, 0, wx.LEFT, 5)
+		mcp2515H3.Add(canInterrupt, 0, wx.LEFT, 5)
 		mcp2515H3.AddSpacer(10)
 
 		mcp2515Box = wx.StaticBoxSizer(mcp2515, wx.VERTICAL)
-		mcp2515Box.AddSpacer(3)
-		mcp2515Box.Add(self.mcp2515Enable, 0, wx.LEFT | wx.EXPAND, 10)
 		mcp2515Box.Add(mcp2515H1, 0, wx.ALL, 3)
 		mcp2515Box.Add(mcp2515H2, 0, wx.ALL, 3)
 		mcp2515Box.Add(mcp2515H3, 0, wx.ALL, 3)
+		mcp2515Box.AddSpacer(3)
+		mcp2515Box.Add(mcp2515Apply, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 		mcp2515Box.AddSpacer(3)
 
 		hbox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -4501,47 +4512,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		self.p_n2k.SetSizer(main) 
 
-	def onMcp2515Enable(self,e):
-		msg = _('OpenPlotter could need to reboot after this action.\n').decode('utf8')
-		msg += _('Are you sure?').decode('utf8')
-		dlg = wx.MessageDialog(None, msg, _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_EXCLAMATION)
-		if dlg.ShowModal() == wx.ID_YES: self.edit_boot2(self.mcp2515Enable.GetValue())
-		dlg.Destroy()
-
-
-	def edit_boot2(self, onoff):
-		if self.canConnection.GetStringSelection() == 'SPI0': can = 'can0'
-		elif self.canConnection.GetStringSelection() == 'SPI1': can = 'can1'
-		txt = 'dtoverlay=mcp2515-'+can+',oscillator='+self.canOscillator.GetStringSelection()+',interrupt='+self.canInterrupt.GetStringSelection()
-		file = open('/boot/config.txt', 'r')
-		file1 = open(self.home+'/config.txt', 'w')
-		exists = False
-		while True:
-			line = file.readline()
-			if not line: break
-			if onoff and 'dtoverlay=mcp2515-can' in line: 
-				file1.write(txt+'\n')
-				exists = True
-			elif not onoff and 'dtoverlay=mcp2515-can' in line: 
-				exists = True
-			else: file1.write(line)
-		if onoff and not exists: 
-			file1.write('\n'+txt+'\n')
-		file.close()
-		file1.close()
-
-		if not onoff: os.system('sudo rm -f /etc/network/interfaces.d/mcp2515')
-		else:
-			file = open(self.home+'/mcp2515', 'w')
-			final = 'allow-hotplug '+self.canInterface+'\niface '+self.canInterface+' can static\nbitrate 250000\ndown /sbin/ip link set $IFACE down\nup /sbin/ifconfig $IFACE txqueuelen 10000'
-			file.write(final)
-			file.close()
-			os.system('sudo mv '+self.home+'/mcp2515 /etc/network/interfaces.d')
-
-		if os.system('diff '+self.home+'/config.txt /boot/config.txt > /dev/null'):
-			os.system('sudo mv '+self.home+'/config.txt /boot')
-			os.system('sudo shutdown -r now')
-		else: os.system('rm -f '+self.home+'/config.txt')
+	def onMcp2515Apply(self,e):
+		pass
 
 	def on_SK_to_N2K(self,e):
 		dlg = addSKtoN2K()
@@ -4550,7 +4522,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 	def onResetCANUSB(self,e):
 		subprocess.call(['pkill', '-f', 'CAN-USB-firmware.py'])
-		subprocess.call(['lxterminal','-e','python', self.currentpath + '/CAN-USB-firmware.py'])
+		subprocess.call(['lxterminal','-e','python3', self.currentpath + '/CAN-USB-firmware.py'])
 
 	def onSKAISto0183(self,e):
 		url = "http://localhost:3000/admin/#/serverConfiguration/plugins/signalk-n2kais-to-nmea0183"
@@ -4590,15 +4562,16 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			self.N2K_diagnostic_out_b.Enable()
 			self.SK_to_N2K.Enable()
 			self.SKcanTX2.Enable()
-			self.can_usb.SetStringSelection(self.SK_settings.ngt1_device)
+			self.can_usb.SetStringSelection(self.SK_settings.ngt1_device[5:])
 			if self.SK_settings.ngt1_baudrate: self.canBaudsSelect.SetStringSelection(str(self.SK_settings.ngt1_baudrate))
 			else: self.canBaudsSelect.SetSelection(-1)
 			if self.SK_settings.ngt1_enabled: self.n2k_enable.SetValue(True)
 			else: self.n2k_enable.SetValue(False)
 			out = self.conf.get('N2K', 'output') == '1'
 			self.n2k_out_enable.SetValue(out)
-			if self.SK_settings.ngt1_enabled or out:
+			if self.SK_settings.ngt1_enabled:
 				self.N2K_diagnostic_b.Disable()
+			if self.SK_settings.ngt1_enabled and out:
 				self.N2K_diagnostic_out_b.Disable()
 				self.SK_to_N2K.Disable()
 				self.SKcanTX2.Disable()
@@ -4647,8 +4620,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		if self.n2k_out_enable.GetValue():
 			self.conf.set('N2K', 'output', '1')
 			self.killDevApps()
-			subprocess.Popen(['python', self.currentpath + '/N2K-server_d.py'])
-			subprocess.Popen(['python', self.currentpath+'/SK-base_d.py'])
+			subprocess.Popen(['python3', self.currentpath + '/N2K-server_d.py'])
+			subprocess.Popen(['python3', self.currentpath+'/SK-base_d.py'])
 		else:
 			self.conf.set('N2K', 'output', '0')
 			self.killDevApps()
@@ -4681,13 +4654,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 	def on_N2K_diagnostic(self, e):
 		self.killDevApps()
-		subprocess.Popen(['python', self.currentpath + '/diagnostic-N2K-input.py'])
+		subprocess.Popen(['python3', self.currentpath + '/diagnostic-N2K-input.py'])
 		self.ShowStatusBarBLACK(_('Show received PGNs'))
 
 	def on_N2K_diagnostic_out(self, e):
 		self.killDevApps()
-		subprocess.Popen(['python', self.currentpath+'/SK-base_d.py'])
-		subprocess.Popen(['python', self.currentpath + '/diagnostic-N2K-output.py'])
+		subprocess.Popen(['python3', self.currentpath+'/SK-base_d.py'])
+		subprocess.Popen(['python3', self.currentpath + '/diagnostic-N2K-output.py'])
 		self.ShowStatusBarBLACK(_('Show sent PGNs'))
 					
 	def on_n2k_can0_enable(self, e):
@@ -4719,7 +4692,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 	def on_diagnostic_SK(self, e):
 		subprocess.call(['pkill', '-f', 'diagnostic-SK-input.py'])
-		subprocess.Popen(['python', self.currentpath + '/diagnostic-SK-input.py'])
+		subprocess.Popen(['python3', self.currentpath + '/diagnostic-SK-input.py'])
 
 ###########################################Main
 
@@ -4728,7 +4701,7 @@ if __name__ == "__main__":
 	currentpath = conf.get('GENERAL', 'op_folder')
 	app = wx.App()
 	bitmap = wx.Bitmap(currentpath+'/static/icons/openplotter.png',wx.BITMAP_TYPE_PNG)
-	splash = wx.SplashScreen(bitmap, wx.SPLASH_CENTRE_ON_SCREEN | wx.SPLASH_TIMEOUT, 500, None, style=wx.SIMPLE_BORDER | wx.STAY_ON_TOP)
-	wx.Yield()
+	#splash = wx.SplashScreen(bitmap, wx.SPLASH_CENTRE_ON_SCREEN | wx.SPLASH_TIMEOUT, 500, None, style=wx.SIMPLE_BORDER | wx.STAY_ON_TOP)
+	#wx.Yield()
 	MainFrame().Show()
 	app.MainLoop()

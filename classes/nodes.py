@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#						e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,8 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import ujson, uuid, os, wx, re, requests, time, webbrowser
-from select_key import selectKey
+from .select_key import selectKey
 from datetime import datetime
 
 class Nodes:
@@ -25,19 +26,19 @@ class Nodes:
 		self.actions_flow_id = actions_flow_id
 		self.allowed_pins = ['22','29','31','32','33','35','36','37','38','40']
 		self.enable_node_template = '''
-		    {
-		        "id": "",
-		        "type": "function",
-		        "z": "",
-		        "name": "",
-		        "func": "return msg;",
-		        "outputs": 1,
-		        "noerr": 0,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
-	
+			{
+				"id": "",
+				"type": "function",
+				"z": "",
+				"name": "",
+				"func": "return msg;",
+				"outputs": 1,
+				"noerr": 0,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
+
 	def get_node_id(self, subid=0):
 		uuid_tmp = str(uuid.uuid4())
 		if subid: node_id = subid+'.'+uuid_tmp[-6:]
@@ -45,7 +46,7 @@ class Nodes:
 		return node_id
 
 	def get_actions_flow_data(self):
-		self.commentnodeid = 'openplot.comme'		
+		self.commentnodeid = 'openplot.comme'
 		actions_flow_template = '''
 			[
 				{
@@ -68,7 +69,7 @@ class Nodes:
 			]'''
 		actions_flow_data = ujson.loads(actions_flow_template)
 		actions_flow_comment = 'Please do not edit this flow. Use the OpenPlotter interface to make changes on it.'
-		
+
 		for i in actions_flow_data:
 			if i['type'] == 'tab':
 				i['id'] = self.actions_flow_id
@@ -112,11 +113,11 @@ class Nodes:
 		]
 		'''
 		for i in data:
-			if 'z' in i and i['z'] == self.actions_flow_id: 
+			if 'z' in i and i['z'] == self.actions_flow_id:
 				if 'type' in i and i['type'] != 'comment': flow_nodes.append(i)
 			elif 'id' in i and i['id'] == self.actions_flow_id: pass
 			else: no_actions_nodes.append(i)
-			
+
 		for node in flow_nodes:
 			name = ''
 			if 'dname' in node and node['dname']: name = node['dname'].split('|')
@@ -135,7 +136,7 @@ class Nodes:
 				if name[0] == 'o': others_flow_nodes.append(node)
 
 		for node in triggers_flow_nodes:
-			if "name" in node: 
+			if "name" in node:
 				name = node['name'].split('|')
 				exist = False
 				for i in tree:
@@ -151,7 +152,7 @@ class Nodes:
 					for wire in wires:
 						for node2 in conditions_flow_nodes:
 							if wire == node2["id"]:
-								if 'name' in node2: 
+								if 'name' in node2:
 									name = node2['name'].split('|')
 									exist = False
 									for i in trigger["conditions"]:
@@ -168,7 +169,7 @@ class Nodes:
 						for wire in wires:
 							for node2 in actions_flow_nodes:
 								if wire == node2["id"]:
-									if 'name' in node2: 
+									if 'name' in node2:
 										name = node2['name'].split('|')
 										exist = False
 										for i in condition["actions"]:
@@ -178,16 +179,16 @@ class Nodes:
 											condition["actions"].append(action)
 
 		return (tree, triggers_flow_nodes, conditions_flow_nodes, actions_flow_nodes, no_actions_nodes, others_flow_nodes)
-	
+
 	def read_flow(self):
 		try:
 			with open(self.flows_file) as data_file:
 				data = ujson.load(data_file)
 			return data
 		except:
-			print "ERROR reading flows file"
+			print("ERROR reading flows file")
 			return []
-			
+
 	def write_flow(self, all_flows):
 		actions_flow_data = self.get_actions_flow_data()
 		tab = False
@@ -202,7 +203,7 @@ class Nodes:
 			data = ujson.dumps(all_flows, indent=4)
 			with open(self.flows_file, "w") as outfile:
 				outfile.write(data)
-		except: print "ERROR writing flows file"
+		except: print("ERROR writing flows file")
 
 	def edit_flow(self, add, remove):
 		save = False
@@ -210,12 +211,12 @@ class Nodes:
 		if add:
 			for i in add:
 				exist = False
-				for ii in data: 
+				for ii in data:
 					if ii['id'] == i['id']:
 						ii = i
 						exist = True
 						save = True
-				if not exist: 
+				if not exist:
 					data.append(i)
 					save = True
 		if remove:
@@ -225,37 +226,37 @@ class Nodes:
 				else: data2.append(i)
 		else: data2 = data
 		if save: self.write_flow(data2)
-	
+
 	def get_subscription(self, value):
 		self.subscribtion_node_template = '''
-		    {
-		        "id": "",
-		        "type": "signalk-subscribe",
-		        "z": "",
-		        "name": "",
-		        "mode": "sendChanges",
-		        "flatten": true,
-		        "context": "",
-		        "path": "",
-		        "source": "",
-		        "period": "1000",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "signalk-subscribe",
+				"z": "",
+				"name": "",
+				"mode": "sendChanges",
+				"flatten": true,
+				"context": "",
+				"path": "",
+				"source": "",
+				"period": "1000",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.function_node_template = '''
-		    {
-		        "id": "",
-		        "type": "function",
-		        "z": "",
-		        "name": "",
-		        "func": "",
-		        "outputs": 1,
-		        "noerr": 0,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "function",
+				"z": "",
+				"name": "",
+				"func": "",
+				"outputs": 1,
+				"noerr": 0,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 
 		value_list = value.split('.')
 		vessel = value_list[0]
@@ -300,34 +301,34 @@ class TriggerSK(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		self.subscribtion_node_template = '''
-		    {
-		        "id": "",
-		        "type": "signalk-subscribe",
-		        "z": "",
-		        "name": "",
-		        "mode": "sendChanges",
-		        "flatten": true,
-		        "context": "",
-		        "path": "",
-		        "source": "",
-		        "period": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "signalk-subscribe",
+				"z": "",
+				"name": "",
+				"mode": "sendChanges",
+				"flatten": true,
+				"context": "",
+				"path": "",
+				"source": "",
+				"period": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.function_node_template = '''
-		    {
-		        "id": "",
-		        "type": "function",
-		        "z": "",
-		        "name": "",
-		        "func": "",
-		        "outputs": 1,
-		        "noerr": 0,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "function",
+				"z": "",
+				"name": "",
+				"func": "",
+				"outputs": 1,
+				"noerr": 0,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 
 		panel = wx.Panel(self)
 
@@ -405,7 +406,7 @@ class TriggerSK(wx.Dialog):
 					vessel = i['context'].replace('vessels.','')
 					key = i['path']
 					source = i['source']
-				elif i['type'] == 'function' and i['func'] != 'return msg;':
+				elif i['type'] == 'function' and not (i['func'] == 'return msg;' or i['func'] == ''):
 					subkey = i['func'].split(';')
 					subkey = subkey[0].split('.')
 					subkey = ':'+subkey[3]
@@ -426,7 +427,7 @@ class TriggerSK(wx.Dialog):
 		if self.skkey.GetValue(): oldkey = self.skkey.GetValue()
 		dlg = selectKey(oldkey,1)
 		res = dlg.ShowModal()
-		if res == wx.OK: 
+		if res == wx.OK:
 			self.skkey.SetValue(dlg.selected_key)
 			self.vessel.SetValue(dlg.selected_vessel)
 		dlg.Destroy()
@@ -504,7 +505,7 @@ class TriggerFilterSK(wx.Dialog):
 				"x": 380,
 				"y": 120,
 				"wires": [[]]
-		    }'''
+			}'''
 
 		panel = wx.Panel(self)
 
@@ -592,7 +593,7 @@ class TriggerFilterSK(wx.Dialog):
 		if self.skkey.GetValue(): oldkey = self.skkey.GetValue()
 		dlg = selectKey(oldkey,1)
 		res = dlg.ShowModal()
-		if res == wx.OK: 
+		if res == wx.OK:
 			self.skkey.SetValue(dlg.selected_key)
 			self.vessel.SetValue(dlg.selected_vessel)
 		dlg.Destroy()
@@ -641,22 +642,22 @@ class TriggerGeofence(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		self.geofence_node_template = '''
-		    {
-		        "id": "",
-		        "type": "signalk-geofence",
-		        "z": "",
-		        "name": "",
-		        "mode": "sendAll",
-		        "context": "",
-		        "period": 10000,
-		        "myposition": false,
-		        "lat": 0,
-		        "lon": 0,
-		        "distance": 10,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[],[],[]]
-		    }'''
+			{
+				"id": "",
+				"type": "signalk-geofence",
+				"z": "",
+				"name": "",
+				"mode": "sendAll",
+				"context": "",
+				"period": 10000,
+				"myposition": false,
+				"lat": 0,
+				"lon": 0,
+				"distance": 10,
+				"x": 380,
+				"y": 120,
+				"wires": [[],[],[]]
+			}'''
 
 		panel = wx.Panel(self)
 
@@ -740,15 +741,15 @@ class TriggerGeofence(wx.Dialog):
 		panel.SetSizer(vbox)
 
 		self.OnRefreshBtn(0)
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.period.SetValue(int(edit[1]['period']))
 			self.vessel.SetValue(edit[1]['context'][8:])
 			self.mypos.SetValue(edit[1]['myposition'])
 			if edit[1]['myposition']:
 				self.lat.Disable()
 				self.lon.Disable()
-			else:				
+			else:
 				self.lat.SetValue(float(edit[1]['lat']))
 				self.lon.SetValue(float(edit[1]['lon']))
 			self.distance.SetValue(float(edit[1]['distance']))
@@ -815,19 +816,19 @@ class TriggerGPIO(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		self.gpio_node_template = '''
-		    {
-		        "id": "",
-		        "type": "rpi-gpio in",
-		        "z": "",
-		        "name": "",
-		        "pin": "",
-		        "intype": "",
-		        "debounce": "25",
-		        "read": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "rpi-gpio in",
+				"z": "",
+				"name": "",
+				"pin": "",
+				"intype": "",
+				"debounce": "25",
+				"read": false,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 
 		panel = wx.Panel(self)
 
@@ -835,15 +836,15 @@ class TriggerGPIO(wx.Dialog):
 		for i in parent.no_actions_nodes:
 			if 'type' in i:
 			 if i['type'] == 'rpi-gpio in' or i['type'] == 'rpi-gpio out':
-			 	if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
+				 if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
 		for i in parent.triggers_flow_nodes:
 			if 'type' in i:
 			 if i['type'] == 'rpi-gpio in':
-			 	if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
+				 if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
 		for i in parent.actions_flow_nodes:
 			if 'type' in i:
 			 if i['type'] == 'rpi-gpio out':
-			 	if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
+				 if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
 
 		pinsinuse = wx.StaticText(panel, label=_('Pins in use: ')+str([x.encode('UTF8') for x in in_use_pins]))
 		pinlabel = wx.StaticText(panel, label=_('Pin'))
@@ -886,8 +887,8 @@ class TriggerGPIO(wx.Dialog):
 		main.Add(hbox, 0, wx.ALL | wx.EXPAND, 0)
 
 		panel.SetSizer(main)
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.pin.SetSelection(self.nodes.allowed_pins.index(edit[1]['pin']))
 			self.resistor.SetSelection(self.resistor_select2.index(edit[1]['intype']))
 			self.read.SetValue(edit[1]['read'])
@@ -941,18 +942,18 @@ class TriggerMQTT(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		self.mqtt_node_template = '''
-		    {
-		        "id": "",
-		        "type": "mqtt in",
-		        "z": "",
-		        "name": "",
-		        "topic": "topic1",
-		        "qos": "2",
-		        "broker": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "mqtt in",
+				"z": "",
+				"name": "",
+				"topic": "topic1",
+				"qos": "2",
+				"broker": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 
 		panel = wx.Panel(self)
 
@@ -963,7 +964,7 @@ class TriggerMQTT(wx.Dialog):
 
 		topiclabel = wx.StaticText(panel, label=_('Topic'))
 		self.topic = wx.TextCtrl(panel)
-		
+
 		hline1 = wx.StaticLine(panel)
 		help_button = wx.BitmapButton(panel, bitmap=help_bmp, size=(help_bmp.GetWidth()+40, help_bmp.GetHeight()+10))
 		help_button.Bind(wx.EVT_BUTTON, self.on_help)
@@ -994,7 +995,7 @@ class TriggerMQTT(wx.Dialog):
 		if not local: self.local.Disable()
 		if not remote: self.remote.Disable()
 
-		if edit <> 0:
+		if edit != 0:
 			self.topic.SetValue(edit[1]['topic'])
 			self.local.SetValue(edit[1]['broker'] == self.localbrokerid)
 			self.remote.SetValue(edit[1]['broker'] == self.remotebrokerid)
@@ -1047,72 +1048,72 @@ class TriggerTelegram(wx.Dialog):
 		self.actions_flow_id = parent.actions_flow_id
 		self.trigger_type = trigger
 		self.telegramid = parent.telegramid
-		
+
 		title = _('Add Telegram trigger')
 
 		wx.Dialog.__init__(self, None, title = title, size=(350, 80))
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		self.telegram_node_template = '''
-		    {
-		        "id": "",
-		        "type": "chatbot-telegram-receive",
-		        "z": "",
-		        "bot": "",
-		        "botProduction": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "chatbot-telegram-receive",
+				"z": "",
+				"bot": "",
+				"botProduction": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.authorized_node_template = '''
-		    {
-		        "id": "",
-		        "type": "chatbot-authorized",
-		        "z": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[],[]]
-		    }'''
+			{
+				"id": "",
+				"type": "chatbot-authorized",
+				"z": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[],[]]
+			}'''
 		self.function_node_template = '''
-		    {
-		        "id": "",
-		        "type": "function",
-		        "z": "",
-		        "name": "",
-		        "func": "if (msg.payload.content!='/start'){return msg;}",
-		        "outputs": 1,
-		        "noerr": 0,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "function",
+				"z": "",
+				"name": "",
+				"func": "if (msg.payload.content!='/start'){return msg;}",
+				"outputs": 1,
+				"noerr": 0,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.change_node_template = '''
-		    {
-		        "id": "",
-		        "type": "change",
-		        "z": "",
-		        "name": "",
-		        "rules": [
-		            {
-		                "t": "set",
-		                "p": "payload",
-		                "pt": "msg",
-		                "to": "payload.content",
-		                "tot": "msg"
-		            }
-		        ],
-		        "action": "",
-		        "property": "",
-		        "from": "",
-		        "to": "",
-		        "reg": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-    }'''
+			{
+				"id": "",
+				"type": "change",
+				"z": "",
+				"name": "",
+				"rules": [
+					{
+						"t": "set",
+						"p": "payload",
+						"pt": "msg",
+						"to": "payload.content",
+						"tot": "msg"
+					}
+				],
+				"action": "",
+				"property": "",
+				"from": "",
+				"to": "",
+				"reg": false,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+	}'''
 
 		panel = wx.Panel(self)
-		
+
 		help_button = wx.BitmapButton(panel, bitmap=help_bmp, size=(help_bmp.GetWidth()+40, help_bmp.GetHeight()+10))
 		help_button.Bind(wx.EVT_BUTTON, self.on_help)
 		cancelBtn = wx.Button(panel, wx.ID_CANCEL)
@@ -1130,7 +1131,7 @@ class TriggerTelegram(wx.Dialog):
 		main.Add(hbox, 0, wx.ALL | wx.EXPAND, 0)
 
 		panel.SetSizer(main)
-		
+
 	def on_help(self, e):
 		url = self.currentpath+"/docs/html/xxx/xxx.html"
 		webbrowser.open(url, new=2)
@@ -1178,7 +1179,7 @@ class TriggerTime(wx.Dialog):
 		self.actions_flow_id = parent.actions_flow_id
 		self.trigger_type = trigger
 		self.telegramid = parent.telegramid
-		
+
 		if edit == 0: title = _('Add Time trigger')
 		else: title = _('Edit Time trigger')
 
@@ -1186,25 +1187,25 @@ class TriggerTime(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		self.time_node_template = '''
-		    {
-		        "id": "",
-		        "type": "inject",
-		        "z": "",
-		        "name": "",
-		        "topic": "",
-		        "payload": "",
-		        "payloadType": "date",
-		        "repeat": "",
-		        "crontab": "",
-		        "once": true,
-		        "onceDelay": 0.1,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "inject",
+				"z": "",
+				"name": "",
+				"topic": "",
+				"payload": "",
+				"payloadType": "date",
+				"repeat": "",
+				"crontab": "",
+				"once": true,
+				"onceDelay": 0.1,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 
 		panel = wx.Panel(self)
-		
+
 		periodlabel = wx.StaticText(panel, label=_('Checking period'))
 		self.period = wx.SpinCtrl(panel, min=1, max=100000000, initial=1)
 
@@ -1238,8 +1239,8 @@ class TriggerTime(wx.Dialog):
 		main.Add(hbox, 0, wx.ALL | wx.EXPAND, 0)
 
 		panel.SetSizer(main)
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.period.SetValue(int(edit[1]['repeat']))
 
 	def on_help(self, e):
@@ -1279,21 +1280,21 @@ class Condition(wx.Dialog):
 		else:
 			self.operator = self.available_operators[0]
 		self.condition_node_template = '''
-		    {
-		        "id": "",
-		        "type": "switch",
-		        "z": "",
-		        "name": "",
-		        "property": "payload",
-		        "propertyType": "msg",
-		        "rules": [],
-		        "checkall": "true",
-		        "repair": false,
-		        "outputs": 1,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "switch",
+				"z": "",
+				"name": "",
+				"property": "payload",
+				"propertyType": "msg",
+				"rules": [],
+				"checkall": "true",
+				"repair": false,
+				"outputs": 1,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 
 		if edit == 0: title = _('Add condition')
 		else: title = _('Edit condition')
@@ -1323,7 +1324,7 @@ class Condition(wx.Dialog):
 		self.value2 = wx.TextCtrl(panel)
 		self.edit_value2 = wx.Button(panel, label=_('Add'))
 		self.edit_value2.Bind(wx.EVT_BUTTON, self.onEditSkkey2)
-		
+
 		hline1 = wx.StaticLine(panel)
 		help_button = wx.BitmapButton(panel, bitmap=help_bmp, size=(help_bmp.GetWidth()+40, help_bmp.GetHeight()+10))
 		help_button.Bind(wx.EVT_BUTTON, self.on_help)
@@ -1372,22 +1373,22 @@ class Condition(wx.Dialog):
 			self.type1.Disable()
 			self.value1.Disable()
 			self.value2.Disable()
-		elif self.operator != 'btwn':			
+		elif self.operator != 'btwn':
 			self.value2.Disable()
-			
+
 		if edit:
 			operator_value = self.available_operators.index(edit['t'])
 			type_list_value = self.type_list.index(edit['vt'])
 			self.available_operators_select.SetSelection(operator_value)
 			self.type1.SetSelection(type_list_value)
 
-			if type_list_value == 0:	#num is for date and num
+			if type_list_value == 0:    #num is for date and num
 				if '-' in edit['v']:
 					self.type1.SetSelection(3)
 
 			self.value1.SetValue(edit['v'])
 			if operator_value == 6:
-				self.value2.SetValue(edit['v2'])				
+				self.value2.SetValue(edit['v2'])
 
 		self.Set_SK_add()
 
@@ -1413,7 +1414,7 @@ class Condition(wx.Dialog):
 
 	def on_available_operators_select(self,e):
 		self.operator = self.available_operators[self.available_operators_select.GetSelection()]
-		
+
 		self.type1.Enable()
 		self.value1.Enable()
 		self.value2.Enable()
@@ -1421,16 +1422,16 @@ class Condition(wx.Dialog):
 			self.type1.Disable()
 			self.value1.Disable()
 			self.value2.Disable()
-		elif self.operator != 'btwn':			
+		elif self.operator != 'btwn':
 			self.value2.Disable()
-		
+
 		self.Set_SK_add()
 
 	def Set_SK_add(self):
-		if self.type1.GetSelection() == 2: 
+		if self.type1.GetSelection() == 2:
 			self.edit_value1.Enable()
 			if self.operator == 'btwn': self.edit_value2.Enable()
-		else: 
+		else:
 			self.edit_value1.Disable()
 			self.edit_value2.Disable()
 
@@ -1440,7 +1441,7 @@ class Condition(wx.Dialog):
 			now = datetime.now()
 			self.value1.SetValue(now.strftime("%Y-%m-%d %H:%M:%S"))
 			if self.operator == 'btwn': self.value2.SetValue(now.strftime("%Y-%m-%d %H:%M:%S"))
-		else: 
+		else:
 			self.value1.SetValue('')
 			self.value2.SetValue('')
 
@@ -1476,7 +1477,7 @@ class Condition(wx.Dialog):
 					wx.MessageBox(_('You have to provide 2 values.'), 'Info', wx.OK | wx.ICON_INFORMATION)
 					return
 				if type1 == 3:
-					try: 
+					try:
 						timestamp = time.mktime(time.strptime(value2, '%Y-%m-%d %H:%M:%S'))
 						value2 = str(timestamp*1000)
 					except:
@@ -1491,53 +1492,53 @@ class RepeatOptions():
 		self.rateUnit = [_('Seconds'),_('Minutes'),_('Hours'),_('Days')]
 		self.rateUnit2 = ['second','minute','hour','day']
 		self.rate_limit_template = '''
-		    {
-		        "id": "",
-		        "type": "delay",
-		        "z": "",
-		        "name": "",
-		        "pauseType": "rate",
-		        "timeout": "5",
-		        "timeoutUnits": "seconds",
-		        "rate": "",
-		        "nbRateUnits": "",
-		        "rateUnits": "",
-		        "randomFirst": "1",
-		        "randomLast": "5",
-		        "randomUnits": "seconds",
-		        "drop": true,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            [
-		                ""
-		            ]
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "delay",
+				"z": "",
+				"name": "",
+				"pauseType": "rate",
+				"timeout": "5",
+				"timeoutUnits": "seconds",
+				"rate": "",
+				"nbRateUnits": "",
+				"rateUnits": "",
+				"randomFirst": "1",
+				"randomLast": "5",
+				"randomUnits": "seconds",
+				"drop": true,
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[
+						""
+					]
+				]
+			}'''
 		self.intervalUnit = [_('MilliSeconds'),_('Seconds'),_('Minutes'),_('Hours')]
 		self.intervalUnit2 = ['msecs','secs','mins','hours']
 		self.repeat_template = '''
-		    {
-		        "id": "",
-		        "type": "msg-resend",
-		        "z": "",
-		        "interval": "",
-		        "intervalUnit": "",
-		        "maximum": "",
-		        "bytopic": false,
-		        "clone": false,
-		        "firstDelayed": false,
-		        "addCounters": false,
-		        "highRate": true,
-		        "outputCountField": "",
-		        "outputMaxField": "",
-		        "name": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            []
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "msg-resend",
+				"z": "",
+				"interval": "",
+				"intervalUnit": "",
+				"maximum": "",
+				"bytopic": false,
+				"clone": false,
+				"firstDelayed": false,
+				"addCounters": false,
+				"highRate": true,
+				"outputCountField": "",
+				"outputMaxField": "",
+				"name": "",
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[]
+				]
+			}'''
 
 # actions
 class ActionSetSignalkKey(wx.Dialog):
@@ -1549,51 +1550,51 @@ class ActionSetSignalkKey(wx.Dialog):
 		self.actions_flow_id = parent.actions_flow_id
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.sk_node_template = '''
-		    {
-		        "id": "",
-		        "type": "signalk-send-pathvalue",
-		        "z": "",
-		        "name": "",
-		        "source": "openplotter.actions",
-		        "x": 380,
-		        "y": 120,
-		        "wires": []
-		    }'''
+			{
+				"id": "",
+				"type": "signalk-send-pathvalue",
+				"z": "",
+				"name": "",
+				"source": "openplotter.actions",
+				"x": 380,
+				"y": 120,
+				"wires": []
+			}'''
 		self.change_node_template = '''
 			{
-		        "id": "",
-		        "type": "change",
-		        "z": "",
-		        "name": "",
-		        "rules": [
-		            {
-		                "t": "set",
-		                "p": "topic",
-		                "pt": "msg",
-		                "to": "",
-		                "tot": "str"
-		            },
-		            {
-		                "t": "set",
-		                "p": "payload",
-		                "pt": "msg",
-		                "to": "",
-		                "tot": ""
-		            }
-		        ],
-		        "action": "",
-		        "property": "",
-		        "from": "",
-		        "to": "",
-		        "reg": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            [
-		                ""
-		            ]
-		        ]
-		    }'''
+				"id": "",
+				"type": "change",
+				"z": "",
+				"name": "",
+				"rules": [
+					{
+						"t": "set",
+						"p": "topic",
+						"pt": "msg",
+						"to": "",
+						"tot": "str"
+					},
+					{
+						"t": "set",
+						"p": "payload",
+						"pt": "msg",
+						"to": "",
+						"tot": ""
+					}
+				],
+				"action": "",
+				"property": "",
+				"from": "",
+				"to": "",
+				"reg": false,
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[
+						""
+					]
+				]
+			}'''
 
 		if edit == 0: title = _('Set Signal K key')
 		else: title = _('Edit Signal K key')
@@ -1609,7 +1610,7 @@ class ActionSetSignalkKey(wx.Dialog):
 		self.edit_skkey1.Bind(wx.EVT_BUTTON, self.onEditSkkey1)
 
 		self.type_list = [_('Trigger value'), _('Number'), _('String'), _('Signal K key value')]
-		self.type_list2 = ['msg','num','str','flow'] 
+		self.type_list2 = ['msg','num','str','flow']
 
 		tolabel = wx.StaticText(panel, label=_('to'))
 		self.type = wx.Choice(panel, choices=self.type_list, style=wx.CB_READONLY)
@@ -1656,11 +1657,11 @@ class ActionSetSignalkKey(wx.Dialog):
 
 		self.type.SetSelection(1)
 		self.edit_skkey2.Disable()
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.skkey1.SetValue(edit[1]['rules'][0]['to'])
-			self.type.SetSelection(self.type_list2.index(edit[1]['rules'][1]['tot']))				
-			self.value.SetValue(edit[1]['rules'][1]['to'])						
+			self.type.SetSelection(self.type_list2.index(edit[1]['rules'][1]['tot']))
+			self.value.SetValue(edit[1]['rules'][1]['to'])
 
 	def on_help(self, e):
 		url = self.currentpath+"/docs/html/xxx/xxx.html"
@@ -1745,15 +1746,15 @@ class ActionEndFilterSignalk(wx.Dialog):
 		self.actions_flow_id = parent.actions_flow_id
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.sk_node_template = '''
-		    {			
-		        "id": "",
+			{
+				"id": "",
 				"type": "signalk-input-handler-next",
-		        "z": "",
-		        "name": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": []
-		    }'''
+				"z": "",
+				"name": "",
+				"x": 380,
+				"y": 120,
+				"wires": []
+			}'''
 
 		if edit == 0: title = _('Set Signal K key')
 		else: title = _('Edit Signal K key')
@@ -1795,48 +1796,48 @@ class ActionSetGPIO(wx.Dialog):
 		self.actions_flow_id = parent.actions_flow_id
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.gpio_node_template = '''
-		    {
-		        "id": "",
-		        "type": "rpi-gpio out",
-		        "z": "",
-		        "name": "",
-		        "pin": "",
-		        "set": true,
-		        "level": "0",
-		        "freq": "",
-		        "out": "out",
-		        "x": 380,
-		        "y": 120,
-		        "wires": []
-		    }'''
+			{
+				"id": "",
+				"type": "rpi-gpio out",
+				"z": "",
+				"name": "",
+				"pin": "",
+				"set": true,
+				"level": "0",
+				"freq": "",
+				"out": "out",
+				"x": 380,
+				"y": 120,
+				"wires": []
+			}'''
 		self.change_node_template = '''
-		    {
-		        "id": "",
-		        "type": "change",
-		        "z": "",
-		        "name": "",
-		        "rules": [
-		            {
-		                "t": "set",
-		                "p": "payload",
-		                "pt": "msg",
-		                "to": "",
-		                "tot": "num"
-		            }
-		        ],
-		        "action": "",
-		        "property": "",
-		        "from": "",
-		        "to": "",
-		        "reg": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            [
-		                ""
-		            ]
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "change",
+				"z": "",
+				"name": "",
+				"rules": [
+					{
+						"t": "set",
+						"p": "payload",
+						"pt": "msg",
+						"to": "",
+						"tot": "num"
+					}
+				],
+				"action": "",
+				"property": "",
+				"from": "",
+				"to": "",
+				"reg": false,
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[
+						""
+					]
+				]
+			}'''
 		if edit == 0: title = _('Set GPIO output')
 		else: title = _('Edit GPIO output')
 
@@ -1849,15 +1850,15 @@ class ActionSetGPIO(wx.Dialog):
 		for i in parent.no_actions_nodes:
 			if 'type' in i:
 			 if i['type'] == 'rpi-gpio in' or i['type'] == 'rpi-gpio out':
-			 	if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
+				 if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
 		for i in parent.triggers_flow_nodes:
 			if 'type' in i:
 			 if i['type'] == 'rpi-gpio in':
-			 	if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
+				 if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
 		for i in parent.actions_flow_nodes:
 			if 'type' in i:
 			 if i['type'] == 'rpi-gpio out':
-			 	if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
+				 if 'pin' in i and not i['pin'] in in_use_pins: in_use_pins.append(i['pin'])
 
 		pinsinuse = wx.StaticText(panel, label=_('Pins in use: ')+str([x.encode('UTF8') for x in in_use_pins]))
 		pinlabel = wx.StaticText(panel, label=_('Pin'))
@@ -1914,15 +1915,15 @@ class ActionSetGPIO(wx.Dialog):
 		self.on_low(0)
 		self.init.SetValue(True)
 		self.initlow.SetValue(True)
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.pin.SetSelection(self.nodes.allowed_pins.index(edit[0]['pin']))
 			self.low.SetValue(edit[1]['rules'][0]['to'] == '0')
 			self.high.SetValue(edit[1]['rules'][0]['to'] == '1')
 			self.init.SetValue(edit[0]['set'])
 			self.initlow.SetValue(edit[0]['level'] == '0')
 			self.inithigh.SetValue(edit[0]['level'] == '1')
-			
+
 	def on_help(self, e):
 		url = self.currentpath+"/docs/html/xxx/xxx.html"
 		webbrowser.open(url, new=2)
@@ -1966,7 +1967,7 @@ class ActionSetGPIO(wx.Dialog):
 			gpio_node['set'] = True
 			if self.initlow.GetValue(): gpio_node['level'] = '0'
 			if self.inithigh.GetValue(): gpio_node['level'] = '1'
-		else: 
+		else:
 			gpio_node['set'] = False
 			gpio_node['level'] = ''
 		self.ActionNodes.append(gpio_node)
@@ -1992,47 +1993,47 @@ class ActionSetMQTT(wx.Dialog):
 		self.actions_flow_id = parent.actions_flow_id
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.mqtt_node_template = '''
-		    {
-		        "id": "",
-		        "type": "mqtt out",
-		        "z": "",
-		        "name": "",
-		        "topic": "",
-		        "qos": "",
-		        "retain": "",
-		        "broker": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": []
-		    }'''
+			{
+				"id": "",
+				"type": "mqtt out",
+				"z": "",
+				"name": "",
+				"topic": "",
+				"qos": "",
+				"retain": "",
+				"broker": "",
+				"x": 380,
+				"y": 120,
+				"wires": []
+			}'''
 		self.change_node_template = '''
 			{
-		        "id": "",
-		        "type": "change",
-		        "z": "",
-		        "name": "",
-		        "rules": [
-		            {
-		                "t": "set",
-		                "p": "payload",
-		                "pt": "msg",
-		                "to": "",
-		                "tot": ""
-		            }
-		        ],
-		        "action": "",
-		        "property": "",
-		        "from": "",
-		        "to": "",
-		        "reg": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            [
-		                ""
-		            ]
-		        ]
-		    }'''
+				"id": "",
+				"type": "change",
+				"z": "",
+				"name": "",
+				"rules": [
+					{
+						"t": "set",
+						"p": "payload",
+						"pt": "msg",
+						"to": "",
+						"tot": ""
+					}
+				],
+				"action": "",
+				"property": "",
+				"from": "",
+				"to": "",
+				"reg": false,
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[
+						""
+					]
+				]
+			}'''
 
 		if edit == 0: title = _('Add MQTT action')
 		else: title = _('Edit MQTT action')
@@ -2062,12 +2063,12 @@ class ActionSetMQTT(wx.Dialog):
 
 		value = wx.BoxSizer(wx.HORIZONTAL)
 		value.Add(tolabel, 0, wx.TOP | wx.BOTTOM, 9)
-		value.AddSpacer(5)		
+		value.AddSpacer(5)
 		value.Add(self.type, 0, wx.TOP | wx.BOTTOM, 2)
-		value.AddSpacer(5)		
+		value.AddSpacer(5)
 		value.Add(self.value, 1, wx.TOP | wx.BOTTOM, 3)
 		value.Add(self.edit_skkey2, 0, wx.LEFT, 10)
-	
+
 		hline1 = wx.StaticLine(panel)
 		help_button = wx.BitmapButton(panel, bitmap=help_bmp, size=(help_bmp.GetWidth()+40, help_bmp.GetHeight()+10))
 		help_button.Bind(wx.EVT_BUTTON, self.on_help)
@@ -2099,8 +2100,8 @@ class ActionSetMQTT(wx.Dialog):
 		if not local: self.local.Disable()
 		if not remote: self.remote.Disable()
 		self.edit_skkey2.Disable()
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.topic.SetValue(edit[0]['topic'])
 			self.local.SetValue(edit[0]['broker'] == self.localbrokerid)
 			self.remote.SetValue(edit[0]['broker'] == self.remotebrokerid)
@@ -2195,88 +2196,88 @@ class ActionPublishTwitter(wx.Dialog):
 		self.twitterid = parent.twitterid
 		self.RepeatOptions = RepeatOptions()
 		self.twitter_node_template = '''
-		    {
-		        "id": "",
-		        "type": "twitter out",
-		        "z": "",
-		        "name": "",
-		        "twitter": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": []
-		    }'''
+			{
+				"id": "",
+				"type": "twitter out",
+				"z": "",
+				"name": "",
+				"twitter": "",
+				"x": 380,
+				"y": 120,
+				"wires": []
+			}'''
 		self.payload_node_template = '''
-		    {
-		        "id": "",
-		        "type": "template",
-		        "z": "",
-		        "name": "",
-		        "field": "payload",
-		        "fieldType": "msg",
-		        "format": "handlebars",
-		        "syntax": "mustache",
-		        "template": "",
-		        "output": "str",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            []
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "template",
+				"z": "",
+				"name": "",
+				"field": "payload",
+				"fieldType": "msg",
+				"format": "handlebars",
+				"syntax": "mustache",
+				"template": "",
+				"output": "str",
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[]
+				]
+			}'''
 		self.change_node_template = '''
-		    {
-		        "id": "",
-		        "type": "change",
-		        "z": "",
-		        "name": "",
-		        "rules": [
-		            {
-		                "t": "set",
-		                "p": "media",
-		                "pt": "msg",
-		                "to": "payload",
-		                "tot": "msg"
-		            }
-		        ],
-		        "action": "",
-		        "property": "",
-		        "from": "",
-		        "to": "",
-		        "reg": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "change",
+				"z": "",
+				"name": "",
+				"rules": [
+					{
+						"t": "set",
+						"p": "media",
+						"pt": "msg",
+						"to": "payload",
+						"tot": "msg"
+					}
+				],
+				"action": "",
+				"property": "",
+				"from": "",
+				"to": "",
+				"reg": false,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.file_node_template = '''
-		    {
-		        "id": "",
-		        "type": "file in",
-		        "z": "",
-		        "name": "",
-		        "filename": "",
-		        "format": "",
-		        "chunk": false,
-		        "sendError": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "file in",
+				"z": "",
+				"name": "",
+				"filename": "",
+				"format": "",
+				"chunk": false,
+				"sendError": false,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.photo_node_template = '''
-		    {
-		        "id": "",
-		        "type": "usbcamera",
-		        "z": "",
-		        "filemode": "0",
-		        "filename": "image01.jpg",
-		        "filedefpath": "1",
-		        "filepath": "",
-		        "fileformat": "jpeg",
-		        "resolution": "",
-		        "name": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "usbcamera",
+				"z": "",
+				"filemode": "0",
+				"filename": "image01.jpg",
+				"filedefpath": "1",
+				"filepath": "",
+				"fileformat": "jpeg",
+				"resolution": "",
+				"name": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 
 		if edit == 0: title = _('Add Twitter action')
 		else: title = _('Edit Twitter action')
@@ -2359,7 +2360,7 @@ class ActionPublishTwitter(wx.Dialog):
 		col2.AddSpacer(10)
 		col2.Add(self.photo, 0, wx.ALL, 5)
 		col2.Add(res, 0, wx.ALL, 5)
-		
+
 		options = wx.BoxSizer(wx.HORIZONTAL)
 		options.Add(col1, 1, wx.ALL, 5)
 		options.Add(col2, 1, wx.ALL, 5)
@@ -2405,7 +2406,7 @@ class ActionPublishTwitter(wx.Dialog):
 		panel.SetSizer(main)
 		self.Centre()
 
-		if edit <> 0:
+		if edit != 0:
 			self.body.SetValue(edit[1]['template'])
 			if 'resolution' in edit[3]:
 				self.photo.SetValue(True)
@@ -2425,7 +2426,7 @@ class ActionPublishTwitter(wx.Dialog):
 					self.max.Enable()
 					self.repeat.SetValue(True)
 					try:
-						self.interval.SetValue(int(edit[Rline]['interval']))				
+						self.interval.SetValue(int(edit[Rline]['interval']))
 						self.unit.SetSelection(self.RepeatOptions.intervalUnit2.index(edit[Rline]['intervalUnit']))
 						self.max.SetValue(int(edit[Rline]['maximum']))
 					except:
@@ -2436,7 +2437,7 @@ class ActionPublishTwitter(wx.Dialog):
 					self.timeunit.Enable()
 					self.rate.SetValue(True)
 					try:
-						self.amount.SetValue(int(edit[Rline]['rate']))				
+						self.amount.SetValue(int(edit[Rline]['rate']))
 						self.time.SetValue(int(edit[Rline]['nbRateUnits']))
 						self.timeunit.SetSelection(self.RepeatOptions.rateUnit2.index(edit[Rline]['rateUnits']))
 					except:
@@ -2456,7 +2457,7 @@ class ActionPublishTwitter(wx.Dialog):
 
 	def on_select_file(self, e):
 		dlg = wx.FileDialog(self, message=_('Choose a file'), defaultDir = self.home+'/Pictures', defaultFile='',
-							wildcard=_('Image files').decode('utf8')+' (*.jpg, *.png, *.gif)|*.jpg;*.png;*.gif|'+_('All files').decode('utf8')+' (*.*)|*.*',
+							wildcard=_('Image files')+' (*.jpg, *.png, *.gif)|*.jpg;*.png;*.gif|'+_('All files')+' (*.*)|*.*',
 							style=wx.OPEN | wx.CHANGE_DIR)
 		if dlg.ShowModal() == wx.ID_OK: self.path_file.SetValue(dlg.GetPath())
 		dlg.Destroy()
@@ -2604,55 +2605,55 @@ class ActionSendEmail(wx.Dialog):
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.RepeatOptions = RepeatOptions()
 		self.email_node_template = '''
-		    {
-		        "id": "",
-		        "type": "e-mail",
-		        "z": "",
-		        "server": "",
-		        "port": "",
-		        "secure": true,
-		        "name": "",
-		        "dname": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": []
-		    }'''
+			{
+				"id": "",
+				"type": "e-mail",
+				"z": "",
+				"server": "",
+				"port": "",
+				"secure": true,
+				"name": "",
+				"dname": "",
+				"x": 380,
+				"y": 120,
+				"wires": []
+			}'''
 		self.payload_node_template = '''
-		    {
-		        "id": "",
-		        "type": "template",
-		        "z": "",
-		        "name": "",
-		        "field": "payload",
-		        "fieldType": "msg",
-		        "format": "handlebars",
-		        "syntax": "mustache",
-		        "template": "",
-		        "output": "str",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            []
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "template",
+				"z": "",
+				"name": "",
+				"field": "payload",
+				"fieldType": "msg",
+				"format": "handlebars",
+				"syntax": "mustache",
+				"template": "",
+				"output": "str",
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[]
+				]
+			}'''
 		self.topic_node_template = '''
-		    {
-		        "id": "",
-		        "type": "template",
-		        "z": "",
-		        "name": "",
-		        "field": "topic",
-		        "fieldType": "msg",
-		        "format": "handlebars",
-		        "syntax": "mustache",
-		        "template": "",
-		        "output": "str",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            []
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "template",
+				"z": "",
+				"name": "",
+				"field": "topic",
+				"fieldType": "msg",
+				"format": "handlebars",
+				"syntax": "mustache",
+				"template": "",
+				"output": "str",
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[]
+				]
+			}'''
 		if edit == 0: title = _('Add email action')
 		else: title = _('Edit email action')
 
@@ -2704,7 +2705,7 @@ class ActionSendEmail(wx.Dialog):
 		self.time = wx.SpinCtrl(panel, min=1, max=100000, initial=1)
 		self.timeunit = wx.Choice(panel, choices=self.RepeatOptions.rateUnit, style=wx.CB_READONLY)
 		self.timeunit.SetSelection(2)
-		
+
 		self.interval.Disable()
 		self.unit.Disable()
 		self.max.Disable()
@@ -2799,16 +2800,16 @@ class ActionSendEmail(wx.Dialog):
 
 		self.server.SetValue('smtp.gmail.com')
 		self.secure.SetValue(True)
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.server.SetValue(edit[0]['server'])
 			self.port.SetValue(edit[0]['port'])
 			self.secure.SetValue(edit[0]['secure'])
-			self.to.SetValue(edit[0]['name'])	
-			
+			self.to.SetValue(edit[0]['name'])
+
 			self.subject.SetValue(edit[2]['template'])
 			self.body.SetValue(edit[1]['template'])
-		
+
 			Rline = 3
 			if len(edit) > Rline:
 				if edit[Rline]['type'] == 'msg-resend':
@@ -2817,7 +2818,7 @@ class ActionSendEmail(wx.Dialog):
 					self.max.Enable()
 					self.repeat.SetValue(True)
 					try:
-						self.interval.SetValue(int(edit[Rline]['interval']))				
+						self.interval.SetValue(int(edit[Rline]['interval']))
 						self.unit.SetSelection(self.RepeatOptions.intervalUnit2.index(edit[Rline]['intervalUnit']))
 						self.max.SetValue(int(edit[Rline]['maximum']))
 					except:
@@ -2828,7 +2829,7 @@ class ActionSendEmail(wx.Dialog):
 					self.timeunit.Enable()
 					self.rate.SetValue(True)
 					try:
-						self.amount.SetValue(int(edit[Rline]['rate']))				
+						self.amount.SetValue(int(edit[Rline]['rate']))
 						self.time.SetValue(int(edit[Rline]['nbRateUnits']))
 						self.timeunit.SetSelection(self.RepeatOptions.rateUnit2.index(edit[Rline]['rateUnits']))
 					except:
@@ -2955,25 +2956,25 @@ class ActionPlaySound(wx.Dialog):
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.RepeatOptions = RepeatOptions()
 		self.play_sound_node_template = '''
-		    {
-		        "id": "",
-		        "type": "exec",
-		        "z": "",
-		        "command": "omxplayer",
-		        "addpay": false,
-		        "append": "",
-		        "useSpawn": "false",
-		        "timer": "",
-		        "oldrc": false,
-		        "name": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            [],
-		            [],
-		            []
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "exec",
+				"z": "",
+				"command": "omxplayer",
+				"addpay": false,
+				"append": "",
+				"useSpawn": "false",
+				"timer": "",
+				"oldrc": false,
+				"name": "",
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[],
+					[],
+					[]
+				]
+			}'''
 
 		if edit == 0: title = _('Add sound file')
 		else: title = _('Edit sound file')
@@ -3004,7 +3005,7 @@ class ActionPlaySound(wx.Dialog):
 		self.time = wx.SpinCtrl(panel, min=1, max=100000, initial=1)
 		self.timeunit = wx.Choice(panel, choices=self.RepeatOptions.rateUnit, style=wx.CB_READONLY)
 		self.timeunit.SetSelection(2)
-		
+
 		self.interval.Disable()
 		self.unit.Disable()
 		self.max.Disable()
@@ -3062,8 +3063,8 @@ class ActionPlaySound(wx.Dialog):
 		main.Add(hbox, 0, wx.ALL | wx.EXPAND, 0)
 
 		panel.SetSizer(main)
-		
-		if edit <> 0:
+
+		if edit != 0:
 			self.path_sound.SetValue(edit[0]['append'])
 			Rline = 1
 			if len(edit) > Rline:
@@ -3073,7 +3074,7 @@ class ActionPlaySound(wx.Dialog):
 					self.max.Enable()
 					self.repeat.SetValue(True)
 					try:
-						self.interval.SetValue(int(edit[Rline]['interval']))				
+						self.interval.SetValue(int(edit[Rline]['interval']))
 						self.unit.SetSelection(self.RepeatOptions.intervalUnit2.index(edit[Rline]['intervalUnit']))
 						self.max.SetValue(int(edit[Rline]['maximum']))
 					except:
@@ -3084,7 +3085,7 @@ class ActionPlaySound(wx.Dialog):
 					self.timeunit.Enable()
 					self.rate.SetValue(True)
 					try:
-						self.amount.SetValue(int(edit[Rline]['rate']))				
+						self.amount.SetValue(int(edit[Rline]['rate']))
 						self.time.SetValue(int(edit[Rline]['nbRateUnits']))
 						self.timeunit.SetSelection(self.RepeatOptions.rateUnit2.index(edit[Rline]['rateUnits']))
 					except:
@@ -3125,8 +3126,8 @@ class ActionPlaySound(wx.Dialog):
 
 	def on_select_sound(self, e):
 		dlg = wx.FileDialog(self, message=_('Choose a file'), defaultDir=self.currentpath + '/sounds', defaultFile='',
-							wildcard=_('Audio files').decode('utf8') + ' (*.mp3)|*.mp3|' + _('All files').decode('utf8') + ' (*.*)|*.*',
-							style=wx.OPEN | wx.CHANGE_DIR)
+							wildcard=_('Audio files') + ' (*.mp3)|*.mp3|' + _('All files') + ' (*.*)|*.*',
+							style=wx.FD_OPEN | wx.FD_CHANGE_DIR)
 		if dlg.ShowModal() == wx.ID_OK:
 			file_path = dlg.GetPath()
 			self.path_sound.SetValue(file_path)
@@ -3180,25 +3181,25 @@ class ActionRunCommand(wx.Dialog):
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.RepeatOptions = RepeatOptions()
 		self.run_command_node_template = '''
-		    {
-		        "id": "",
-		        "type": "exec",
-		        "z": "",
-		        "command": "",
-		        "addpay": false,
-		        "append": "",
-		        "useSpawn": "false",
-		        "timer": "",
-		        "oldrc": false,
-		        "name": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            [],
-		            [],
-		            []
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "exec",
+				"z": "",
+				"command": "",
+				"addpay": false,
+				"append": "",
+				"useSpawn": "false",
+				"timer": "",
+				"oldrc": false,
+				"name": "",
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[],
+					[],
+					[]
+				]
+			}'''
 
 		if edit == 0: title = _('Add command')
 		else: title = _('Edit command')
@@ -3294,33 +3295,39 @@ class ActionRunCommand(wx.Dialog):
 		self.time.Disable()
 		self.timeunit.Disable()
 
-		if edit <> 0:
-			self.command.SetValue(edit[0]['command'])
-			self.arguments.SetValue(edit[0]['append'])
-			Rline = 1
-			if len(edit) > Rline:
-				if edit[Rline]['type'] == 'msg-resend':
-					self.interval.Enable()
-					self.unit.Enable()
-					self.max.Enable()
-					self.repeat.SetValue(True)
-					try:
-						self.interval.SetValue(int(edit[Rline]['interval']))				
-						self.unit.SetSelection(self.RepeatOptions.intervalUnit2.index(edit[Rline]['intervalUnit']))
-						self.max.SetValue(int(edit[Rline]['maximum']))
-					except:
-						pass
-				if edit[Rline]['type'] == 'delay':
-					self.amount.Enable()
-					self.time.Enable()
-					self.timeunit.Enable()
-					self.rate.SetValue(True)
-					try:
-						self.amount.SetValue(int(edit[Rline]['rate']))				
-						self.time.SetValue(int(edit[Rline]['nbRateUnits']))
-						self.timeunit.SetSelection(self.RepeatOptions.rateUnit2.index(edit[Rline]['rateUnits']))
-					except:
-						pass
+		print(7,edit)
+		if edit != 0:
+			if len(edit)==1:
+				self.command.SetValue(edit[0]['command'])
+				self.arguments.SetValue(edit[0]['append'])
+				
+				Rline = 1
+				if len(edit) > Rline:
+					if edit[Rline]['type'] == 'msg-resend':
+						self.interval.Enable()
+						self.unit.Enable()
+						self.max.Enable()
+						self.repeat.SetValue(True)
+						try:
+							self.interval.SetValue(int(edit[Rline]['interval']))
+							self.unit.SetSelection(self.RepeatOptions.intervalUnit2.index(edit[Rline]['intervalUnit']))
+							self.max.SetValue(int(edit[Rline]['maximum']))
+						except:
+							pass
+					if edit[Rline]['type'] == 'delay':
+						self.amount.Enable()
+						self.time.Enable()
+						self.timeunit.Enable()
+						self.rate.SetValue(True)
+						try:
+							self.amount.SetValue(int(edit[Rline]['rate']))
+							self.time.SetValue(int(edit[Rline]['nbRateUnits']))
+							self.timeunit.SetSelection(self.RepeatOptions.rateUnit2.index(edit[Rline]['rateUnits']))
+						except:
+							pass
+			elif len(edit)==3:
+				self.command.SetValue(edit[0])
+				self.arguments.SetValue(edit[1])
 
 	def on_help(self, e):
 		url = self.currentpath+"/docs/html/xxx/xxx.html"
@@ -3406,110 +3413,110 @@ class ActionSendTelegram(wx.Dialog):
 		self.action_id = parent.available_actions_select.GetSelection()
 		self.RepeatOptions = RepeatOptions()
 		self.telegram_node_template = '''
-		    {
-		        "id": "",
-		        "type": "chatbot-telegram-send",
-		        "z": "",
-		        "bot": "",
-		        "botProduction": "",
-		        "track": false,
-		        "passThrough": false,
-		        "outputs": 0,
-		        "x": 380,
-		        "y": 120,
-		        "wires": []
-		    }'''
+			{
+				"id": "",
+				"type": "chatbot-telegram-send",
+				"z": "",
+				"bot": "",
+				"botProduction": "",
+				"track": false,
+				"passThrough": false,
+				"outputs": 0,
+				"x": 380,
+				"y": 120,
+				"wires": []
+			}'''
 		self.text_node_template = '''
-		    {
-		        "id": "",
-		        "type": "chatbot-message",
-		        "z": "",
-		        "name": "",
-		        "message": [
-		            {
-		                "message": ""
-		            }
-		        ],
-		        "answer": false,
-		        "silent": false,
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "chatbot-message",
+				"z": "",
+				"name": "",
+				"message": [
+					{
+						"message": ""
+					}
+				],
+				"answer": false,
+				"silent": false,
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.image_node_template = '''
-		    {
-		        "id": "",
-		        "type": "chatbot-image",
-		        "z": "",
-		        "name": "",
-		        "filename": "",
-		        "image": "",
-		        "caption": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "chatbot-image",
+				"z": "",
+				"name": "",
+				"filename": "",
+				"image": "",
+				"caption": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.photo_node_template = '''
-		    {
-		        "id": "",
-		        "type": "usbcamera",
-		        "z": "",
-		        "filemode": "0",
-		        "filename": "image01.jpg",
-		        "filedefpath": "1",
-		        "filepath": "",
-		        "fileformat": "jpeg",
-		        "resolution": "",
-		        "name": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "usbcamera",
+				"z": "",
+				"filemode": "0",
+				"filename": "image01.jpg",
+				"filedefpath": "1",
+				"filepath": "",
+				"fileformat": "jpeg",
+				"resolution": "",
+				"name": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.conversation_node_template = '''
-		    {
-		        "id": "",
-		        "type": "chatbot-conversation",
-		        "z": "",
-		        "name": "",
-		        "botTelegram": "",
-		        "botTelegramProduction": "",
-		        "botSlack": "",
-		        "botSlackProduction": "",
-		        "botFacebook": "",
-		        "botFacebookProduction": "",
-		        "botViber": "",
-		        "botViberProduction": "",
-		        "botUniversal": "",
-		        "botUniversalProduction": "",
-		        "botTwilio": "",
-		        "botTwilioProduction": "",
-		        "chatId": "",
-		        "transport": "telegram",
-		        "messageId": "",
-		        "contextMessageId": false,
-		        "store": "",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [[]]
-		    }'''
+			{
+				"id": "",
+				"type": "chatbot-conversation",
+				"z": "",
+				"name": "",
+				"botTelegram": "",
+				"botTelegramProduction": "",
+				"botSlack": "",
+				"botSlackProduction": "",
+				"botFacebook": "",
+				"botFacebookProduction": "",
+				"botViber": "",
+				"botViberProduction": "",
+				"botUniversal": "",
+				"botUniversalProduction": "",
+				"botTwilio": "",
+				"botTwilioProduction": "",
+				"chatId": "",
+				"transport": "telegram",
+				"messageId": "",
+				"contextMessageId": false,
+				"store": "",
+				"x": 380,
+				"y": 120,
+				"wires": [[]]
+			}'''
 		self.payload_node_template = '''
-		    {
-		        "id": "",
-		        "type": "template",
-		        "z": "",
-		        "name": "",
-		        "field": "payload",
-		        "fieldType": "msg",
-		        "format": "handlebars",
-		        "syntax": "mustache",
-		        "template": "",
-		        "output": "str",
-		        "x": 380,
-		        "y": 120,
-		        "wires": [
-		            []
-		        ]
-		    }'''
+			{
+				"id": "",
+				"type": "template",
+				"z": "",
+				"name": "",
+				"field": "payload",
+				"fieldType": "msg",
+				"format": "handlebars",
+				"syntax": "mustache",
+				"template": "",
+				"output": "str",
+				"x": 380,
+				"y": 120,
+				"wires": [
+					[]
+				]
+			}'''
 
 		if edit == 0: title = _('Add Telegram action')
 		else: title = _('Edit Telegram action')
@@ -3600,7 +3607,7 @@ class ActionSendTelegram(wx.Dialog):
 		col2.AddSpacer(10)
 		col2.Add(self.photo, 0, wx.ALL, 5)
 		col2.Add(res, 0, wx.ALL, 5)
-		
+
 		options = wx.BoxSizer(wx.HORIZONTAL)
 		options.Add(col1, 1, wx.ALL, 0)
 		options.Add(col2, 1, wx.ALL, 0)
@@ -3646,7 +3653,7 @@ class ActionSendTelegram(wx.Dialog):
 		panel.SetSizer(main)
 		self.Centre()
 
-		if edit <> 0:	
+		if edit != 0:
 			if 'template' in edit[1]:
 				self.text.SetValue(True)
 				self.msg.SetValue(edit[1]['template'])
@@ -3674,7 +3681,7 @@ class ActionSendTelegram(wx.Dialog):
 					self.max.Enable()
 					self.repeat.SetValue(True)
 					try:
-						self.interval.SetValue(int(edit[Rline]['interval']))				
+						self.interval.SetValue(int(edit[Rline]['interval']))
 						self.unit.SetSelection(self.RepeatOptions.intervalUnit2.index(edit[Rline]['intervalUnit']))
 						self.max.SetValue(int(edit[Rline]['maximum']))
 					except:
@@ -3685,7 +3692,7 @@ class ActionSendTelegram(wx.Dialog):
 					self.timeunit.Enable()
 					self.rate.SetValue(True)
 					try:
-						self.amount.SetValue(int(edit[Rline]['rate']))				
+						self.amount.SetValue(int(edit[Rline]['rate']))
 						self.time.SetValue(int(edit[Rline]['nbRateUnits']))
 						self.timeunit.SetSelection(self.RepeatOptions.rateUnit2.index(edit[Rline]['rateUnits']))
 					except:
@@ -3705,7 +3712,7 @@ class ActionSendTelegram(wx.Dialog):
 
 	def on_select_file(self, e):
 		dlg = wx.FileDialog(self, message=_('Choose a file'), defaultDir = self.home+'/Pictures', defaultFile='',
-							wildcard=_('Image files').decode('utf8')+' (*.jpg, *.png, *.gif)|*.jpg;*.png;*.gif|'+_('All files').decode('utf8')+' (*.*)|*.*',
+							wildcard=_('Image files')+' (*.jpg, *.png, *.gif)|*.jpg;*.png;*.gif|'+_('All files') +' (*.*)|*.*',
 							style=wx.OPEN | wx.CHANGE_DIR)
 		if dlg.ShowModal() == wx.ID_OK: self.path_file.SetValue(dlg.GetPath())
 		dlg.Destroy()

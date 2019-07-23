@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -16,7 +16,7 @@
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
 import smbus, time
-from conf_analog import Conf_analog
+from .conf_analog import Conf_analog
 
 class Ads1115():
 
@@ -89,25 +89,25 @@ class Ads1115():
 			if 0==conf_analog.has_option(ADS1115+str(i), 'adjust_points'):
 				self.adjust_point_b[i] = 0
 			else:
-				line = conf_analog.get(ADS1115+str(i), 'adjust_points')			
-				if line: 
+				line = conf_analog.get(ADS1115+str(i), 'adjust_points')
+				if line:
 					self.adjust_point[i]=eval(line)
 					self.adjust_point_b[i] = 1
 				else: self.adjust_point[i]=[]
-								
-			if self.active[i]:				
+
+			if self.active[i]:
 				self.gain[i] = conf_analog.getint(ADS1115+str(i), 'gain')
 
-				if self.gain[i]>5: 
+				if self.gain[i]>5:
 					self.gain[i]=0
 					conf_analog.set(ADS1115+str(i), 'gain','0')
 				self.samples[i] = conf_analog.getint(ADS1115+str(i), 'samples')
-				if self.samples[i]>7: 
+				if self.samples[i]>7:
 					self.samples[i]=0
 					conf_analog.set(ADS1115+str(i), 'samples','0')
 
-				self.ohmmeter[i] = conf_analog.get(ADS1115+str(i), 'ohmmeter')=='1'			
-				if self.ohmmeter[i]:				
+				self.ohmmeter[i] = conf_analog.get(ADS1115+str(i), 'ohmmeter')=='1'
+				if self.ohmmeter[i]:
 					self.fixed_resistor[i] = conf_analog.getfloat(ADS1115+str(i), 'fixed_resistor')
 					if self.fixed_resistor[i] < 100:
 						self.fixed_resistor[i]=100
@@ -117,8 +117,8 @@ class Ads1115():
 					if self.high_voltage[i] < 3000:
 						self.high_voltage[i]=3000
 						conf_analog.set(ADS1115+str(i), 'high_voltage','3000')
-						
-						
+
+
 				self.voltage_divider[i] = conf_analog.get(ADS1115+str(i), 'voltage_divider')=='1'
 				if self.voltage_divider[i]:
 					self.upper_resistance[i] = conf_analog.getfloat(ADS1115+str(i), 'upper_resistance')
@@ -126,17 +126,17 @@ class Ads1115():
 					if self.upper_resistance[i] < 1000:
 						self.upper_resistance[i]=1000
 						conf_analog.set(ADS1115+str(i), 'upper_resistance','1000')
-				
+
 					self.lower_resistance[i] = conf_analog.getfloat(ADS1115+str(i), 'lower_resistance')
 					if self.lower_resistance[i] < 1000:
 						self.lower_resistance[i]=1000
 						conf_analog.set(ADS1115+str(i), 'lower_resistance','1000')
 
 				self.adjust[i] = conf_analog.getfloat(ADS1115+str(i), 'adjust')
-				
-				
 
-				
+
+
+
 	def read(self,allchannel):
 		#channel+=1
 		ADS1115_address = self.ADS1115_address + allchannel // 4
@@ -157,16 +157,16 @@ class Ads1115():
 
 		#print self.gain[channel],self.gain_mV[self.gain[channel]],self.samples_s[self.samples[channel]]
 		erg=((result[0] << 8) | (result[1]) ) * self.gain_mV[self.gain[allchannel]] / 32768.0
-		
+
 		if self.ohmmeter[allchannel]:
 			mV_dif = erg/self.high_voltage[allchannel]
 			erg = mV_dif*self.fixed_resistor[allchannel]/(1-mV_dif)
-		
+
 		if self.voltage_divider[allchannel]:
 			erg = erg*(self.upper_resistance[allchannel]+self.lower_resistance[allchannel])/self.lower_resistance[allchannel]
-		
+
 		erg += self.adjust[allchannel]
-		
+
 		if self.adjust_point_b[allchannel]:
 			lin = -999999
 			for index_,item in enumerate(self.adjust_point[allchannel]):
@@ -176,21 +176,21 @@ class Ads1115():
 						#print 'under range'
 						return lin
 					save = item
-				else:					
+				else:
 					if erg <= item[0]:
 						a = (item[1]-save[1])/(item[0]-save[0])
 						b = item[1]-a*item[0]
 						lin = a*erg +b
 						return lin
 					save = item
-					
+
 			if lin == -999999:
 				#print 'over range'
 				lin = save[1]
 			return lin
 		else:
 			return erg
-			
+
 	def read_bak(self,channel):
 		#channel+=1
 		if channel>3:
@@ -201,7 +201,7 @@ class Ads1115():
 
 		self.bus.write_i2c_block_data(self.ADS1115_address, 0x01, list)
 		time.sleep(1/(self.samples_s[self.samples[channel]]+0.0001))
-		print 1/(self.samples_s[self.samples[channel]]+0.0001)
+		print(1/(self.samples_s[self.samples[channel]]+0.0001))
 		result = self.bus.read_i2c_block_data(self.ADS1115_address,0x00, 2)
 
 		self.bus.write_i2c_block_data(self.ADS1115_address, 0x01, list)
@@ -210,4 +210,4 @@ class Ads1115():
 
 		#print self.gain[channel],self.gain_mV[self.gain[channel]],self.samples_s[self.samples[channel]]
 		return ((result[0] << 8) | (result[1]) ) * self.gain_mV[self.gain[channel]] / 32768.0
-		
+

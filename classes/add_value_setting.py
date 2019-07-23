@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import wx
 import subprocess
 
@@ -25,7 +26,7 @@ class addvaluesetting(wx.Dialog):
 		self.edit = edit
 		self.listsave = []
 
-		wx.Dialog.__init__(self, None, title=_('convert analog value to expected value of input ').decode('utf8') + str(edit),
+		wx.Dialog.__init__(self, None, title=_('convert analog value to expected value of input ') + str(edit),
 						   size=(460, 350))
 
 		panel = wx.Panel(self)
@@ -142,7 +143,7 @@ class addvaluesetting(wx.Dialog):
 		self.read_list()
 
 	def on_graph(self, e):
-   		subprocess.Popen(['python', self.parent.currentpath+'/show_raw_adc_convert.py', str(self.edit)])
+				subprocess.Popen(['python3', self.parent.parent.currentpath+'/show_raw_adc_convert.py', str(self.edit)])
 
 	def on_close(self, e):
 		self.Destroy()

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -21,7 +21,7 @@ from classes.language import Language
 from classes.SK_settings import SK_settings
 
 class MyFrame(wx.Frame):
-		
+
 	def __init__(self):
 		self.ttimer=40
 
@@ -32,14 +32,14 @@ class MyFrame(wx.Frame):
 		self.SK_settings = SK_settings(self.conf)
 
 		baudrate = self.SK_settings.ngt1_baudrate
-		can_device = self.SK_settings.ngt1_device	
+		can_device = self.SK_settings.ngt1_device
 		if baudrate and can_device:
 			try:
 				self.ser = serial.Serial(can_device, baudrate, timeout=0.5)
 			except:
-				print 'failed to start N2K input diagnostic on '+can_device
+				print('failed to start N2K input diagnostic on '+can_device)
 				sys.exit(0)
-		else: sys.exit(0)		
+		else: sys.exit(0)
 
 		Language(self.conf)
 
@@ -47,11 +47,11 @@ class MyFrame(wx.Frame):
 		self.list_N2K=[]
 		with open(self.currentpath+'/classes/N2K_PGN.csv') as f:
 			list_N2K_txt = [x.strip('\n\r').split(',') for x in f.readlines()]
-		
+
 		for ii in list_N2K_txt:
 			pgn=int(ii[0])
 			self.list_N2K.append([pgn,ii[1]])
-		
+
 		self.Buffer = [0] * 500
 		self.Zustand=6
 		self.list_iter=[]
@@ -59,12 +59,12 @@ class MyFrame(wx.Frame):
 		wx.Frame.__init__(self, None, title='diagnostic N2K input', size=(650,435))
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		panel = wx.Panel(self, wx.ID_ANY)
-		
+
 		self.timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.timer_act, self.timer)
-					
+
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
-		
+
 		self.icon = wx.Icon(self.currentpath+'/static/icons/openplotter.ico', wx.BITMAP_TYPE_ICO)
 		self.SetIcon(self.icon)
 
@@ -81,7 +81,7 @@ class MyFrame(wx.Frame):
 
 		sort_PGN =wx.Button(panel, label=_('Sort PGN'))
 		sort_PGN.Bind(wx.EVT_BUTTON, self.on_sort_PGN)
-		
+
 		hlistbox = wx.BoxSizer(wx.HORIZONTAL)
 		hlistbox.Add(self.list, 1, wx.ALL|wx.EXPAND, 5)
 
@@ -91,7 +91,7 @@ class MyFrame(wx.Frame):
 
 		vbox = wx.BoxSizer(wx.VERTICAL)
 		vbox.Add(hlistbox, 1, wx.ALL|wx.EXPAND, 0)
-		vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 0)	
+		vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 0)
 		panel.SetSizer(vbox)
 
 		self.CreateStatusBar()
@@ -104,11 +104,11 @@ class MyFrame(wx.Frame):
 		self.baud=0
 
 		self.timer.Start(self.ttimer)
-		
+
 	def timer_act(self, event):
-		if self.ser: 
+		if self.ser:
 			self.getCharfromSerial()
-		
+
 	def on_sort_PGN(self, e):
 		self.timer.Stop()
 		self.list_iter.sort()
@@ -126,18 +126,18 @@ class MyFrame(wx.Frame):
 		self.list_iter=list_new
 		self.init2()
 		self.timer.Start(self.ttimer)
-		
+
 	def init2(self):
-		index=0		
+		index=0
 		for i in self.list_iter:
 			self.list.InsertStringItem(index, str(i[0]))
-			self.list.SetStringItem(index, 1, str(i[1]))
-			self.list.SetStringItem(index, 2, str(i[2]))
-			self.list.SetStringItem(index, 3, str(i[3]))
-			self.list.SetStringItem(index, 4, str(i[4]))
-			self.list.SetStringItem(index, 5, '')
+			self.list.SetItem(index, 1, str(i[1]))
+			self.list.SetItem(index, 2, str(i[2]))
+			self.list.SetItem(index, 3, str(i[3]))
+			self.list.SetItem(index, 4, str(i[4]))
+			self.list.SetItem(index, 5, '')
 			index+=1
-							
+
 	def OnClose(self, event):
 		self.timer.Stop()
 		self.Destroy()
@@ -145,10 +145,11 @@ class MyFrame(wx.Frame):
 	def getCharfromSerial(self):
 		bytesToRead = self.ser.inWaiting()
 		if bytesToRead>0:
-			buffer=self.ser.read(bytesToRead)			
+			buffer=self.ser.read(bytesToRead)
 			for i in buffer:
 				#sys.stdout.write(' '+hex(ord(i)))
-				self.parse(ord(i))
+				#self.parse(ord(i))
+				self.parse(i)
 
 	def parse(self, b):
 		if self.Zustand == 6: # zu Beginn auf 0x10 warten
@@ -184,7 +185,7 @@ class MyFrame(wx.Frame):
 		return (crc == 0)
 
 	def output(self):
-		if self.Buffer[0] == 0x93 and self.Buffer[1] == self.p - 3:				
+		if self.Buffer[0] == 0x93 and self.Buffer[1] == self.p - 3:
 			nPriority = self.Buffer[2]
 			lPGN=self.Buffer[3]+self.Buffer[4]*256+self.Buffer[5]*256*256
 			nDestAddr = self.Buffer[6];
@@ -196,9 +197,9 @@ class MyFrame(wx.Frame):
 			for i in range(13,13+length):
 				data=data+self.Buffer[i];
 				datap+=' '+('0'+hex(self.Buffer[i])[2:])[-2:]
-				
+
 			#print lPGN, nSrcAddr, nDestAddr, datap
-			
+
 			exist=0
 			index=0
 			tt=time.time()
@@ -207,22 +208,22 @@ class MyFrame(wx.Frame):
 					if lPGN==i[0]:
 						td=round(i[4]*0.3+0.7*(tt-i[5]),1)
 						self.list_iter[index][4]=td
-						self.list_iter[index][5]=tt							
-						self.list.SetStringItem(index,4,str(td))
-						self.list.SetStringItem(index,5,datap)
+						self.list_iter[index][5]=tt
+						self.list.SetItem(index,4,str(td))
+						self.list.SetItem(index,5,datap)
 						exist=1
-				index+=1						
-			if exist==0:				
-				self.list.InsertStringItem(index, str(lPGN))
-				self.list.SetStringItem(index, 1, str(nSrcAddr))
-				self.list.SetStringItem(index, 2, str(nDestAddr))
+				index+=1
+			if exist==0:
+				self.list.InsertItem(index, str(lPGN))
+				self.list.SetItem(index, 1, str(nSrcAddr))
+				self.list.SetItem(index, 2, str(nDestAddr))
 				for ii in self.list_N2K:
 					if lPGN==ii[0]:
-						self.list.SetStringItem(index, 3, ii[1])
-				self.list.SetStringItem(index, 4, 'X')
-				self.list.SetStringItem(index, 5, datap)
+						self.list.SetItem(index, 3, ii[1])
+				self.list.SetItem(index, 4, 'X')
+				self.list.SetItem(index, 5, datap)
 				self.list_iter.append([lPGN,nSrcAddr,nDestAddr,self.list.GetItem(index, 3).GetText(),0,tt])
-										
+
 app = wx.App()
 MyFrame().Show()
 app.MainLoop()

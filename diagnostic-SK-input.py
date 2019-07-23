@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
 # Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -134,7 +134,7 @@ class MyFrame(wx.Frame):
 			self.no_action = 0
 			for ii in self.buffer:
 				if 0 <= ii[0] < self.list.GetItemCount():
-					self.list.SetStringItem(ii[0], ii[1], ii[2])
+					self.list.SetItem(ii[0], ii[1], ii[2])
 				else:
 					self.sorting()
 			self.buffer = []
@@ -172,11 +172,11 @@ class MyFrame(wx.Frame):
 			for i in self.list_SK_unit:
 				if j[0] == i[0]:
 					i[2] = j[2]
-					break					
-					
+					break
+
 		self.list_SK_unit.sort(key=lambda tup: tup[0])
 		self.list_SK_unit.sort(key=lambda tup: tup[1])
-		
+
 		self.data_sk_star3 = []
 		self.data_sk_star4 = []
 		self.data_sk_1 = []
@@ -208,45 +208,45 @@ class MyFrame(wx.Frame):
 		erg=[]
 		if len(j)==3:
 			for i in self.data_sk_3:
-				if name==i[0]: 
+				if name==i[0]:
 					erg=i
 					break
 		elif len(j)==4:
 			for i in self.data_sk_4:
-				if name==i[0]: 
+				if name==i[0]:
 					erg=i
 					break
 		elif len(j)==1:
 			for i in self.data_sk_1:
-				if name==i[0]: 
+				if name==i[0]:
 					erg=i
 					break
 		elif len(j)==2:
 			for i in self.data_sk_2:
-				if name==i[0]: 
+				if name==i[0]:
 					erg=i
 					break
 		elif len(j)==5:
 			for i in self.data_sk_5:
-				if name==i[0]: 
+				if name==i[0]:
 					erg=i
 					break
 
 		if erg == []:
 			if len(j)==3:
 				for i in self.data_sk_star3:
-					if (j[0]+".*."+j[2])==i[0]: 
+					if (j[0]+".*."+j[2])==i[0]:
 						erg=i
 						break
-					elif (j[0]+'.'+j[1]+'.*')==i[0]: 
+					elif (j[0]+'.'+j[1]+'.*')==i[0]:
 						erg=i
 						break
 			if len(j)==4:
 				for i in self.data_sk_star4:
-					if (j[0]+'.*.'+j[2]+'.'+j[3])==i[0]: 
+					if (j[0]+'.*.'+j[2]+'.'+j[3])==i[0]:
 						erg=i
 						break
-					elif (j[0]+'.'+j[1]+'.*.'+j[3])==i[0]: 
+					elif (j[0]+'.'+j[1]+'.*.'+j[3])==i[0]:
 						erg=i
 						break
 
@@ -262,7 +262,7 @@ class MyFrame(wx.Frame):
 			else:
 				self.SK_unit_priv = erg[1]
 		else:
-			print 'no unit for ', name
+			print(('no unit for ', name))
 
 		self.SK_Faktor_priv = 1
 		self.SK_Offset_priv = 0
@@ -325,7 +325,7 @@ class MyFrame(wx.Frame):
 		else:
 			self.SK_Faktor_priv = 1
 			self.SK_Offset_priv = 0
-		
+
 	def on_sort_SRC(self, e):
 		self.sortCol = 0
 		self.sorting()
@@ -356,9 +356,9 @@ class MyFrame(wx.Frame):
 				pass
 			else:
 				i[2] = 0.0
-			self.list.InsertStringItem(index, str(i[0]))
-			self.list.SetStringItem(index, 1, str(i[1]))
-			
+			self.list.InsertItem(index, str(i[0]))
+			self.list.SetItem(index, 1, str(i[1]))
+
 			if not self.private_unit_s:
 				if type(i[2]) is str:
 					self.buffer.append([index, 2, i[2]])
@@ -367,20 +367,20 @@ class MyFrame(wx.Frame):
 				self.buffer.append([index, 3, i[3]])
 			else:
 				if type(i[2]) is str:
-					self.buffer.append([index, 2, i[2]])				
+					self.buffer.append([index, 2, i[2]])
 				else:
 					i[9] = i[2] / i[10] + i[11]
 					self.buffer.append([index, 2, str('%.3f' % i[9])])
 				self.buffer.append([index, 3, i[8]])
-			self.list.SetStringItem(index, 4, str('%.1f' % i[4]))
-			self.list.SetStringItem(index, 5, str(i[5]))
-			self.list.SetStringItem(index, 6, str(i[6]))
-			self.list.SetStringItem(index, 7, str(i[12]))
-			self.list.SetStringItem(index, 8, str(i[13]))
-			self.list.SetStringItem(index, 9, str(i[14]))
-			self.list.SetStringItem(index,10, str(i[15]))
-			self.list.SetStringItem(index,11, str(i[16]))
-			self.list.SetStringItem(index,12, str(i[17]))
+			self.list.SetItem(index, 4, str('%.1f' % i[4]))
+			self.list.SetItem(index, 5, str(i[5]))
+			self.list.SetItem(index, 6, str(i[6]))
+			self.list.SetItem(index, 7, str(i[12]))
+			self.list.SetItem(index, 8, str(i[13]))
+			self.list.SetItem(index, 9, str(i[14]))
+			self.list.SetItem(index,10, str(i[15]))
+			self.list.SetItem(index,11, str(i[16]))
+			self.list.SetItem(index,12, str(i[17]))
 			index += 1
 
 	def on_unit_setting(self, e):
@@ -388,7 +388,7 @@ class MyFrame(wx.Frame):
 
 	def OnClose(self, e):
 		self.endlive=True
-		 
+
 		if self.ws:
 			self.ws.close()
 		self.timer.Stop()
@@ -405,7 +405,7 @@ class MyFrame(wx.Frame):
 		type = ''
 		value = ''
 
-	
+
 		if self.endlive:
 			self.on_close(ws)
 			self.ende=True
@@ -417,8 +417,8 @@ class MyFrame(wx.Frame):
 			if 'updates' not in js_upb:
 				return
 			js_up = js_upb['updates'][0]
-			
-			if 'source' in js_up.keys():
+
+			if 'source' in list(js_up.keys()):
 				source=js_up['source']
 				label = source['label']
 				if 'type' in source:
@@ -427,19 +427,19 @@ class MyFrame(wx.Frame):
 						if 'talker' in source:
 							talker = source['talker']
 							src =label+'.'+talker
-							if 'sentence' in source: 
+							if 'sentence' in source:
 								sentence = source['sentence']
 								src =label+'.'+sentence
 					elif type == 'NMEA2000':
-						if 'src' in source: 
+						if 'src' in source:
 							src_ = source['src']
-							src =label+'.'+src_									
-							if 'pgn' in source: 
+							src =label+'.'+src_
+							if 'pgn' in source:
 								pgn = source['pgn']
 								src +='.'+str(pgn)
 			if '$source' in js_up and src=='':
 				src = js_up['$source']
-			if 'timestamp' in js_up.keys():
+			if 'timestamp' in list(js_up.keys()):
 				timestamp = js_up['timestamp']
 			else:
 				timestamp = '2000-01-01T00:00:00.000Z'
@@ -462,14 +462,14 @@ class MyFrame(wx.Frame):
 								if 'talker' in source:
 									talker = source['talker']
 									src =label+'.'+talker
-									if 'sentence' in source: 
+									if 'sentence' in source:
 										sentence = source['sentence']
 										src =label+'.'+sentence
 							elif type == 'NMEA2000':
-								if 'src' in source: 
+								if 'src' in source:
 									src_ = source['src']
-									src =label+'.'+src_									
-									if 'pgn' in source: 
+									src =label+'.'+src_
+									if 'pgn' in source:
 										pgn = source['pgn']
 										src +='.'+str(pgn)
 					for lvalue in value:
@@ -484,28 +484,28 @@ class MyFrame(wx.Frame):
 							path2 = path + '.' + lvalue
 							value2 = value[lvalue]
 							self.update_add(value2, path2, src2, timestamp2,label,type,pgn,src_,sentence,talker)
-					
+
 				else:
 					self.update_add(value, path, src, timestamp,label,type,pgn,src_,sentence,talker)
-					
-					
-		except:
-			print 'Error when parsing this sentence:'
-			print js_upb
 
-				
+
+		except:
+			print('Error when parsing this sentence:')
+			print(js_upb)
+
+
 	def update_add(self, value, path, src, timestamp,label,type,pgn,src_,sentence,talker):
-		# SRC SignalK Value Unit Interval Status Description timestamp	private_Unit private_Value priv_Faktor priv_Offset label type pgn src_ sentence talker
-		#  0    1      2     3      4        5        6          7           8             9           10          11		12	  13   14  15	  16	  17
+		# SRC SignalK Value Unit Interval Status Description timestamp  private_Unit private_Value priv_Faktor priv_Offset label type pgn src_ sentence talker
+		#  0    1      2     3      4        5        6          7           8             9           10          11       12    13   14  15     16      17
 		if isinstance(value, list): value = value[0]
 		#if type(value) is list: value = value[0]
-		
+
 		if isinstance(value, float): pass
-		elif isinstance(value, basestring): value = str(value)
+		elif isinstance(value, str): value = str(value)
 		elif isinstance(value, int): value = float(value)
 		elif value is None: value = 'None'
 		else: value=0.0
-		
+
 		index = 0
 		exists = False
 		for i in self.list_SK:
@@ -550,7 +550,7 @@ class MyFrame(wx.Frame):
 		self.private_unit_s = self.private_unit.GetValue()
 
 	def on_error(self, ws, error):
-		print error
+		print(error)
 
 	def on_close(self, ws):
 		ws.close()

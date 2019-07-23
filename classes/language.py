@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import gettext
 
 class Language:
@@ -22,9 +23,9 @@ class Language:
 
 		op_folder = conf.get('GENERAL', 'op_folder')
 		language = conf.get('GENERAL', 'lang')
-                locale_folder = op_folder+'/locale'
+		locale_folder = op_folder+'/locale'
 
-		gettext.install('openplotter', locale_folder, unicode=False)
+		gettext.install('openplotter', locale_folder, False)
 		presLan_en = gettext.translation('openplotter', locale_folder, languages=['en'])
 		presLan_ca = gettext.translation('openplotter', locale_folder, languages=['ca'])
 		presLan_es = gettext.translation('openplotter', locale_folder, languages=['es'])

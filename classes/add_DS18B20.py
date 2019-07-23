@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,15 +14,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import platform
 import wx
 import re
-from select_key import selectKey
+from .select_key import selectKey
 
 if platform.machine()[0:3] == 'arm':
-	from w1thermsensor import W1ThermSensor
+		from w1thermsensor import W1ThermSensor
 else:
-	from emulator.w1thermsensor import W1ThermSensor
+		from emulator.w1thermsensor import W1ThermSensor
 
 
 class addDS18B20(wx.Dialog):
@@ -50,7 +51,7 @@ class addDS18B20(wx.Dialog):
 		for sensor in W1ThermSensor.get_available_sensors():
 			list_id.append(sensor.id)
 		wx.StaticText(panel, label=_('Sensor ID'), pos=(190, 75))
-		self.id_select = wx.ComboBox(panel, choices=list_id, style=wx.CB_READONLY, size=(150, 32), pos=(190, 100))
+		self.id_select = wx.ComboBox(panel, choices=list_id, style=wx.CB_READONLY, size=(155, 32), pos=(190, 100))
 
 		wx.StaticText(panel, label=_('Offset'), pos=(370, 75))
 		self.offset = wx.TextCtrl(panel, size=(50, 30), pos=(370, 100))
@@ -66,7 +67,7 @@ class addDS18B20(wx.Dialog):
 		self.okBtn.Hide()
 		self.ok = wx.Button(panel, label=_('OK'), pos=(235, 175))
 		self.Bind(wx.EVT_BUTTON, self.ok_conf, self.ok)
-										 
+
 
 	def onEditSkkey(self,e):
 		key = self.SKkey.GetValue()
@@ -81,16 +82,16 @@ class addDS18B20(wx.Dialog):
 		if not self.SKkey.GetValue():
 			self.ShowMessage(_('Failed. Select a Signal K key.'))
 			return
-			
+
 		name =self.name.GetValue()
 		if not name:
 			self.ShowMessage(_('Failed. Provide a name.'))
 			return
-		
+
 		if not re.match('^[0-9a-zA-Z]+$', name):
 			self.ShowMessage(_('Failed. Name must contain only letters and numbers.'))
 			return
-		
+
 		if self.id_select.GetValue() == '':
 			self.ShowMessage(_('Failed. Select sensor ID.'))
 			return
@@ -100,6 +101,6 @@ class addDS18B20(wx.Dialog):
 			self.offset.SetValue('0.0')
 		evt = wx.PyCommandEvent(wx.EVT_BUTTON.typeId,self.okBtn.GetId())
 		wx.PostEvent(self, evt)
-		
+
 	def ShowMessage(self, w_msg):
 		wx.MessageBox(w_msg, 'Info', wx.OK | wx.ICON_INFORMATION)

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -30,16 +30,16 @@ if not activ: sys.exit(0)
 SK_settings = SK_settings(conf)
 
 baudrate = SK_settings.ngt1_baudrate
-can_device = SK_settings.ngt1_device	
+can_device = SK_settings.ngt1_device
 if baudrate and can_device:
 	try:
 		ser = serial.Serial(can_device, baudrate, timeout=0.5)
 	except:
-		print 'failed to start N2K output server on '+can_device
+		print('failed to start N2K output server on '+can_device)
 		sys.exit(0)
 else: sys.exit(0)
 
-	
+
 Quelle = '127.0.0.1'  # Adresse des eigenen Rechners
 Port = 55560
 

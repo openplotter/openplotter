@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -52,7 +52,7 @@ class MySK:
 
 	def OnClose(self, e):
 		self.stop()
-	
+
 	def on_message(self, ws, message):
 		js_up = ujson.loads(message)
 		if 'updates' not in js_up:
@@ -62,24 +62,24 @@ class MySK:
 		src = ''
 		type = ''
 		value = ''
-		
-		if 'source' in js_up.keys():
+
+		if 'source' in list(js_up.keys()):
 			source=js_up['source']
 			label = source['label']
 			if 'type' in source:
 				type = source['type']
 				if type == 'NMEA0183':
-					if 'talker' in source: 
+					if 'talker' in source:
 						src =label+'.'+source['talker']
 						if 'sentence' in source: src =label+'.'+source['sentence']
 				elif type == 'NMEA2000':
-					if 'src' in source: 
+					if 'src' in source:
 						src =label+'.'+source['src']
 						if 'pgn' in source: src +='.'+str(source['pgn'])
 		if '$source' in js_up and src=='':
 			src = js_up['$source']
 
-		if 'timestamp' in js_up.keys():
+		if 'timestamp' in list(js_up.keys()):
 			timestamp = js_up['timestamp']
 		else:
 			timestamp = '2000-01-01T00:00:00.000Z'
@@ -91,7 +91,7 @@ class MySK:
 			value = values['value']
 			src2 = src
 			timestamp2 = timestamp
-			
+
 			if isinstance(value, dict):
 				if 'timestamp' in value: timestamp2 = value['timestamp']
 
@@ -103,11 +103,11 @@ class MySK:
 					if 'type' in source:
 						type = source['type']
 						if type == 'NMEA0183':
-							if 'talker' in source: 
+							if 'talker' in source:
 								src =label+'.'+source['talker']
 								if 'sentence' in source: src =label+'.'+source['sentence']
 						elif type == 'NMEA2000':
-							if 'src' in source: 
+							if 'src' in source:
 								src =label+'.'+source['src']
 								if 'pgn' in source: src +='.'+str(source['pgn'])
 
@@ -125,14 +125,14 @@ class MySK:
 						self.update_add(value2, path2, src2, timestamp2)
 			else:
 				self.update_add(value, path, src, timestamp)
-				
+
 	def update_add(self, value, path, src, timestamp):
-		# SRC SignalK Value Unit Interval Status Description timestamp	private_Unit private_Value priv_Faktor priv_Offset
+		# SRC SignalK Value Unit Interval Status Description timestamp  private_Unit private_Value priv_Faktor priv_Offset
 		#  0    1      2     3      4        5        6          7           8             9           10          11
 		if type(value) is list: value = value[0]
-		
+
 		if isinstance(value, float): pass
-		elif isinstance(value, basestring): value = str(value)
+		elif isinstance(value, str): value = str(value)
 		elif isinstance(value, int): value = float(value)
 		elif value is None: value = 'None'
 		else: value=0.0
@@ -147,7 +147,7 @@ class MySK:
 				break
 			index += 1
 		if not exists:
-						 
+
 			self.list_SK.append([src, path, value, '', 0.0, 1, '', timestamp, '', 1, 0])
 
 			for il in self.static_list:
@@ -159,7 +159,7 @@ class MySK:
 					indexm += 1
 
 	def on_error(self, ws, error):
-		print error
+		print(error)
 
 	def on_close(self, ws):
 		time.sleep(1)
@@ -432,7 +432,7 @@ class MySK_to_N2K:
 			if self.akt128275: self.N2K.Send_Distance_Log(self.navigation_log[1][2], self.navigation_logTrip[1][2])
 
 def signal_handler(signal_, frame):
-	print 'You pressed Ctrl+C!'
+	print('You pressed Ctrl+C!')
 	SK.stop()
 	sys.exit(0)
 
@@ -445,7 +445,7 @@ aktiv_N2K = True
 if not SKN2K.PGN_list: aktiv_N2K = False
 
 stop = 0
-if aktiv_N2K or aktiv_NMEA:
+if aktiv_N2K:
 	for iii in range(100):
 		time.sleep(0.05)
 		tick2 = time.time()

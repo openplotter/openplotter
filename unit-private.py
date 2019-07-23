@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#                       e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -68,9 +68,9 @@ class MyFrame(wx.Frame):
 		self.change_selected.Bind(wx.EVT_BUTTON, self.on_change_selected)
 
 		list_convert = [
-						'Hz', 'Hz RPM', 
+						'Hz', 'Hz RPM',
 						'J', 'J Ah(12V)', 'J Ah(24V)',
-						'K', 'K C',	'K F',
+						'K', 'K C', 'K F',
 						'm', 'm ft', 'm nm', 'm km',
 						'm/s', 'm/s kn','m/s kmh', 'm/s mph',
 						'm3', 'm3 dm3', 'm3 gal',
@@ -121,8 +121,8 @@ class MyFrame(wx.Frame):
 			for i in self.list_SK_unit:
 				if j[0] == i[0]:
 					i[2] = j[2]
-					break					
-					
+					break
+
 		self.list_SK_unit.sort(key=lambda tup: tup[0])
 		self.list_SK_unit.sort(key=lambda tup: tup[1])
 
@@ -154,7 +154,7 @@ class MyFrame(wx.Frame):
 				exist = True
 				break
 		if not exist:
-			print 'no unit for ', st
+			print('no unit for ', st)
 
 	def on_sort_Unit(self, e):
 		self.sortCol = 2
@@ -216,8 +216,8 @@ class MyFrame(wx.Frame):
 
 	def OnClose(self, e):
 		self.Destroy()
-	
-	
+
+
 app = wx.App()
 MyFrame().Show()
 app.MainLoop()

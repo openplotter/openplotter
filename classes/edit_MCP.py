@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,18 +14,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import wx
 import re
 
-from select_key import selectKey
-from add_value_setting import addvaluesetting
+from .select_key import selectKey
+from .add_value_setting import addvaluesetting
 
 class editMCP(wx.Dialog):
 	def __init__(self,aktiv,channel,sk,convert,parent):
 		self.conf = parent.conf
+		self.parent = parent
 		self.channel = channel
 
-		title = _('Edit').decode('utf8')+(' MCP3008-channel '+str(channel)).encode('utf-8')
+		title = _('Edit')+(' MCP3008-channel '+str(channel))
 
 		wx.Dialog.__init__(self, None, title=title, size=(450, 270))
 
@@ -47,7 +49,7 @@ class editMCP(wx.Dialog):
 		aktivB = False
 		if aktiv == 1: aktivB = True
 		self.aktiv.SetValue(aktivB)
-		
+
 		hline2 = wx.StaticLine(panel)
 
 		self.convert = wx.CheckBox(panel, label=_('convert'))
@@ -57,8 +59,8 @@ class editMCP(wx.Dialog):
 		self.convert.SetValue(convertB)
 
 		self.value_setting = wx.Button(panel, label=_('value setting'))
-		self.value_setting.Bind(wx.EVT_BUTTON, self.on_value_setting)	
-		
+		self.value_setting.Bind(wx.EVT_BUTTON, self.on_value_setting)
+
 		cancelBtn = wx.Button(panel, wx.ID_CANCEL)
 		okBtn = wx.Button(panel, wx.ID_OK)
 
@@ -99,13 +101,13 @@ class editMCP(wx.Dialog):
 	def onEditSkkey(self,e):
 		key = self.SKkey.GetValue()
 		dlg = selectKey(key,'self')
-		
+
 		res = dlg.ShowModal()
 		if res == wx.OK:
 			key = dlg.selected_key
 			self.SKkey.SetValue(key)
 		dlg.Destroy()
-		
+
 	def on_convert(self, e):
 		convert = 0
 		if self.convert.GetValue():
@@ -133,7 +135,7 @@ class editMCP(wx.Dialog):
 				convert = 0
 
 		self.convert.SetValue(convert)
-		
+
 	def on_value_setting(self, e):
 		edit = self.channel
 		if edit == -1:

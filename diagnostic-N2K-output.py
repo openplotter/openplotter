@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -20,11 +20,11 @@ from classes.conf import Conf
 from classes.language import Language
 
 class MyFrame(wx.Frame):
-		
+
 	def __init__(self):
 		Quelle='127.0.0.1' # Adresse des eigenen Rechners
 		Port=55560
-		 
+
 		self.e_udp_sock = socket.socket( socket.AF_INET,  socket.SOCK_DGRAM ) #s.o.
 		self.e_udp_sock.bind( (Quelle,Port) )
 		self.e_udp_sock.settimeout(1)
@@ -33,19 +33,18 @@ class MyFrame(wx.Frame):
 		self.conf = Conf()
 		self.home = self.conf.home
 		self.currentpath = self.conf.get('GENERAL', 'op_folder')
-		
+
 		Language(self.conf)
-		print self.conf.get('GENERAL','lang')
 
 		list_N2K_txt=[]
 		self.list_N2K=[]
 		with open(self.currentpath+'/classes/N2K_PGN.csv') as f:
 			list_N2K_txt = [x.strip('\n\r').split(',') for x in f.readlines()]
-		
+
 		for ii in list_N2K_txt:
 			pgn=int(ii[0])
 			self.list_N2K.append([pgn,ii[1]])
-		
+
 		self.Buffer = [0] * 500
 		self.Zustand=6
 		self.list_iter=[]
@@ -53,12 +52,12 @@ class MyFrame(wx.Frame):
 		wx.Frame.__init__(self, None, title='diagnostic N2K output', size=(650,435))
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		panel = wx.Panel(self, wx.ID_ANY)
-		
+
 		self.timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.timer_act, self.timer)
-					
+
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
-		
+
 		self.icon = wx.Icon(self.currentpath+'/static/icons/openplotter.ico', wx.BITMAP_TYPE_ICO)
 		self.SetIcon(self.icon)
 
@@ -75,7 +74,7 @@ class MyFrame(wx.Frame):
 
 		sort_PGN =wx.Button(panel, label=_('Sort PGN'))
 		sort_PGN.Bind(wx.EVT_BUTTON, self.on_sort_PGN)
-		
+
 		hlistbox = wx.BoxSizer(wx.HORIZONTAL)
 		hlistbox.Add(self.list, 1, wx.ALL|wx.EXPAND, 5)
 
@@ -85,22 +84,22 @@ class MyFrame(wx.Frame):
 
 		vbox = wx.BoxSizer(wx.VERTICAL)
 		vbox.Add(hlistbox, 1, wx.ALL|wx.EXPAND, 0)
-		vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 0)	
+		vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 0)
 		panel.SetSizer(vbox)
-		
+
 		self.CreateStatusBar()
 
 		self.Show(True)
-		
+
 		self.status=''
 		self.data=[]
 
 		self.timer.Start(self.ttimer)
-		
-		
-	def timer_actx(self, event):		
+
+
+	def timer_actx(self, event):
 		pass
-			
+
 	def timer_act(self, event):
 		self.timer.Stop()
 		try:
@@ -114,7 +113,7 @@ class MyFrame(wx.Frame):
 		if data[7]+9==len(data):
 			self.output(data)
 		self.timer.Start(self.ttimer)
-		
+
 	def on_sort_PGN(self, e):
 		self.timer.Stop()
 		self.list_iter.sort()
@@ -132,25 +131,25 @@ class MyFrame(wx.Frame):
 		self.list_iter=list_new
 		self.init2()
 		self.timer.Start(self.ttimer)
-		
+
 	def init2(self):
-		index=0		
+		index=0
 		for i in self.list_iter:
 			self.list.InsertStringItem(index, str(i[0]))
-			self.list.SetStringItem(index, 1, str(i[1]))
-			self.list.SetStringItem(index, 2, str(i[2]))
-			self.list.SetStringItem(index, 3, str(i[3]))
-			self.list.SetStringItem(index, 4, str(i[4]))
-			self.list.SetStringItem(index, 5, '')
+			self.list.SetItem(index, 1, str(i[1]))
+			self.list.SetItem(index, 2, str(i[2]))
+			self.list.SetItem(index, 3, str(i[3]))
+			self.list.SetItem(index, 4, str(i[4]))
+			self.list.SetItem(index, 5, '')
 			index+=1
-							
+
 	def OnClose(self, event):
 		self.timer.Stop()
 		self.Destroy()
 
 	def output(self,data):
 		Buffer=bytearray(data)
-		if Buffer[0] == 0x94:				
+		if Buffer[0] == 0x94:
 			nPriority = Buffer[2]
 			lPGN=Buffer[3]+Buffer[4]*256+Buffer[5]*256*256
 			nDestAddr = Buffer[6];
@@ -162,9 +161,9 @@ class MyFrame(wx.Frame):
 			for i in range(8,8+length):
 				data=data+Buffer[i];
 				datap+=' '+('0'+hex(Buffer[i])[2:])[-2:]
-				
+
 			#print lPGN, nSrcAddr, nDestAddr, datap
-			
+
 			exist=0
 			index=0
 			tt=time.time()
@@ -173,23 +172,23 @@ class MyFrame(wx.Frame):
 					if lPGN==i[0]:
 						td=round(i[4]*0.3+0.7*(tt-i[5]),1)
 						self.list_iter[index][4]=td
-						self.list_iter[index][5]=tt							
-						self.list.SetStringItem(index,4,str(td))
-						self.list.SetStringItem(index,5,str(datap))
+						self.list_iter[index][5]=tt
+						self.list.SetItem(index,4,str(td))
+						self.list.SetItem(index,5,str(datap))
 						self.Update()
 						exist=1
-				index+=1						
-			if exist==0:				
-				self.list.InsertStringItem(index, str(lPGN))
-				self.list.SetStringItem(index, 1, str(nSrcAddr))
-				self.list.SetStringItem(index, 2, str(nDestAddr))
+				index+=1
+			if exist==0:
+				self.list.InsertItem(index, str(lPGN))
+				self.list.SetItem(index, 1, str(nSrcAddr))
+				self.list.SetItem(index, 2, str(nDestAddr))
 				for ii in self.list_N2K:
 					if lPGN==ii[0]:
-						self.list.SetStringItem(index, 3, ii[1])
-				self.list.SetStringItem(index, 4, 'X')
-				self.list.SetStringItem(index, 5, datap)
+						self.list.SetItem(index, 3, ii[1])
+				self.list.SetItem(index, 4, 'X')
+				self.list.SetItem(index, 5, datap)
 				self.list_iter.append([lPGN,nSrcAddr,nDestAddr,self.list.GetItem(index, 3).GetText(),0,tt])
-									
+
 app = wx.App()
 MyFrame().Show()
 app.MainLoop()

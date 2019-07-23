@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,16 +14,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import wx
-from getkeys import GetKeys
+from .getkeys import GetKeys
 
 
 class showKeys(wx.Dialog):
 	def __init__(self):
 		wx.Dialog.__init__(self, None, title=_('Show Signal K keys'), size=(430, 320))
-		
+
 		group = _('ungrouped')
-			
+
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 		panel = wx.Panel(self)
 
@@ -45,11 +46,11 @@ class showKeys(wx.Dialog):
 		self.keys_list.Bind(wx.EVT_COMBOBOX, self.onSelect_key)
 		self.key_description = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE | wx.TE_READONLY, size=(410, 50), pos=(10, 180))
 		self.key_description.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
-		
+
 		closeBtn = wx.Button(panel, wx.ID_OK, pos=(180, 245))
-		
+
 		self.onSelect_group(0)
-		
+
 	def onSelect_group(self,e):
 		selected = self.groups_list.GetValue()
 		self.keys_list.Clear()

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import wx
 import subprocess
 
@@ -49,9 +50,9 @@ class adddeviationsetting(wx.Dialog):
 
 		unitvalue_t = wx.StaticText(panel, label=_('True Heading'))
 		self.unitvalue = wx.TextCtrl(panel, size=(150, 30))
-		
+
 		self.change = wx.Button(panel, label=_('change'))
-		self.change.Bind(wx.EVT_BUTTON, self.on_change)	
+		self.change.Bind(wx.EVT_BUTTON, self.on_change)
 
 		reset = wx.Button(panel, label=_('Reset'))
 		reset.Bind(wx.EVT_BUTTON, self.on_reset)
@@ -77,7 +78,7 @@ class adddeviationsetting(wx.Dialog):
 		vb1.Add(self.unitvalue, 0, wx.ALL | wx.EXPAND, 5)
 		vb1.AddSpacer(10)
 		vb1.Add(self.change, 0, wx.ALL | wx.EXPAND, 5)
-		
+
 
 		hlistbox = wx.BoxSizer(wx.HORIZONTAL)
 		hlistbox.Add(self.list, 1, wx.ALL | wx.EXPAND, 5)
@@ -147,7 +148,7 @@ class adddeviationsetting(wx.Dialog):
 		self.selected = self.list.GetFirstSelected()
 		if self.selected < 1 or self.selected >35:
 			return
-		
+
 		self.rawvalue.SetValue(str(self.edit[self.selected][0]))
 		self.mag_head.SetValue(str(self.edit[self.selected][1]))
 		var = float(self.variation.GetValue())
@@ -165,7 +166,7 @@ class adddeviationsetting(wx.Dialog):
 			except:
 				self.ShowMessage(_('This value is not a number.'))
 				return
-			self.edit[self.selected][1] = u	- var 	
+			self.edit[self.selected][1] = u - var
 			self.conf.set('PYPILOT', 'deviation', str(self.edit))
 			self.read_list()
 
@@ -200,7 +201,7 @@ class adddeviationsetting(wx.Dialog):
 		self.read_list()
 
 	def on_graph(self, e):
-   		subprocess.Popen(['python', self.parent.currentpath+'/show_deviation_table.py', str(self.edit)])
+		subprocess.Popen(['python', self.parent.currentpath+'/show_deviation_table.py', str(self.edit)])
 
 	def on_close(self, e):
 		N2K_output=self.conf.get('N2K', 'output')

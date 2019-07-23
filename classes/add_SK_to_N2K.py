@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import wx, subprocess
 from wx.lib.mixins.listctrl import CheckListCtrlMixin, ListCtrlAutoWidthMixin
 from classes.conf import Conf
@@ -40,7 +41,7 @@ class addSKtoN2K(wx.Dialog):
 
 		self.icon = wx.Icon(self.currentpath + '/static/icons/openplotter.ico', wx.BITMAP_TYPE_ICO)
 		self.SetIcon(self.icon)
-		
+
 		self.panel = wx.Panel(self)
 
 		self.list_N2Kgen = [
@@ -69,7 +70,7 @@ class addSKtoN2K(wx.Dialog):
 			['130316','Temperature','environment.inside.refrigerator.temperature'],
 			['130316_1','Temperature','propulsion.port.exhaustTemperature']
 		]
-		
+
 		self.list_N2K = CheckListCtrl(self.panel, 100)
 		self.list_N2K.InsertColumn(0, _('PGN'), width=100)
 		self.list_N2K.InsertColumn(1, _('description'), width=250)
@@ -86,11 +87,11 @@ class addSKtoN2K(wx.Dialog):
 		vbox.Add(hlistbox, 1, wx.ALL | wx.EXPAND, 0)
 		vbox.Add(OK, 0, wx.ALL, 5)
 
-		self.panel.SetSizer(vbox)		
-		
+		self.panel.SetSizer(vbox)
+
 		for ii in self.list_N2Kgen:
 			self.list_N2K.Append(ii)
-		
+
 		data = self.conf.get('N2K', 'pgn_generate')
 		try:
 			self.PGN_list = eval(data)
@@ -101,8 +102,8 @@ class addSKtoN2K(wx.Dialog):
 			if str(ii[0]) in self.PGN_list:
 				self.list_N2K.CheckItem(i)
 			i += 1
-			
-			
+
+
 	def on_OK(self,e):
 		result = []
 		i=0
@@ -114,17 +115,17 @@ class addSKtoN2K(wx.Dialog):
 		N2K_output=self.conf.get('N2K', 'output')
 		if N2K_output == '1':
 			subprocess.call(['pkill', '-f', 'SK-base_d.py'])
-			subprocess.Popen(['python',self.currentpath+'/SK-base_d.py'])		
-	
+			subprocess.Popen(['python',self.currentpath+'/SK-base_d.py'])
+
 		self.when_closed(e)
-		
+
 	def on_selected(self,e):
 		pass
-		
+
 	def when_closed(self,e):
 		self.Destroy()
 
-		
+
 #app = wx.App()
 #MyFrame().Show()
 #app.MainLoop()

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,9 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import wx, ujson, re, requests
-from conf import Conf
-from SK_settings import SK_settings
+from .conf import Conf
+from .SK_settings import SK_settings
 
 class selectKey(wx.Dialog):
 	def __init__(self, oldkey, selectvessels):
@@ -56,7 +57,7 @@ class selectKey(wx.Dialog):
 		self.list_skproperties.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectProperty)
 
 		self.key_description = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE | wx.TE_READONLY, size=(-1,60))
-		self.key_description.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
+		self.key_description.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
 
 		wildcard_label = wx.StaticText(panel, label=_('Replace * (allowed characters: 0-9, a-z, A-Z)'))
 		self.wildcard = wx.TextCtrl(panel)
@@ -115,7 +116,7 @@ class selectKey(wx.Dialog):
 				new = new.replace('[A-Za-z0-9]+','*')
 				new = new.replace('/','.')
 				clean_data[new] = data[i]
-		
+
 		self.grouped_data = [{'name': 'ungrouped', 'description': 'Keys that do not belong to any group', 'keys':[]}]
 		groups_tmp = []
 		for i in clean_data:
@@ -127,10 +128,10 @@ class selectKey(wx.Dialog):
 					if ii['name'] == first_key: exist = True
 				if not exist:
 					description = '[missing]'
-					if clean_data[first_key].has_key('description'): description = clean_data[first_key]['description']
+					if 'description' in clean_data[first_key]: description = clean_data[first_key]['description']
 					self.grouped_data.append({'name': first_key, 'description': description, 'keys':[]})
 			else: groups_tmp.append(first_key)
-		
+
 		self.grouped_data = sorted(self.grouped_data, key=lambda k: k['name'])
 
 		for i in clean_data:
@@ -161,8 +162,8 @@ class selectKey(wx.Dialog):
 		self.selected_property = False
 
 		self.list_skpaths2 = []
-		
-		if oldkey: 
+
+		if oldkey:
 			skproperties = oldkey.split(':')
 			skpath = skproperties[0].split('.')
 			self.list_groups.Select(self.list_groups2.index(skpath[0]),1)
@@ -241,7 +242,7 @@ class selectKey(wx.Dialog):
 			enum = self.grouped_data[self.selected_group]['keys'][self.selected_path]['content']['enum']
 			new = [m.encode('utf-8') for m in enum]
 			self.key_description.AppendText('\n\n  '+'Enum: '+str(new))
-	
+
 		if 'properties' in self.grouped_data[self.selected_group]['keys'][self.selected_path]['content']:
 			for i in self.grouped_data[self.selected_group]['keys'][self.selected_path]['content']['properties']:
 				self.list_skproperties.Append([i])
@@ -288,6 +289,6 @@ class selectKey(wx.Dialog):
 
 	def ShowMessage(self, w_msg):
 		wx.MessageBox(w_msg, 'Info', wx.OK | wx.ICON_INFORMATION)
-		
-		
-		
+
+
+

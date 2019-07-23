@@ -26,7 +26,7 @@ from ctypes import c_ubyte
 
 class Bme280:
 	def __init__(self,address):
-		
+
 		self.DEVICE = int(address, 16) # Default device I2C address
 
 		self.bus = smbus.SMBus(1) # Rev 2 Pi, Pi 2 & Pi 3 uses bus 1
@@ -119,7 +119,7 @@ class Bme280:
 
 		# Wait in ms (Datasheet Appendix B: Measurement time and current calculation)
 		wait_time = 1.25 + (2.3 * OVERSAMPLE_TEMP) + ((2.3 * OVERSAMPLE_PRES) + 0.575) + ((2.3 * OVERSAMPLE_HUM)+0.575)
-		time.sleep(wait_time/1000)  # Wait the required time  
+		time.sleep(wait_time/1000)  # Wait the required time
 
 		# Read temperature/pressure/humidity
 		data = self.bus.read_i2c_block_data(addr, REG_DATA, 8)

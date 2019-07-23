@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -15,13 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
+
 import socket, time, platform
 if platform.machine()[0:3]!='arm':
-	print 'this is not a raspberry pi -> no W1ThermSensor'
+	print('this is not a raspberry pi -> no W1ThermSensor')
 else:
 	from w1thermsensor import W1ThermSensor
-	from classes.conf import Conf	
-	
+	from classes.conf import Conf
+
 	conf = Conf()
 
 	try:
@@ -40,8 +41,8 @@ else:
 						type = sensor.type
 				sensors.append(W1ThermSensor(type, item[2]))
 				sensors_list2.append(item)
-			except Exception,e: print str(e)
-				
+			except Exception as e: print(str(e))
+
 		while True:
 			time.sleep(0.1)
 			list_signalk=[]
@@ -54,6 +55,6 @@ else:
 					path=i[1]
 					name=i[0]
 					SignalK='{"updates":[{"$source":"OPsensors.1W.'+name+'","values":[{"path":"'+path+'","value":'+value+'}]}]}\n'
-					sock.sendto(SignalK, ('127.0.0.1', 55557))
-				except Exception,e: print str(e)
-				ib=ib+1	
+					sock.sendto(SignalK.encode(), ('127.0.0.1', 55557))
+				except Exception as e: print(str(e))
+				ib=ib+1
