@@ -1,2 +1,3 @@
-# openplotter
-The open-source sailing platform for ARM computers
+## Project site
+
+http://www.sailoog.com/openplotter
