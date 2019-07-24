@@ -1509,18 +1509,20 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		hbox2.Add(self.imu_detected, 0, wx.ALL | wx.EXPAND, 5)
 
 		hbox5 = wx.BoxSizer(wx.HORIZONTAL)
-		hbox5.Add(self.calibration, 0, wx.ALL | wx.EXPAND, 5)
-		hbox5.Add(self.scope, 0, wx.ALL | wx.EXPAND, 5)
-		hbox5.Add(self.client, 0, wx.ALL | wx.EXPAND, 5)
-		hbox5.Add(self.reset_imu, 0, wx.ALL | wx.EXPAND, 5)
+		hbox5.Add(self.calibration, 0, wx.LEFT | wx.EXPAND, 5)
+		hbox5.Add(self.scope, 0, wx.LEFT | wx.EXPAND, 5)
+		hbox5.Add(self.client, 0, wx.LEFT | wx.EXPAND, 5)
+		hbox5.Add(self.reset_imu, 0, wx.LEFT | wx.EXPAND, 5)
 
 		hbox3 = wx.BoxSizer(wx.HORIZONTAL)
 		hbox3.Add(translation_rate_label, 0, wx.TOP | wx.BOTTOM, 5)
 		hbox3.Add(self.pypilot_translation_rate, 0,  wx.LEFT, 5)
 
 		vbox1 = wx.StaticBoxSizer(imu_box, wx.VERTICAL)
-		vbox1.Add(hbox2, 0, wx.ALL | wx.EXPAND, 5)
-		vbox1.Add(hbox5, 0, wx.ALL | wx.EXPAND, 5)
+		vbox1.Add(hbox2, 0, wx.LEFT | wx.EXPAND, 5)
+		vbox1.AddSpacer(5)
+		vbox1.Add(hbox5, 0, wx.LEFT | wx.EXPAND, 5)
+		vbox1.AddSpacer(5) 
 		vbox1.Add(self.pypilot_signalk_translation, 0, wx.ALL | wx.EXPAND, 10)
 		vbox1.Add(hbox3, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -2763,7 +2765,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 	######################################Actions
 
 	def page_action(self):
-		self.list_triggers = CheckListCtrl(self.p_action, -1,85)
+		self.list_triggers = CheckListCtrl(self.p_action, -1,80)
 		self.list_triggers.InsertColumn(0, _('Triggers'), width=120)
 		self.list_triggers.InsertColumn(1, _(' '), width= 130)
 		self.list_triggers.InsertColumn(2, _(' '), width= 130)
@@ -2793,7 +2795,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.available_conditions = ['=', '!=', '<', '<=', '>', '>=', _('is between'), _('contains'), _('is true'), ('is false'), _('is null'), _('is not null'), _('is empty'), _('is not empty')]
 		#self.available_operators_select = wx.Choice(self.p_action, choices=self.available_conditions, style=wx.CB_READONLY)
 
-		self.list_conditions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.BORDER_SIMPLE, size=(-1,85))
+		self.list_conditions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.BORDER_SIMPLE, size=(-1,80))
 		self.list_conditions.InsertColumn(0, _('Conditions'), width= 100)
 		self.list_conditions.InsertColumn(1, _(' '), width= 150)
 		self.list_conditions.InsertColumn(2, _(' '), width= 150)
@@ -2808,7 +2810,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		delete_condition = wx.Button(self.p_action, label=_('delete'))
 		delete_condition.Bind(wx.EVT_BUTTON, self.on_delete_condition)
 
-		self.list_actions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.BORDER_SIMPLE, size=(-1,85))
+		self.list_actions = wx.ListCtrl(self.p_action, style=wx.LC_REPORT | wx.BORDER_SIMPLE, size=(-1,80))
 		self.list_actions.InsertColumn(0, _('Actions'), width= 150)
 		self.list_actions.InsertColumn(1, _(' '), width= 170)
 		self.list_actions.InsertColumn(2, _(' '), width= 100)
@@ -4415,23 +4417,26 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		mcp2515 = wx.StaticBox(self.p_n2k, label=_(' MCP2515 '))
 
-		canInterfaceLabel = wx.StaticText(self.p_n2k, label=_('Interface'))
-		canInterface = wx.Choice(self.p_n2k, choices=('can0', 'can1'), style=wx.CB_READONLY)
+		c = 0
+		while True:
+			try:
+				if not subprocess.check_output('dmesg | grep -i can'+str(c)+':', shell=True): break
+			except: break
+			c = c+1
+		self.canInterface = 'can'+str(c)
+		self.mcp2515Enable = wx.CheckBox(self.p_n2k, label=_('Enable '+self.canInterface))
+		self.mcp2515Enable.Bind(wx.EVT_CHECKBOX, self.onMcp2515Enable)
+
+		canConnectionLabel = wx.StaticText(self.p_n2k, label=_('Connection'))
+		self.canConnection = wx.Choice(self.p_n2k, choices=('SPI0', 'SPI1'), style=wx.CB_READONLY)
 
 		canOscillatorLabel = wx.StaticText(self.p_n2k, label=_('Oscillator'))
-		canOscillator = wx.Choice(self.p_n2k, choices=('8000000', '16000000'), style=wx.CB_READONLY)
+		self.canOscillator = wx.Choice(self.p_n2k, choices=('8000000', '16000000'), style=wx.CB_READONLY)
 
 		self.allowed_pins = ['22','29','31','32','33','35','36','37','38','40']
 		canInterruptLabel = wx.StaticText(self.p_n2k, label=_('Interrupt'))
-		canInterrupt = wx.Choice(self.p_n2k, choices=self.allowed_pins, style=wx.CB_READONLY)
+		self.canInterrupt = wx.Choice(self.p_n2k, choices=self.allowed_pins, style=wx.CB_READONLY)
 
-		mcp2515Apply = wx.Button(self.p_n2k, label=_('Apply'))
-		mcp2515Apply.Bind(wx.EVT_BUTTON, self.onMcp2515Apply)
-
-		'''
-		self.n2k_can0_enable = wx.CheckBox(self.p_n2k, label=_('Input/Output can0'))
-		self.n2k_can0_enable.Bind(wx.EVT_CHECKBOX, self.on_n2k_can0_enable) 
-		'''
 		hbox = wx.BoxSizer(wx.HORIZONTAL)
 		hbox.Add(diagnostic, 0, wx.ALL, 5)
 		hbox.AddStretchSpacer(1)
@@ -4476,28 +4481,28 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		mcp2515H1 = wx.BoxSizer(wx.HORIZONTAL)
 		mcp2515H1.AddSpacer(10)
-		mcp2515H1.Add(canInterfaceLabel, 0, wx.UP, 5)
-		mcp2515H1.Add(canInterface, 0, wx.LEFT, 5)
+		mcp2515H1.Add(canConnectionLabel, 0, wx.UP, 5)
+		mcp2515H1.Add(self.canConnection, 0, wx.LEFT, 5)
 		mcp2515H1.AddSpacer(10)
 
 		mcp2515H2 = wx.BoxSizer(wx.HORIZONTAL)
 		mcp2515H2.AddSpacer(10)
 		mcp2515H2.Add(canOscillatorLabel, 0, wx.UP, 5)
-		mcp2515H2.Add(canOscillator, 0, wx.LEFT, 5)
+		mcp2515H2.Add(self.canOscillator, 0, wx.LEFT, 5)
 		mcp2515H2.AddSpacer(10)
 
 		mcp2515H3 = wx.BoxSizer(wx.HORIZONTAL)
 		mcp2515H3.AddSpacer(10)
 		mcp2515H3.Add(canInterruptLabel, 0, wx.UP, 5)
-		mcp2515H3.Add(canInterrupt, 0, wx.LEFT, 5)
+		mcp2515H3.Add(self.canInterrupt, 0, wx.LEFT, 5)
 		mcp2515H3.AddSpacer(10)
 
 		mcp2515Box = wx.StaticBoxSizer(mcp2515, wx.VERTICAL)
+		mcp2515Box.AddSpacer(3)
+		mcp2515Box.Add(self.mcp2515Enable, 0, wx.LEFT | wx.EXPAND, 10)
 		mcp2515Box.Add(mcp2515H1, 0, wx.ALL, 3)
 		mcp2515Box.Add(mcp2515H2, 0, wx.ALL, 3)
 		mcp2515Box.Add(mcp2515H3, 0, wx.ALL, 3)
-		mcp2515Box.AddSpacer(3)
-		mcp2515Box.Add(mcp2515Apply, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 		mcp2515Box.AddSpacer(3)
 
 		hbox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -4512,7 +4517,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		self.p_n2k.SetSizer(main) 
 
-	def onMcp2515Apply(self,e):
+	def onMcp2515Enable(self,e):
 		pass
 
 	def on_SK_to_N2K(self,e):
