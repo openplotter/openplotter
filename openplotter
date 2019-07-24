@@ -53,7 +53,7 @@ class MainFrame(wx.Frame):
 		self.version = self.conf.get('GENERAL', 'version')
 		self.state = self.conf.get('GENERAL', 'state')
 
-		wx.Frame.__init__(self, None, title='OpenPlotter'+' '+self.version+' '+self.state, size=(710, 460)) 
+		wx.Frame.__init__(self, None, title='OpenPlotter'+' '+self.version+' '+self.state, size=(800, 444)) 
 		if self.util_process_exist('startup.py'):
 			print("System not ready, try later.")
 			sys.exit(0)

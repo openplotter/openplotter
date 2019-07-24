@@ -86,7 +86,7 @@ class MyFrame(wx.Frame):
 		self.warnings_flag=False
 		self.autoclose=0
 
-		wx.Frame.__init__(self, None, title=_('Starting OpenPlotter'), style=wx.STAY_ON_TOP, size=(650,435))
+		wx.Frame.__init__(self, None, title=_('Starting OpenPlotter'), style=wx.STAY_ON_TOP, size=(800,475))
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		panel = wx.Panel(self, wx.ID_ANY)
 
@@ -102,7 +102,7 @@ class MyFrame(wx.Frame):
 		self.warnings = wx.TextCtrl(panel, style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_DONTWRAP|wx.LC_SORT_ASCENDING|wx.TE_RICH)
 		self.warnings.SetForegroundColour(wx.RED)
 
-		self.button_close =wx.Button(panel, label=_('Close'), pos=(555, 160))
+		self.button_close =wx.Button(panel, label=_('Close'))
 		self.button_close.Bind(wx.EVT_BUTTON, self.OnClose_button)
 		self.button_close.Disable()
 
