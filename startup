@@ -16,6 +16,7 @@
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
 import wx, subprocess, time, os, threading, sys, platform, requests, configparser, io, re, ujson
+import wx.richtext as rt
 from shutil import copyfile
 from classes.conf import Conf
 from classes.language import Language
@@ -81,8 +82,7 @@ class MyFrame(wx.Frame):
 		Language(self.conf)
 
 		self.ttimer=100
-		self.logger_data=''
-		self.warnings_data=''
+		self.logger_data=False
 		self.warnings_flag=False
 		self.autoclose=0
 
@@ -98,9 +98,8 @@ class MyFrame(wx.Frame):
 		self.icon = wx.Icon(self.op_folder+'/static/icons/openplotter.ico', wx.BITMAP_TYPE_ICO)
 		self.SetIcon(self.icon)
 
-		self.logger = wx.TextCtrl(panel, style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_DONTWRAP|wx.LC_SORT_ASCENDING)
-		self.warnings = wx.TextCtrl(panel, style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_DONTWRAP|wx.LC_SORT_ASCENDING|wx.TE_RICH)
-		self.warnings.SetForegroundColour(wx.RED)
+		self.logger = rt.RichTextCtrl(panel, style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_DONTWRAP|wx.LC_SORT_ASCENDING)
+		self.logger.SetMargins((10,10))
 
 		self.button_close =wx.Button(panel, label=_('Close'))
 		self.button_close.Bind(wx.EVT_BUTTON, self.OnClose_button)
@@ -109,15 +108,11 @@ class MyFrame(wx.Frame):
 		htextbox = wx.BoxSizer(wx.HORIZONTAL)
 		htextbox.Add(self.logger, 1, wx.ALL|wx.EXPAND, 5)
 
-		hwarnbox = wx.BoxSizer(wx.HORIZONTAL)
-		hwarnbox.Add(self.warnings, 1, wx.ALL|wx.EXPAND, 5)
-
 		hbox = wx.BoxSizer(wx.HORIZONTAL)
 		hbox.Add(self.button_close, 0, wx.RIGHT|wx.LEFT, 5)
 
 		vbox = wx.BoxSizer(wx.VERTICAL)
 		vbox.Add(htextbox, 1, wx.ALL|wx.EXPAND, 0)
-		vbox.Add(hwarnbox, 1, wx.ALL|wx.EXPAND, 0)
 		vbox.Add(hbox, 0, wx.ALL|wx.EXPAND, 0)
 		panel.SetSizer(vbox)
 
@@ -136,12 +131,18 @@ class MyFrame(wx.Frame):
 
 	def refresh(self,event):
 		if self.logger_data:
-			self.logger.AppendText(self.logger_data)
-			self.logger_data=''
-		if self.warnings_data:
-			self.warnings_flag=True
-			self.warnings.AppendText(self.warnings_data)
-			self.warnings_data=''
+			if self.logger_data[1] == 'b': 
+				self.logger.BeginTextColour((55, 55, 55))
+			elif self.logger_data[1] == 'g': 
+				self.logger.BeginTextColour((0, 255, 0))
+			elif self.logger_data[1] == 'r':
+				self.logger.Newline()
+				self.logger.BeginTextColour((255, 0, 0))
+				self.warnings_flag = True
+			self.logger.WriteText(self.logger_data[0])
+			self.logger.EndTextColour()
+			if self.logger_data[2] == 1: self.logger.Newline()
+			self.logger_data = False
 		if self.autoclose>0:
 			if self.autoclose<time.time():
 				self.destroy_window()
@@ -158,13 +159,7 @@ class MyFrame(wx.Frame):
 			time.sleep(0.1)
 		self.logger_data=msg
 
-	def add_warnings_data(self, msg):
-		while self.warnings_data:
-			time.sleep(0.1)
-		self.warnings_data=msg
-
 	def starting(self):
-
 		delay=float(self.conf.get('STARTUP', 'delay'))
 		screensaver=self.conf.get('STARTUP', 'screensaver')
 		opencpn=self.conf.get('STARTUP', 'opencpn')
@@ -208,10 +203,9 @@ class MyFrame(wx.Frame):
 		except: pass
 		else:
 			if 'Moitessier' in out:
-				self.add_logger_data(_('\nChecking Moitessier HAT setup...'))
+				self.add_logger_data([_('Checking Moitessier HAT setup...'),'b',0])
 				if not os.path.isfile(self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl'):
-					self.add_warnings_data(_('\n\nMoitessier HAT package is not installed!'))
-					self.add_logger_data(_(' See warning.'))
+					self.add_logger_data([_('Moitessier HAT package is not installed!'),'r',1])
 				else:
 					package = subprocess.check_output(['dpkg','-s','moitessier'])
 					kernel = subprocess.check_output(['uname','-r'])
@@ -226,14 +220,13 @@ class MyFrame(wx.Frame):
 							version = version.split('-')
 							version = version[2]
 					if kernel != version:
-						self.add_warnings_data(_('\n\nThe installed Moitessier HAT package does not match the kernel version.'))
-						self.add_logger_data(_(' See warning.'))
-					else: self.add_logger_data(_(' Done.'))
+						self.add_logger_data([_('The installed Moitessier HAT package does not match the kernel version.'),'r',1])
+					else: self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
 		if platform.machine()[0:3]=='arm':
-			self.add_logger_data(_('\nChecking pi password...'))
+			self.add_logger_data([_('Checking pi password...'),'b',0])
 			out = subprocess.check_output(['sudo', '-n', 'grep', '-E', '^pi:', '/etc/shadow']).decode()
 			tmp = out.split(':')
 			passw_a = tmp[1]
@@ -241,15 +234,14 @@ class MyFrame(wx.Frame):
 			salt = tmp[2]
 			passw_b = subprocess.check_output(['mkpasswd', '-msha-512', 'raspberry', salt]).decode()
 			if passw_a.rstrip() == passw_b.rstrip():
-				self.add_warnings_data(_('\n\nSecurity warning: You are using the default password for "pi" user (raspberry).\nPlease change password in Menu > Preferences > Raspberry Pi Configuration.'))
-				self.add_logger_data(_(' See warning.'))
-			else: self.add_logger_data(_(' Done.'))
+				self.add_logger_data([_('Security warning: You are using the default password for "pi" user (raspberry).\nPlease change password in Menu > Preferences > Raspberry Pi Configuration.'),'r',1])
+			else: self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
 		wifi_default = self.conf_folder + '/Network/default'
 		if not os.path.isdir(wifi_default):
-			self.add_logger_data(_('\nChecking WIFI Access Point password...'))
+			self.add_logger_data([_('Checking WIFI Access Point password...'),'b',0])
 			wifi_pass = ''
 			try:
 				hostapd = open('/etc/hostapd/hostapd.conf', 'r')
@@ -265,10 +257,8 @@ class MyFrame(wx.Frame):
 						wifi_pass=sline[1]
 			except: pass
 			if wifi_pass == '12345678':
-				self.add_warnings_data(_('\n\nSecurity warning: You are using the default WIFI Access Point password.\nPlease change password in OpenPlotter > Network.'))
-				self.add_logger_data(_(' See warning.'))
-			else:
-				self.add_logger_data(_(' Done.'))
+				self.add_logger_data([_('Security warning: You are using the default WIFI Access Point password.\nPlease change password in OpenPlotter > Network.'),'r',1])
+			else: self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
@@ -276,19 +266,21 @@ class MyFrame(wx.Frame):
 			subprocess.call(['xset', 's', 'noblank'])
 			subprocess.call(['xset', 's', 'off'])
 			subprocess.call(['xset', '-dpms'])
-			self.add_logger_data(_('\nScreen saver disabled.'))
+			self.add_logger_data([_('Screen saver disabled.'),'b',0])
+			self.add_logger_data([_(' Done.'),'g',1])
 		else:
 			subprocess.call(['xset', 's', 'blank'])
 			subprocess.call(['xset', 's', 'on'])
 			subprocess.call(['xset', '+dpms'])
-			self.add_logger_data(_('\nScreen saver enabled.'))
+			self.add_logger_data([_('Screen saver enabled.'),'b',0])
+			self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
 		if delay!=0:
-			self.add_logger_data(_('\nApplying ')+str(delay)+_(' seconds of delay...'))
+			self.add_logger_data([_('Applying ')+str(delay)+_(' seconds of delay...'),'b',0])
 			time.sleep(delay)
-			self.add_logger_data(_(' Done.'))
+			self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
@@ -297,10 +289,10 @@ class MyFrame(wx.Frame):
 		subprocess.call(['pkill', '-f', 'N2K-server_d.py'])
 		subprocess.call(['pkill', '-f', 'SK-base_d.py'])
 		if N2K_output == '1':
-			self.add_logger_data(_('\nStarting N2K server...'))
+			self.add_logger_data([_('Starting N2K server...'),'b',0])
 			subprocess.Popen(['python3', self.op_folder+'/N2K-server_d.py'])
 			self.check_start('N2K-server_d.py')
-			self.add_logger_data(_('\nStarting N2K generator...'))
+			self.add_logger_data([_('Starting N2K generator...'),'b',0])
 			subprocess.Popen(['python3', self.op_folder+'/SK-base_d.py'])
 			self.check_start('SK-base_d.py')
 
@@ -316,7 +308,7 @@ class MyFrame(wx.Frame):
 			if i[0] == 1: spiEnabled = True
 		if i2c: i2c = eval(i2c)
 		if spiEnabled or i2c or pypilot_mode == 'imu' or  pypilot_mode == 'basic autopilot':
-			self.add_logger_data(_('\nStarting I2C, SPI or pypilot sensors...'))
+			self.add_logger_data([_('Starting I2C, SPI or pypilot sensors...'),'b',0])
 			subprocess.Popen(['python', self.op_folder+'/read_sensors_d.py'], cwd=self.home + '/.pypilot')
 			self.check_start('read_sensors_d.py')
 
@@ -324,7 +316,7 @@ class MyFrame(wx.Frame):
 
 		subprocess.call(['pkill', '-f', 'pypilot_webapp'])
 		if webapp == '1' and pypilot_mode == 'basic autopilot':
-			self.add_logger_data(_('\nStarting pypilot Web App...'))
+			self.add_logger_data([_('Starting pypilot Web App...'),'b',0])
 			try: subprocess.Popen(['pypilot_webapp', webapp_port])
 			except: pass
 			self.check_start('pypilot_webapp')
@@ -334,7 +326,7 @@ class MyFrame(wx.Frame):
 		subprocess.call(['pkill', '-f', '1w_d.py'])
 		if onewire: onewire = eval(onewire)
 		if onewire:
-			self.add_logger_data(_('\nStarting 1W sensors...'))
+			self.add_logger_data([_('Starting 1W sensors...'),'b',0])
 			subprocess.Popen(['python3', self.op_folder+'/1w_d.py'])
 			self.check_start('1w_d.py')
 
@@ -346,22 +338,22 @@ class MyFrame(wx.Frame):
 		subprocess.call(['pkill', '-15', 'kal'])
 		subprocess.call(['pkill', '-15', 'gqrx'])
 		if ais_enable == '1':
-			self.add_logger_data(_('\nStarting SDR AIS reception...'))
+			self.add_logger_data([_('Starting SDR AIS reception...'),'b',0])
 			subprocess.Popen(['rtl_ais', '-R', '-p', ppm])
 			self.check_start('rtl_ais')
 
 		######################################
 
 		if d800x480 == '1':
-			self.add_logger_data(_('\nChecking 800x480 display...'))
+			self.add_logger_data([_('Checking 800x480 display...'),'b',0])
 			subprocess.call(['sudo', 'python3', self.op_folder+'/display800x480.py'])
-			self.add_logger_data(_(' Done.'))
+			self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
 		subprocess.call(['pkill', '-15', 'opencpn'])
 		if opencpn=='1':
-			self.add_logger_data(_('\nStarting OpenCPN...'))
+			self.add_logger_data([_('Starting OpenCPN...'),'b',0])
 			opencpn_commands = ['opencpn']
 			if opencpn_no=='1': opencpn_commands.append('-no_opengl')
 			if opencpn_fullscreen=='1': opencpn_commands.append('-fullscreen')
@@ -371,7 +363,7 @@ class MyFrame(wx.Frame):
 
 		######################################
 
-		self.add_logger_data(_('\nStarting Tools...'))
+		self.add_logger_data([_('Starting Tools...'),'b',0])
 		index=0
 		for i in tools_py:
 			folder = tools_py[index][2]
@@ -383,11 +375,11 @@ class MyFrame(wx.Frame):
 				else:
 					subprocess.Popen(['python3',self.op_folder+'/tools/'+folder+'/'+file])
 			index+=1
-		self.add_logger_data(_(' Done.'))
+		self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
-		self.add_logger_data(_('\nChecking Signal K connections...'))
+		self.add_logger_data([_('Checking Signal K connections...'),'b',0])
 		self.SK_settings = SK_settings(self.conf)
 		if self.SK_settings.setSKsettings():
 			subprocess.call(['sudo', 'systemctl', 'stop', 'signalk.service'])
@@ -398,16 +390,14 @@ class MyFrame(wx.Frame):
 
 		######################################
 
-		self.add_logger_data(_('\nChecking OpenCPN connections...'))
+		self.add_logger_data([_('Checking OpenCPN connections...'),'b',0])
 		self.opencpnSettings = opencpnSettings()
 		opencpnConnection = self.opencpnSettings.getConnectionState()
 		if not opencpnConnection:
-			self.add_warnings_data(_('\n\nThe default OpenCPN connection is missing: input TCP localhost:10110.\nSome features may not work as expected.'))
-			self.add_logger_data(_(' See warning.'))
+			self.add_logger_data([_('The default OpenCPN connection is missing: input TCP localhost:10110.\nSome features may not work as expected.'),'r',1])
 		elif opencpnConnection == 'disabled':
-			self.add_warnings_data(_('\n\nThe default OpenCPN connection is disabled: input TCP localhost:10110.\nSome features may not work as expected.'))
-			self.add_logger_data(_(' See warning.'))
-		else: self.add_logger_data(_(' Done.'))
+			self.add_logger_data([_('The default OpenCPN connection is disabled: input TCP localhost:10110.\nSome features may not work as expected.'),'r',1])
+		self.add_logger_data([_(' Done.'),'g',1])
 
 		######################################
 
@@ -424,13 +414,13 @@ class MyFrame(wx.Frame):
 					if not '#[' in item: startKplex = True
 		except: pass
 		if startKplex:
-			self.add_logger_data(_('\nStarting kplex...'))
+			self.add_logger_data([_('Starting kplex...'),'b',0])
 			subprocess.Popen('kplex')
 			self.check_start('kplex')
 
 		######################################
 
-		self.add_logger_data(_('\nChecking OpenPlotter updates...'))
+		self.add_logger_data([_('Checking OpenPlotter updates...'),'b',1])
 
 		vl = self.conf.get('GENERAL', 'version')
 		sl = self.conf.get('GENERAL', 'state')
@@ -448,7 +438,7 @@ class MyFrame(wx.Frame):
 			r_beta = requests.get('https://raw.githubusercontent.com/'+master_github_repositories+'/openplotter/'+beta_branch+'/openplotter.conf')
 			print(2,r_stable,r_beta)
 		except:
-			self.add_logger_data(_(' It was not possible to connect to Github.'))
+			self.add_logger_data([_('It was not possible to connect to Github.'),'b',1])
 		else:
 			data_conf = configparser.ConfigParser()
 			try:
@@ -461,7 +451,7 @@ class MyFrame(wx.Frame):
 				remote_oxx = int(vr_list[1])
 				remote_oox = int(vr_list[2])
 			except:
-				self.add_logger_data(_(' Error reading versions.'))
+				self.add_logger_data([_('Error reading versions.'),'b',1])
 			else:
 				check_beta = True
 				if remote_xxx > local_xxx: check_beta = False
@@ -479,35 +469,32 @@ class MyFrame(wx.Frame):
 						remote_oxx = int(vr_list[1])
 						remote_oox = int(vr_list[2])
 					except:
-						self.add_logger_data(_(' Error reading versions.'))
+						self.add_logger_data([_('Error reading versions.'),'b',1])
 				if sr == 'stable': branch = stable_branch
 				else: branch = beta_branch
 				if remote_xxx > local_xxx:
-					self.add_logger_data(_(' Done.'))
-					self.add_warnings_data(_('\n\nThere is a major Raspbian upgrade, you have to download\nthe new OpenPlotter image: v')+str(remote_xxx)+'.x.x '+sr+'.')
-					self.add_warnings_data(_('\nSee CHANGELOG:'))
-					self.add_warnings_data('\nhttps://raw.githubusercontent.com/'+master_github_repositories+'/openplotter/'+branch+'/CHANGELOG.md\n')
+					self.add_logger_data([_('There is a major Raspbian upgrade, you have to download\nthe new OpenPlotter image: v')+str(remote_xxx)+'.x.x '+sr+'.','b',1])
+					self.add_logger_data([_('See CHANGELOG:'),'b',1])
+					self.add_logger_data(['https://raw.githubusercontent.com/'+master_github_repositories+'/openplotter/'+branch+'/CHANGELOG.md','b',1])
 				elif remote_xxx == local_xxx and remote_oxx > local_oxx:
-					self.add_logger_data(_(' Done.'))
-					self.add_warnings_data(_('\n\nThere is a major OpenPlotter update: ')+vl+' '+sl+' --> '+vr+' '+sr+'.')
-					self.add_warnings_data(_('\nSee CHANGELOG:'))
-					self.add_warnings_data('\nhttps://raw.githubusercontent.com/'+master_github_repositories+'/openplotter/'+branch+'/CHANGELOG.md\n')
+					self.add_logger_data([_('There is a major OpenPlotter update: ')+vl+' '+sl+' --> '+vr+' '+sr+'.','b',1])
+					self.add_logger_data([_('See CHANGELOG:'),'b',1])
+					self.add_logger_data(['https://raw.githubusercontent.com/'+master_github_repositories+'/openplotter/'+branch+'/CHANGELOG.md','b',1])
 				elif remote_xxx == local_xxx and remote_oxx == local_oxx and remote_oox > local_oox:
-					self.add_logger_data(_(' Done.'))
-					self.add_warnings_data(_('\n\nThere is a minor OpenPlotter update: ')+vl+' '+sl+' --> '+vr+' '+sr+'.')
-					self.add_warnings_data(_('\nSee CHANGELOG:'))
-					self.add_warnings_data('\nhttps://raw.githubusercontent.com/'+master_github_repositories+'/openplotter/'+branch+'/CHANGELOG.md\n')
+					self.add_logger_data([_('There is a minor OpenPlotter update: ')+vl+' '+sl+' --> '+vr+' '+sr+'.','b',1])
+					self.add_logger_data([_('See CHANGELOG:'),'b',1])
+					self.add_logger_data(['https://raw.githubusercontent.com/'+master_github_repositories+'/openplotter/'+branch+'/CHANGELOG.md','b',1])
 				else:
-					self.add_logger_data(' OpenPlotter '+vl+' '+sl+_(' is up to date.'))
+					self.add_logger_data([' OpenPlotter '+vl+' '+sl+_(' is up to date.'),'g',1])
 
 		######################################
 
 		subprocess.call(['pkill', '-9', 'omxplayer'])
 		if play == '1':
-			if sound: subprocess.Popen(['omxplayer', sound])
+			if sound: subprocess.Popen(['omxplayer', '-o','both', sound])
 
 		######################################
-
+		
 		self.autoclose=time.time() + 60
 
 	def OnClose(self, event):
@@ -523,9 +510,9 @@ class MyFrame(wx.Frame):
 	def check_start(self,process):
 		time.sleep(2)
 		if util_process_exist(process):
-			self.add_logger_data(_(' Done.'))
+			self.add_logger_data([_(' Done.'),'g',1])
 		else:
-			self.add_logger_data(_(' Not Started.'))
+			self.add_logger_data([_(' Not Started.'),'b',1])
 
 
 def util_process_exist(process_name):
