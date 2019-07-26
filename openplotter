@@ -488,7 +488,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		wx.AboutBox(info)
 
 	def op_doc(self, e):
-		url = self.currentpath+"/docs/html/index.html"
+		url = "/usr/share/openplotter-doc/index.html"
 		webbrowser.open(url, new=2)
 
 	def Changingpage(self, e):
@@ -686,7 +686,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.read_startup()
 
 	def on_help_settngs(self, e):
-		url = self.currentpath+"/docs/html/getting_started/settings.html"
+		url = "/usr/share/openplotter-doc/getting_started/settings.html"
 		webbrowser.open(url, new=2)
 
 	###########################################dashboards
@@ -850,7 +850,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.read_dashboards()
 
 	def on_help_dashboards(self, e):
-		url = self.currentpath+"/docs/html/dashboards/what_are_dashboards.html"
+		url = "/usr/share/openplotter-doc/dashboards/what_are_dashboards.html"
 		webbrowser.open(url, new=2)
 
 	###########################################Network
@@ -1939,7 +1939,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				c = c + 1
 
 	def on_help_i2c(self, e):
-		url = self.currentpath+"/docs/html/connecting/i2c.html"
+		url = "/usr/share/openplotter-doc/connecting/i2c.html"
 		webbrowser.open(url, new=2)
 
 	###########################################SPI
@@ -2759,7 +2759,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.print_credentials()
 
 	def on_help_credentials(self, e):
-		url = self.currentpath+"/docs/html/credentials/what_are_credentials.html"
+		url = "/usr/share/openplotter-doc/credentials/what_are_credentials.html"
 		webbrowser.open(url, new=2)
 
 	######################################Actions
@@ -3625,7 +3625,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.read_triggers()
 
 	def on_help_action(self, e):
-		url = self.currentpath+"/docs/html/actions/what_are_actions.html"
+		url = "/usr/share/openplotter-doc/actions/what_are_actions.html"
 		webbrowser.open(url, new=2)
 
 	###########################################1W
@@ -4355,7 +4355,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		if reset == True : os.system('sudo shutdown -r now')
 
 	def on_help_serial(self, e):
-		url = self.currentpath+"/docs/html/connecting/serial.html"
+		url = "/usr/share/openplotter-doc/connecting/serial.html"
 		webbrowser.open(url, new=2)
 
 	###########################################CAN

@@ -479,7 +479,7 @@ class TriggerFilterSK(wx.Dialog):
 				self.value2.SetValue(edit2['v2'])				
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/tools/filter_signalk_inputs.html"
+		url = "/usr/share/openplotter-doc/tools/filter_signalk_inputs.html"
 		webbrowser.open(url, new=2)
 
 	def onEditSkkey(self,e):

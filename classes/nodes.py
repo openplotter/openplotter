@@ -419,7 +419,7 @@ class TriggerSK(wx.Dialog):
 
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/actions/triggers.html"
+		url = "/usr/share/openplotter-doc/actions/triggers.html"
 		webbrowser.open(url, new=2)
 
 	def onEditSkkey(self,e):
@@ -585,7 +585,7 @@ class TriggerFilterSK(wx.Dialog):
 
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/actions/triggers.html"
+		url = "/usr/share/openplotter-doc/actions/triggers.html"
 		webbrowser.open(url, new=2)
 
 	def onEditSkkey(self,e):
@@ -755,7 +755,7 @@ class TriggerGeofence(wx.Dialog):
 			self.distance.SetValue(float(edit[1]['distance']))
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def OnRefreshBtn(self,e):
@@ -894,7 +894,7 @@ class TriggerGPIO(wx.Dialog):
 			self.read.SetValue(edit[1]['read'])
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def OnOk(self,e):
@@ -1001,7 +1001,7 @@ class TriggerMQTT(wx.Dialog):
 			self.remote.SetValue(edit[1]['broker'] == self.remotebrokerid)
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_local(self, e):
@@ -1133,7 +1133,7 @@ class TriggerTelegram(wx.Dialog):
 		panel.SetSizer(main)
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def OnOk(self,e):
@@ -1244,7 +1244,7 @@ class TriggerTime(wx.Dialog):
 			self.period.SetValue(int(edit[1]['repeat']))
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def OnOk(self,e):
@@ -1393,7 +1393,7 @@ class Condition(wx.Dialog):
 		self.Set_SK_add()
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def onEditSkkey1(self,e):
@@ -1664,7 +1664,7 @@ class ActionSetSignalkKey(wx.Dialog):
 			self.value.SetValue(edit[1]['rules'][1]['to'])
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_select_type(self,e):
@@ -1925,7 +1925,7 @@ class ActionSetGPIO(wx.Dialog):
 			self.inithigh.SetValue(edit[0]['level'] == '1')
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_low(self, e):
@@ -2109,7 +2109,7 @@ class ActionSetMQTT(wx.Dialog):
 			self.type.SetSelection(self.type_list2.index(edit[1]['rules'][0]['tot']))
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_local(self, e):
@@ -2444,7 +2444,7 @@ class ActionPublishTwitter(wx.Dialog):
 						pass
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_addsk(self, e):
@@ -2836,7 +2836,7 @@ class ActionSendEmail(wx.Dialog):
 						pass
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_addsk(self, e):
@@ -3092,7 +3092,7 @@ class ActionPlaySound(wx.Dialog):
 						pass
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_repeat(self, e):
@@ -3330,7 +3330,7 @@ class ActionRunCommand(wx.Dialog):
 				self.arguments.SetValue(edit[1])
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_repeat(self, e):
@@ -3699,7 +3699,7 @@ class ActionSendTelegram(wx.Dialog):
 						pass
 
 	def on_help(self, e):
-		url = self.currentpath+"/docs/html/xxx/xxx.html"
+		url = "/usr/share/openplotter-doc/xxx/xxx.html"
 		webbrowser.open(url, new=2)
 
 	def on_addsk(self, e):
