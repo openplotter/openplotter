@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#						e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,9 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
-import ujson, uuid, wx, re, time, webbrowser
-from select_key import selectKey
-from datetime import datetime
+
+import ujson, uuid, wx, re, time, webbrowser, datetime
+from classes.select_key import selectKey
 
 class Nodes:
 	def __init__(self,parent,actions_flow_id):
@@ -188,7 +188,7 @@ class Nodes:
 				data = ujson.load(data_file)
 			return data
 		except:
-			print "ERROR reading flows file"
+			print("ERROR reading flows file")
 			return []
 			
 	def write_flow(self, all_flows):
@@ -205,7 +205,7 @@ class Nodes:
 			data = ujson.dumps(all_flows, indent=4)
 			with open(self.flows_file, "w") as outfile:
 				outfile.write(data)
-		except: print "ERROR writing flows file"
+		except: print("ERROR writing flows file")
 
 	def edit_flow(self, add, remove):
 		save = False
@@ -357,6 +357,7 @@ class TriggerFilterSK(wx.Dialog):
 		    }'''
 			
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		vessellabel = wx.StaticText(panel, label=_('Vessel'))
 		self.vessel = wx.TextCtrl(panel, size=(290,-1))

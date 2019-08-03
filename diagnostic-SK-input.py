@@ -58,6 +58,7 @@ class MyFrame(wx.Frame):
 		wx.Frame.__init__(self, None, title='diagnostic Signal K input', size=(770, 435))
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		panel = wx.Panel(self, wx.ID_ANY)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		self.ttimer = 100
 		self.timer = wx.Timer(self)

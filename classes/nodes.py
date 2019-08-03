@@ -331,6 +331,7 @@ class TriggerSK(wx.Dialog):
 			}'''
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		periodlabel = wx.StaticText(panel, label=_('Checking period (ms)'))
 		self.period = wx.SpinCtrl(panel, min=100, max=100000000, initial=1000)
@@ -508,6 +509,7 @@ class TriggerFilterSK(wx.Dialog):
 			}'''
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		vessellabel = wx.StaticText(panel, label=_('Vessel'))
 		self.vessel = wx.TextCtrl(panel, size=(290,-1))
@@ -660,6 +662,7 @@ class TriggerGeofence(wx.Dialog):
 			}'''
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		periodlabel = wx.StaticText(panel, label=_('Checking period (ms)'))
 		self.period = wx.SpinCtrl(panel, min=100, max=100000000, initial=10000)
@@ -831,6 +834,7 @@ class TriggerGPIO(wx.Dialog):
 			}'''
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		in_use_pins =[]
 		for i in parent.no_actions_nodes:
@@ -956,6 +960,7 @@ class TriggerMQTT(wx.Dialog):
 			}'''
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		self.local = wx.CheckBox(panel, label=_('Local MQTT broker'))
 		self.local.Bind(wx.EVT_CHECKBOX, self.on_local)
@@ -1113,6 +1118,7 @@ class TriggerTelegram(wx.Dialog):
 	}'''
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		help_button = wx.BitmapButton(panel, bitmap=help_bmp, size=(help_bmp.GetWidth()+40, help_bmp.GetHeight()+10))
 		help_button.Bind(wx.EVT_BUTTON, self.on_help)
@@ -1205,6 +1211,7 @@ class TriggerTime(wx.Dialog):
 			}'''
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		periodlabel = wx.StaticText(panel, label=_('Checking period'))
 		self.period = wx.SpinCtrl(panel, min=1, max=100000000, initial=1)
@@ -1303,6 +1310,7 @@ class Condition(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		operatorlabel = wx.StaticText(panel, label=_('Operator'))
 		self.available_operators_select = wx.Choice(panel, choices=self.available_conditions, style=wx.CB_READONLY)
@@ -1603,6 +1611,7 @@ class ActionSetSignalkKey(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		skkeylabel = wx.StaticText(panel, label=_('Set Signal K key'))
 		self.skkey1 = wx.TextCtrl(panel)
@@ -1763,6 +1772,7 @@ class ActionEndFilterSignalk(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		okBtn = wx.Button(panel, wx.ID_OK)
 		okBtn.Bind(wx.EVT_BUTTON, self.OnOk)
@@ -1845,6 +1855,7 @@ class ActionSetGPIO(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		in_use_pins =[]
 		for i in parent.no_actions_nodes:
@@ -2042,6 +2053,7 @@ class ActionSetMQTT(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		self.local = wx.CheckBox(panel, label=_('Local MQTT broker'))
 		self.local.Bind(wx.EVT_CHECKBOX, self.on_local)
@@ -2286,6 +2298,7 @@ class ActionPublishTwitter(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		bodylabel = wx.StaticText(panel, label=_('Tweet'))
 		self.body = wx.TextCtrl(panel, style=wx.TE_MULTILINE, size=(-1,60))
@@ -2661,6 +2674,7 @@ class ActionSendEmail(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		tolabel = wx.StaticText(panel, label=_('To'))
 		self.to = wx.TextCtrl(panel)
@@ -2983,6 +2997,7 @@ class ActionPlaySound(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		self.path_sound = wx.TextCtrl(panel)
 		self.button_select_sound = wx.Button(panel, label=_('File'))
@@ -3208,6 +3223,7 @@ class ActionRunCommand(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		commandlabel = wx.StaticText(panel, label=_('Command'))
 		self.command = wx.TextCtrl(panel)
@@ -3525,6 +3541,7 @@ class ActionSendTelegram(wx.Dialog):
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		chatidlabel = wx.StaticText(panel, label=_('Chat ID'))
 		self.chatid = wx.TextCtrl(panel)

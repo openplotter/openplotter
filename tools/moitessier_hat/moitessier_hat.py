@@ -20,11 +20,11 @@ import wx.richtext as rt
 import xml.etree.ElementTree as ET
 
 op_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..')
-sys.path.append(op_folder+'/classes')
-from conf import Conf
-from language import Language
-from SK_settings import SK_settings
-from opencpnSettings import opencpnSettings
+sys.path.append(op_folder)
+from classes.conf import Conf
+from classes.language import Language
+from classes.SK_settings import SK_settings
+from classes.opencpnSettings import opencpnSettings
 
 class MyFrame(wx.Frame):
 		
@@ -560,7 +560,7 @@ class MyFrame(wx.Frame):
 				self.logger3.WriteText(_('This file already exists!'))
 			else:
 				try:
-					out = subprocess.check_output(['wget','https://get.rooco.tech/moitessier/buster/release/'+kernel+'/latest/'+file, '-P', self.op_folder+'/tools/moitessier_hat/packages'])
+					out = subprocess.check_output(['wget','https://get.rooco.tech/moitessier/release/'+kernel+'/latest/'+file, '-P', self.op_folder+'/tools/moitessier_hat/packages'])
 					self.logger3.WriteText(_('File downloaded!'))
 				except:
 					self.logger3.WriteText(_('File not found!'))
@@ -570,7 +570,7 @@ class MyFrame(wx.Frame):
 		def readAvailable(self):
 			self.packages_select.Clear()
 			self.packages_list = []
-			kernel = subprocess.check_output(['uname','-r'])
+			kernel = subprocess.check_output(['uname','-r']).decode()
 			kernel = kernel.split('.')
 			kernelA = int(kernel[0])
 			kernelB = int(kernel[1])
@@ -594,7 +594,7 @@ class MyFrame(wx.Frame):
 			self.logger.Clear()
 			self.logger.BeginBold()
 			try:
-				out = subprocess.check_output(['more','product'],cwd='/proc/device-tree/hat')
+				out = subprocess.check_output(['more','product'],cwd='/proc/device-tree/hat').decode()
 			except:
 				self.logger.BeginTextColour((255, 0, 0))
 				self.logger.WriteText(_('Moitessier HAT is not attached!\n'))
@@ -622,11 +622,11 @@ class MyFrame(wx.Frame):
 				self.logger.EndTextColour()
 				self.logger.EndBold()
 				self.logger.BeginTextColour((55, 55, 55))
-				package = subprocess.check_output(['dpkg','-s','moitessier'])
+				package = subprocess.check_output(['dpkg','-s','moitessier']).decode()
 				self.logger.WriteText(package)
 				self.logger.EndTextColour()
 
-				kernel = subprocess.check_output(['uname','-r'])
+				kernel = subprocess.check_output(['uname','-r']).decode()
 				kernel = kernel.split('-')
 				kernel = kernel[0]
 				package = package.split('\n')
@@ -650,7 +650,7 @@ class MyFrame(wx.Frame):
 		def read(self):
 			self.onCheck()
 			try:
-				settings = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','1'])
+				settings = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','1']).decode()
 				settings = settings.replace('\t','')
 				settings = settings.split('\n')
 				for i in settings:
@@ -683,7 +683,7 @@ class MyFrame(wx.Frame):
 				self.logger2.WriteText(_('All changes will be temporal.\nDefault settings will be loaded after rebooting.\n'))
 				self.logger2.EndTextColour()
 
-			self.current_kernel = subprocess.check_output(['uname','-r','-v'])
+			self.current_kernel = subprocess.check_output(['uname','-r','-v']).decode()
 			self.kernel_label.SetLabel(self.current_kernel)
 			self.logger3.BeginTextColour((55, 55, 55))
 			self.logger3.WriteText(_('Select the package that fits to the current kernel version.'))
@@ -803,42 +803,42 @@ class MyFrame(wx.Frame):
 		def on_get_info(self, e):
 			self.logger.Clear()
 			self.logger.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','1'])
+			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','1']).decode()
 			self.logger.WriteText(output)
 			self.logger.EndTextColour()
 
 		def on_statistics(self, e):
 			self.logger.Clear()
 			self.logger.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','0'])
+			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','0']).decode()
 			self.logger.WriteText(output)
 			self.logger.EndTextColour()
 
 		def on_reset_statistics(self, e):
 			self.logger.Clear()
 			self.logger.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','3'])
+			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','3']).decode()
 			self.logger.WriteText(output)
 			self.logger.EndTextColour()
 
 		def on_enable_gnss(self, e):
 			self.logger2.Clear()
 			self.logger2.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','4','1'])
+			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','4','1']).decode()
 			self.logger2.WriteText(output)
 			self.logger2.EndTextColour()
 
 		def on_disable_gnss(self, e):
 			self.logger2.Clear()
 			self.logger2.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','4','0'])
+			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','4','0']).decode()
 			self.logger2.WriteText(output)
 			self.logger2.EndTextColour()
 
 		def on_MPU9250(self, e):
 			self.logger.Clear()
 			self.logger.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/sensors/MPU-9250', '/dev/i2c-1'])
+			output = subprocess.check_output([self.home+'/moitessier/app/sensors/MPU-9250', '/dev/i2c-1']).decode()
 			self.logger.WriteText(_('MPU-9250 temperature: ')+output)
 			self.logger.WriteText(_('To get accurate readings, make sure the sensor is not being read by another application.'))
 			self.logger.EndTextColour()
@@ -846,7 +846,7 @@ class MyFrame(wx.Frame):
 		def on_MS560702BA03(self, e):
 			self.logger.Clear()
 			self.logger.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/sensors/MS5607-02BA03', '/dev/i2c-1'])
+			output = subprocess.check_output([self.home+'/moitessier/app/sensors/MS5607-02BA03', '/dev/i2c-1']).decode()
 			self.logger.WriteText(_('MS5607-02BA03 pressure: ')+output)
 			self.logger.WriteText(_('To get accurate readings, make sure the sensor is not being read by another application.'))
 			self.logger.EndTextColour()
@@ -854,7 +854,7 @@ class MyFrame(wx.Frame):
 		def on_Si7020A20(self, e):
 			self.logger.Clear()
 			self.logger.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/sensors/Si7020-A20', '/dev/i2c-1'])
+			output = subprocess.check_output([self.home+'/moitessier/app/sensors/Si7020-A20', '/dev/i2c-1']).decode()
 			if 'Firmware' in output: output = _('This sensor is not mounted on this HAT\n')
 			self.logger.WriteText(_('Si7020-A20 humidity: ')+output)
 			self.logger.WriteText(_('To get accurate readings, make sure the sensor is not being read by another application.'))
@@ -863,7 +863,7 @@ class MyFrame(wx.Frame):
 		def on_reset(self, e):
 			self.logger2.Clear()
 			self.logger2.BeginTextColour((55, 55, 55))
-			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','2'])
+			output = subprocess.check_output([self.home+'/moitessier/app/moitessier_ctrl/moitessier_ctrl','/dev/moitessier.ctrl','2']).decode()
 			self.logger2.WriteText(output)
 			self.logger2.EndTextColour()
 

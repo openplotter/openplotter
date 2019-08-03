@@ -1,0 +1,5 @@
+[Match]
+Name=br0
+
+[Network]
+Address=10.10.10.1/24

@@ -23,14 +23,14 @@ class Conf_analog:
 		if 'root' in self.home:
 			self.home = '/home/'+os.path.expanduser(os.environ["SUDO_USER"])
 		self.conf_folder = self.home+'/.openplotter'
-		self.data_conf = configparser.SafeConfigParser()
+		self.data_conf = configparser.ConfigParser()
 		self.read()
 
 	def read(self):
 		self.data_conf.read(self.conf_folder+'/tools/openplotter_analog.conf')
 
 	def write(self):
-		with open(self.conf_folder+'/tools/openplotter_analog.conf', 'wb') as configfile:
+		with open(self.conf_folder+'/tools/openplotter_analog.conf', 'w') as configfile:
 			self.data_conf.write(configfile)
 
 	def get(self,section,item):

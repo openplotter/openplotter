@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -38,7 +38,8 @@ class MyFrame(wx.Frame):
 		
 		wx.Frame.__init__(self, None, title=titleadd, size=(650,435))
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
-		panel = wx.Panel(self, wx.ID_ANY)		
+		panel = wx.Panel(self, wx.ID_ANY)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))	
 		
 		self.timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.timer_act, self.timer)
@@ -103,9 +104,9 @@ class MyFrame(wx.Frame):
 			self.s2 = socket.socket()
 			self.s2.connect(("localhost", port))
 			self.s2.settimeout(5)
-			self.status= _('connected to:').decode('utf8')+str(port)
-		except socket.error, error_msg:
-			self.status= _('Failed to connect with localhost:10113. Error: ').decode('utf8')+ str(error_msg[0])+_(', trying to reconnect...')
+			self.status= _('connected to:')+str(port)
+		except socket.error as error_msg:
+			self.status= _('Failed to connect with localhost:10113. Error: ')+ str(error_msg[0])+_(', trying to reconnect...')
 			self.s2=''
 			time.sleep(7)
 		else: self.status=''
@@ -128,6 +129,7 @@ class MyFrame(wx.Frame):
 
 			else:
 				if frase_nmea and self.pause_all==0:
+					frase_nmea_log = ''
 					self.baud+=10*len(frase_nmea)
 					tt=time.time()
 					
@@ -140,7 +142,7 @@ class MyFrame(wx.Frame):
 					nmea_list=frase_nmea.split()
 					for i in nmea_list:
 						device=i[1:3]
-						sentence=i[3:6].encode('utf-8')
+						sentence=i[3:6]
 						dat=i[6:-2]
 						index=0
 						exist=0
@@ -150,17 +152,17 @@ class MyFrame(wx.Frame):
 									td=round(i[2]*0.5+0.5*(tt-i[4]),1)
 									self.list_iter[index][2]=td
 									self.list_iter[index][4]=tt
-									self.list.SetStringItem(index,2,str(td))
-									self.list.SetStringItem(index,3,dat)
+									self.list.SetItem(index,2,str(td))
+									self.list.SetItem(index,3,dat)
 									exist=1
 							index+=1						
 						if exist==0:
 							self.list_iter.append([device,sentence,0,dat,time.time()])
-							self.list.InsertStringItem(index, device)
-							self.list.SetStringItem(index, 1, sentence)
-							self.list.SetStringItem(index, 2, str(0))
-							self.list.SetStringItem(index, 3, dat)
-					frase_nmea_log+=frase_nmea
+							self.list.InsertItem(index, device)
+							self.list.SetItem(index, 1, sentence)
+							self.list.SetItem(index, 2, str(0))
+							self.list.SetItem(index, 3, dat)
+					frase_nmea_log = frase_nmea_log + frase_nmea.decode()
 		if frase_nmea_log:
 			self.logger.AppendText(frase_nmea_log)
 		self.timer.Start(self.ttimer)
