@@ -16,7 +16,7 @@
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
 import configparser, subprocess
-from .conf import Conf
+from classes.conf import Conf
 
 class opencpnSettings:
 

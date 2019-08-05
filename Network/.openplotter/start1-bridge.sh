@@ -1,7 +1,4 @@
 #!/bin/sh
-sleep 22
-sudo ifdown --force br0
-sleep 4
-sudo ifup --force br0
-sleep 2
-sudo systemctl restart dnsmasq
+sleep 40
+#set bridge to stp mode
+sudo sudo brctl stp br0 on

@@ -36,7 +36,7 @@ class openPGNs(wx.Dialog):
 		self.currentpath = parent.currentpath
 		self.ttimer = 100
 		Language(self.conf)
-		Buf_ = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+		Buf_ = bytearray(128)
 		self.Buffer = bytearray(Buf_)
 		self.Zustand=6
 		self.buffer=0
@@ -61,7 +61,7 @@ class openPGNs(wx.Dialog):
 		self.list_N2K.InsertColumn(1, _('info'), width=220)
 		self.txLabel = wx.StaticText(panel, wx.ID_ANY, style=wx.ALIGN_CENTER)
 		self.printing = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE | wx.TE_READONLY, size=(-1,50))
-		self.printing.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
+		self.printing.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
 
 		apply_b = wx.Button(panel, label=_('Apply'))
 		self.Bind(wx.EVT_BUTTON, self.apply, apply_b)
@@ -83,7 +83,7 @@ class openPGNs(wx.Dialog):
 		self.Centre()
 
 		try:
-			self.ser = serial.Serial('/dev'+self.can_device, self.baud_, timeout=0.5)
+			self.ser = serial.Serial(self.can_device, self.baud_, timeout=0.5)
 		except:
 			self.printing.SetValue(_('Error connecting with device ')+self.can_device)
 			apply_b.Disable()
@@ -95,6 +95,14 @@ class openPGNs(wx.Dialog):
 
 	def check(self,e):
 		self.printing.SetValue('')
+		i=0
+		self.work = True
+		while (self.work):
+			self.getCharfromSerial()
+			time.sleep(0.01)
+			i+=1
+			if i>20:
+				self.work = False
 
 		self.Send_Command(1, 0x01, 0)
 		time.sleep(0.2)
@@ -164,9 +172,9 @@ class openPGNs(wx.Dialog):
 	def sendTX_PGN(self,lPGN,add):
 		if add:
 			data_ = (0,0,0,0,1,0xFE,0xFF,0xFF,0xFF,0xFE,0xFF,0xFF,0xFF)
+			data = bytearray(data_)
 		else:
-			data_ = (0,0,0,0,0,0,0,0,0,0,0,0,0)
-		data = bytearray(data_)
+			data = bytearray(13)
 		data[0]=lPGN&255
 		data[1]=(lPGN >> 8)&255
 		data[2]=(lPGN >> 16)&255
@@ -174,9 +182,8 @@ class openPGNs(wx.Dialog):
 		self.Send_Command(14, 0x47, data)
 
 	def Send_Command(self, length, command, arg):
-		data_ = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-		data = bytearray(data_)
-
+		data = bytearray(length+3)
+		
 		data[0] = 0xa1 #command
 		data[1] = length #Actisense length
 		data[2] = command
@@ -195,33 +202,29 @@ class openPGNs(wx.Dialog):
 
 	def SendCommandtoSerial(self, TXs):
 		crc = 0
-		#start = codecs.decode('1002', 'hex_codec')
-		start = (0x10, 0x02)
-		ende = codecs.decode('1003', 'hex_codec')
-		ende = (0x10, 0x03)
 		i = 0
 		while i < TXs[1] + 2:
 			crc += TXs[i]
 			i += 1
 		crc = (256 - crc) & 255
 		TXs[TXs[1] + 2] = crc
-		i = 0
-		self.ser.write(chr(start[0]))
-		self.ser.write(chr(start[1]))
+
+		TYs = b''
 		while i < TXs[1] + 3:
-			self.ser.write(chr(TXs[i]))
+			TYs = TYs+bytes(TXs[i])
 			if TXs[i] == 0x10:
-				self.ser.write(chr(TXs[i]))
-			i += 1
-		self.ser.write(chr(ende[0]))
-		self.ser.write(chr(ende[1]))
+				TYs = TYs+bytes(TXs[i])
+			i += 1		
+		start = b'\x10\x02'
+		ende = b'\x10\x03'
+		self.ser.write(start+TXs+ende)
 
 	def getCharfromSerial(self):
 		bytesToRead = self.ser.inWaiting()
 		if bytesToRead>0:
 			buffer=self.ser.read(bytesToRead)
 			for i in buffer:
-				self.parse(ord(i))
+				self.parse(i)			
 
 	def parse(self, b):
 		if self.Zustand == 6: # zu Beginn auf 0x10 warten
@@ -237,7 +240,6 @@ class openPGNs(wx.Dialog):
 				self.Zustand = 0
 			elif b == 0x03: # Ende gefunden
 				if self.crcCheck():
-					#print "CRC"
 					self.output()
 				self.p = 0
 				self.Zustand = 6 # Auf Anfang zuruecksetzen
@@ -277,28 +279,6 @@ class openPGNs(wx.Dialog):
 				self.printing.SetValue(st)
 				self.txLabel.SetLabel(str(j)+_(" enabled transmission PGNs (max. 30):"))
 				self.work = False
-
-	def getCommandfromSerial(self, RXs):
-		crc = 0
-		start = (0x10, 0x02)
-		ende = (0x10, 0x03)
-		i = 0
-		while i < RXs[1] + 2:
-			crc += RXs[i]
-			i += 1
-		crc = (256 - crc) & 255
-		RXs[RXs[1] + 2] = crc
-		i = 0
-		self.ser.write(chr(start[0]))
-		self.ser.write(chr(start[1]))
-		while i < RXs[1] + 3:
-			self.ser.write(chr(RXs[i]))
-			#print format(RXs[i], '02x')
-			if RXs[i] == 0x10:
-				self.ser.write(chr(RXs[i]))
-			i += 1
-		self.ser.write(chr(ende[0]))
-		self.ser.write(chr(ende[1]))
 
 	def read_N2K(self):
 		if self.list_N2K.GetItemCount()<3:

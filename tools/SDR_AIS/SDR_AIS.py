@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -15,14 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
-import wx, os, sys, subprocess, ConfigParser, webbrowser, time
+import wx, os, sys, subprocess, configparser, webbrowser, time
 
 op_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..')
-sys.path.append(op_folder+'/classes')
-from conf import Conf
-from language import Language
-from SK_settings import SK_settings
-from opencpnSettings import opencpnSettings
+#sys.path.append(op_folder+'/classes')
+sys.path.append(op_folder)
+from classes.conf import Conf
+from classes.language import Language
+from classes.SK_settings import SK_settings
+from classes.opencpnSettings import opencpnSettings
 
 class MyFrame(wx.Frame):
 		
@@ -50,7 +51,7 @@ class MyFrame(wx.Frame):
 
 			bands_label = wx.StaticText(self, label=_('Band'))
 			bands_list = ['GSM850', 'GSM-R', 'GSM900', 'EGSM', 'DCS', 'PCS']
-			self.band = wx.ComboBox(self, choices = bands_list, style = wx.CB_READONLY)
+			self.band = wx.ComboBox(self, choices = bands_list, style = wx.CB_READONLY, size = (100,-1))
 			self.check_bands = wx.Button(self, label =_('Get channel'))
 			self.Bind(wx.EVT_BUTTON, self.check_band, self.check_bands)
 			channel_label = wx.StaticText(self, label =_('Channel'))
@@ -273,24 +274,24 @@ class MyFrame(wx.Frame):
 			self.open_gqrx()
 
 		def setconf(self,frequency):
-			self.gqrx_conf = ConfigParser.SafeConfigParser()
+			self.gqrx_conf = configparser.ConfigParser()
 			self.gqrx_conf.read(self.home+'/.config/gqrx/default.conf')
 			try:
 				self.gqrx_conf.set('General', 'crashed', 'false')
-			except ConfigParser.NoSectionError:
+			except configparser.NoSectionError:
 				self.gqrx_conf.add_section('General')
 				self.gqrx_conf.set('General', 'crashed', 'false')
 			try:
 				self.gqrx_conf.set('input', 'frequency', str(frequency))
-			except ConfigParser.NoSectionError:
+			except configparser.NoSectionError:
 				self.gqrx_conf.add_section('input')
 				self.gqrx_conf.set('input', 'frequency', str(frequency))
 			try:
 				self.gqrx_conf.set('receiver', 'demod', '3')
-			except ConfigParser.NoSectionError:
+			except configparser.NoSectionError:
 				self.gqrx_conf.add_section('receiver')
 				self.gqrx_conf.set('receiver', 'demod', '3')
-			with open(self.home+'/.config/gqrx/default.conf', 'wb') as configfile:
+			with open(self.home+'/.config/gqrx/default.conf', 'w') as configfile:
 				self.gqrx_conf.write(configfile)
 
 		def on_saveppm(self,event):
@@ -299,14 +300,14 @@ class MyFrame(wx.Frame):
 			except:
 				self.ShowStatusBarRED(_('Failed. Wrong PPM'))
 				return
-			self.gqrx_conf = ConfigParser.SafeConfigParser()
+			self.gqrx_conf = configparser.SafeConfigParser()
 			self.gqrx_conf.read(self.home+'/.config/gqrx/default.conf')
 			try:
 				self.gqrx_conf.set('input', 'corr_freq', str(ppm2))
-			except ConfigParser.NoSectionError:
+			except configparser.NoSectionError:
 				self.gqrx_conf.add_section('input')
 				self.gqrx_conf.set('input', 'corr_freq', str(ppm2))
-			with open(self.home+'/.config/gqrx/default.conf', 'wb') as configfile:
+			with open(self.home+'/.config/gqrx/default.conf', 'w') as configfile:
 				self.gqrx_conf.write(configfile)
 			self.conf.set('AIS-SDR', 'ppm', ppm)
 			self.ShowStatusBarGREEN(_('Saved PPM'))

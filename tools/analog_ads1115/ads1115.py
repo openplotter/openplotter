@@ -16,7 +16,7 @@
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
 import smbus, time
-from .conf_analog import Conf_analog
+from conf_analog import Conf_analog
 
 class Ads1115():
 
@@ -33,7 +33,7 @@ class Ads1115():
 		self.gain_mV=[6144,4096,2048,1024,512,256]
 
 		# Select the sample rate
-		# self.sps = 8    # 0   8 samples per second
+		# self.sps = 8	# 0   8 samples per second
 		# self.sps = 16   # 1  16 samples per second
 		# self.sps = 32   # 2  32 samples per second
 		# self.sps = 64   # 3  64 samples per second

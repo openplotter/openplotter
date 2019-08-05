@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
 # Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,13 +14,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
-import wx, os, sys, subprocess, ConfigParser, webbrowser, time, ujson
+import wx, os, sys, subprocess, configparser, webbrowser, time, ujson
 
 op_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..')
-sys.path.append(op_folder+'/classes')
-from conf import Conf
-from language import Language
-from SK_settings import SK_settings
+sys.path.append(op_folder)
+from classes.conf import Conf
+from classes.language import Language
+from classes.SK_settings import SK_settings
 from nodes_SK_filter import Nodes, TriggerFilterSK, ActionEndFilterSignalk
 
 class MyFrame(wx.Frame):
@@ -40,13 +40,14 @@ class MyFrame(wx.Frame):
 		self.available_source_nr = ['label','type','pgn','src','sentence','talker']
 
 		wx.Frame.__init__(self, None, title=_('SignalK input filter (uses node-red)'), size=(710,460))
+		self.SetBackgroundColour(wx.Colour(230,230,230,255))
 		
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 		
 		self.icon = wx.Icon(self.op_folder+'/static/icons/openplotter.ico', wx.BITMAP_TYPE_ICO)
 		self.SetIcon(self.icon)
 
-		self.list_triggers = wx.ListCtrl(self, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
+		self.list_triggers = wx.ListCtrl(self, -1, style=wx.LC_REPORT | wx.SIMPLE_BORDER)
 		self.list_triggers.InsertColumn(0, _('Signal K key'), width=240)
 		self.list_triggers.InsertColumn(1, _('Source Type'), width=120)
 		self.list_triggers.InsertColumn(2, _('Condition'), width=70)
@@ -140,7 +141,7 @@ class MyFrame(wx.Frame):
 					else:
 						enabled = True
 				self.nodeid = node['id']
-			self.list_triggers.Append([path.decode('utf8'), '', '', '', ''])
+			self.list_triggers.Append([path, '', '', '', ''])
 			self.last = self.list_triggers.GetItemCount()-1
 			self.selected_trigger = self.list_triggers.GetItemCount()-1
 			self.on_print_conditions()
@@ -178,10 +179,10 @@ class MyFrame(wx.Frame):
 										field3 = local_time.strftime("%Y-%m-%d %H:%M:%S")
 									except: pass
 								else: value2 = node['rules'][0]['v2']
-			self.list_triggers.SetStringItem(self.last,1,property.decode('utf8'))
-			self.list_triggers.SetStringItem(self.last,2,self.available_conditions[int(condition["operator"])].decode('utf8'))
-			self.list_triggers.SetStringItem(self.last,3,value.decode('utf8'))
-			self.list_triggers.SetStringItem(self.last,4,value2.decode('utf8'))
+			self.list_triggers.SetItem(self.last,1,property)
+			self.list_triggers.SetItem(self.last,2,self.available_conditions[int(condition["operator"])])
+			self.list_triggers.SetItem(self.last,3,value)
+			self.list_triggers.SetItem(self.last,4,value2)
 			self.last = self.list_triggers.GetItemCount()-1
 
 	def on_select_triggers(self, e):
@@ -485,7 +486,7 @@ class MyFrame(wx.Frame):
 
 		#find idnum for id
 		for i in shortcut:
-			if i[8] <> '':
+			if i[8] != '':
 				i[6] = idabs.index(i[8])			
 				idabs_parent[i[6]] = -1				
 

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,18 +14,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
 import re
 import wx
-
+from SK_settings_OPkplex import SK_settings
 
 class addkplex(wx.Dialog):
 	def __init__(self, edit, extkplex, parent):
 		conf = parent.conf
 		self.parent = parent
 		self.op_folder = parent.op_folder
+		self.SK_settings = SK_settings(conf)
 		if edit == 0: title = _('Add kplex interface')
 		else: title = _('Edit kplex interface')
-		wx.Dialog.__init__(self, None, title=title, size=(550, 450))
+		wx.Dialog.__init__(self, None, title=title, size=(550, 444))
 		self.extkplex = extkplex
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 		self.result = 0
@@ -34,13 +36,14 @@ class addkplex(wx.Dialog):
 			self.index = edit[11]
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		self.icon = wx.Icon(self.op_folder + '/static/icons/kplex.ico', wx.BITMAP_TYPE_ICO)
 		self.SetIcon(self.icon)
 
 		wx.StaticText(panel, label=_('Type'), pos=(20, 30))
 		self.kplex_type_list = ['Serial', 'TCP', 'UDP']
-		self.kplex_type = wx.ComboBox(panel, choices=self.kplex_type_list, style=wx.CB_READONLY, size=(80, 32),
+		self.kplex_type = wx.ComboBox(panel, choices=self.kplex_type_list, style=wx.CB_READONLY, size=(85, 32),
 									  pos=(20, 55))
 		self.Bind(wx.EVT_COMBOBOX, self.on_kplex_type_change, self.kplex_type)
 
@@ -57,11 +60,11 @@ class addkplex(wx.Dialog):
 			if serialInst[alias]['data'] == 'NMEA 0183':
 				if serialInst[alias]['assignment'] == '0': SerDevLs.append(alias)
 		self.kplex_ser_T1 = wx.StaticText(panel, label=_('Alias'), pos=(230, 35))
-		self.kplex_device_select = wx.ComboBox(panel, choices=SerDevLs, style=wx.CB_DROPDOWN, size=(140, 32),pos=(225, 55))
+		self.kplex_device_select = wx.ComboBox(panel, choices=SerDevLs, style=wx.CB_DROPDOWN, size=(130, 32),pos=(225, 55))
 
 		self.bauds = ['4800', '9600', '19200', '38400', '57600', '115200', '230400', '460800']
 		self.kplex_ser_T2 = wx.StaticText(panel, label=_('Bauds'), pos=(375, 35))
-		self.kplex_baud_select = wx.ComboBox(panel, choices=self.bauds, style=wx.CB_READONLY, size=(90, 32),pos=(370, 55))
+		self.kplex_baud_select = wx.ComboBox(panel, choices=self.bauds, style=wx.CB_READONLY, size=(95, 32),pos=(360, 55))
 
 		self.kplex_net_T1 = wx.StaticText(panel, label=_('Address'), pos=(235, 35))
 		self.kplex_address = wx.TextCtrl(panel, -1, size=(120, 32), pos=(230, 55))
@@ -70,9 +73,9 @@ class addkplex(wx.Dialog):
 
 		self.ser_io_list = ['in', 'out', 'both']
 		self.net_io_list = ['in', 'out', 'both']
-		wx.StaticText(panel, label=_('in/out'), pos=(470, 35))
-		self.kplex_io_ser = wx.ComboBox(panel, choices=self.ser_io_list, style=wx.CB_READONLY, size=(70, 32),pos=(465, 55))
-		self.kplex_io_net = wx.ComboBox(panel, choices=self.net_io_list, style=wx.CB_READONLY, size=(70, 32),pos=(465, 55))
+		wx.StaticText(panel, label=_('in/out'), pos=(460, 35))
+		self.kplex_io_ser = wx.ComboBox(panel, choices=self.ser_io_list, style=wx.CB_READONLY, size=(75, 32),pos=(460, 55))
+		self.kplex_io_net = wx.ComboBox(panel, choices=self.net_io_list, style=wx.CB_READONLY, size=(75, 32),pos=(460, 55))
 		self.Bind(wx.EVT_COMBOBOX, self.on_kplex_io_change, self.kplex_io_ser)
 		self.Bind(wx.EVT_COMBOBOX, self.on_kplex_io_change, self.kplex_io_net)
 
@@ -91,7 +94,7 @@ class addkplex(wx.Dialog):
 		self.ifilter_add_b = wx.Button(panel, label=_('Add'), pos=(425, 125))
 		self.Bind(wx.EVT_BUTTON, self.ifilter_add, self.ifilter_add_b)
 		self.ifilter_sentences = wx.TextCtrl(panel, -1, style=wx.CB_READONLY, size=(395, 32), pos=(20, 165))
-		self.ifilter_sentences.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
+		self.ifilter_sentences.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
 		self.ifilter_del_b = wx.Button(panel, label=_('Delete'), pos=(425, 165))
 		self.Bind(wx.EVT_BUTTON, self.ifilter_del, self.ifilter_del_b)
 
@@ -106,7 +109,7 @@ class addkplex(wx.Dialog):
 		self.ofilter_add_b = wx.Button(panel, label=_('Add'), pos=(425, 125 + a))
 		self.Bind(wx.EVT_BUTTON, self.ofilter_add, self.ofilter_add_b)
 		self.ofilter_sentences = wx.TextCtrl(panel, -1, style=wx.CB_READONLY, size=(395, 32), pos=(20, 165 + a))
-		self.ofilter_sentences.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
+		self.ofilter_sentences.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVECAPTION))
 		self.ofilter_del_b = wx.Button(panel, label=_('Delete'), pos=(425, 165 + a))
 		self.Bind(wx.EVT_BUTTON, self.ofilter_del, self.ofilter_del_b)
 
@@ -118,7 +121,11 @@ class addkplex(wx.Dialog):
 		self.otalker.SetValue('**')
 		self.osent.SetValue('***')
 
-		self.optional = wx.CheckBox(panel, label=_('set optional'), pos=(20, 365))
+		#self.activ = wx.CheckBox(panel, label=_('activ'), pos=(20, 365))
+		self.OPkplex = wx.CheckBox(panel, label=_('OPkplex in SK'), pos=(20, 365))
+		self.OPkplex.Bind(wx.EVT_CHECKBOX, self.on_OPkplex)
+		
+		self.optional = wx.CheckBox(panel, label=_('set optional'), pos=(150, 365))
 
 		gpsd_examp_b = wx.Button(panel, label=_('Add GPSD input'), pos=(10, 320))
 		gpsd_examp_b.Bind(wx.EVT_BUTTON, self.gpsd_examp)
@@ -132,8 +139,11 @@ class addkplex(wx.Dialog):
 		ok = wx.Button(panel, label=_('OK'), pos=(425, 360))
 		ok.Bind(wx.EVT_BUTTON, self.ok_conn)
 		cancelBtn = wx.Button(panel, wx.ID_CANCEL, pos=(330, 360))
+		
+		self.OPkplex.SetValue(self.SK_settings.get())
 
 		if edit == 0:
+			self.activ_v = True
 			edit = ['0', '0', '0', '0', '0', '0', '0', '0', '0', -1,0]
 			self.kplex_type.SetValue('Serial')
 			self.kplex_baud_select.SetValue('4800')
@@ -142,7 +152,10 @@ class addkplex(wx.Dialog):
 			self.switch_ser_net(True)
 			self.switch_io_out(False)
 			self.optional.SetValue(True)
+			#self.activ.SetValue(True)
 		else:
+			self.activ_v = edit[0]
+			#self.activ.SetValue(edit[0])
 			self.kplex_name.SetValue(edit[1])
 			self.kplex_type.SetValue(edit[2])
 			if edit[2] == 'Serial':
@@ -156,20 +169,20 @@ class addkplex(wx.Dialog):
 				self.kplex_address.SetValue(edit[4])
 				self.kplex_netport.SetValue(edit[5])
 			self.on_kplex_io_change(0)
-			if edit[6] != _('none').decode("utf-8"):
-				if edit[6] == _('accept').decode("utf-8"):
+			if edit[6] != _('none'):
+				if edit[6] == _('accept'):
 					self.ifilter_select.SetValue(self.mode_ifilter[1])
-				if edit[6] == _('ignore').decode("utf-8"):
+				if edit[6] == _('ignore'):
 					self.ifilter_select.SetValue(self.mode_ifilter[2])
-				self.ifilter_sentences.SetValue(edit[7])
+				self.ifilter_sentences.SetValue(edit[7].replace(':-all','').replace(':',',').replace('-','').replace('+','') )
 			else:
 				self.ifilter_select.SetValue(self.mode_ifilter[0])
-			if edit[8] != _('none').decode("utf-8"):
-				if edit[8] == _('accept').decode("utf-8"):
+			if edit[8] != _('none'):
+				if edit[8] == _('accept'):
 					self.ofilter_select.SetValue(self.mode_ofilter[1])
-				if edit[8] == _('ignore').decode("utf-8"):
+				if edit[8] == _('ignore'):
 					self.ofilter_select.SetValue(self.mode_ofilter[2])
-				self.ofilter_sentences.SetValue(edit[8])
+				self.ofilter_sentences.SetValue(edit[9].replace(':-all','').replace(':',',').replace('-','').replace('+','') )
 			else:
 				self.ofilter_select.SetValue(self.mode_ofilter[0])
 			if edit[10] == '1':
@@ -178,18 +191,19 @@ class addkplex(wx.Dialog):
 				self.optional.SetValue(False)
 
 	def SKout_examp(self, e):
-		self.kplex_type.SetValue('UDP')
+		self.kplex_type.SetValue('TCP')
 		self.kplex_io_net.SetValue('out')
 		self.switch_ser_net(False)
 		self.switch_io_out(True)
 		self.switch_io_in(False)
-		self.kplex_address.SetValue('')
+		self.kplex_address.SetValue('127.0.0.1')
 		self.kplex_netport.SetValue('30330')
 		self.kplex_name.SetValue('signalk_out')
 		self.ifilter_select.SetValue(self.mode_ifilter[0])
 		self.ifilter_sentences.SetValue(_('nothing'))
-		self.ofilter_select.SetValue(self.mode_ifilter[0])
-		self.ofilter_sentences.SetValue(_('nothing'))
+		self.ofilter_select.SetValue(self.mode_ifilter[2])
+		self.ofilter_sentences.SetValue('*****%signalk_in')
+		self.optional.SetValue(False)
 
 	def SKin_examp(self, e):
 		self.kplex_type.SetValue('TCP')
@@ -204,6 +218,7 @@ class addkplex(wx.Dialog):
 		self.ifilter_sentences.SetValue(_('nothing'))
 		self.ofilter_select.SetValue(self.mode_ifilter[0])
 		self.ofilter_sentences.SetValue(_('nothing'))
+		self.optional.SetValue(True)
 
 	def gpsd_examp(self, e):
 		self.kplex_type.SetValue('TCP')
@@ -361,6 +376,13 @@ class addkplex(wx.Dialog):
 		self.address.SetValue('127.0.0.1')
 		self.port.SetValue('2947')
 
+	def on_OPkplex(self, event):
+		result = wx.MessageBox(_('Do you really want to add / remove OPkplex in Signal K? \nnew settings will be effective after a restart of Signal K'), '', wx.YES_NO | wx.ICON_INFORMATION)
+		if result == wx.YES:
+			self.SK_settings.set(self.OPkplex.GetValue() == 1)
+		else:
+			self.OPkplex.SetValue(not (self.OPkplex.GetValue() == 1))
+
 	def ok_conn(self, event):
 		name = str(self.kplex_name.GetValue())
 		name = name.replace(' ', '_')
@@ -428,7 +450,7 @@ class addkplex(wx.Dialog):
 		filter_type = _('none')
 		filtering = _('nothing')
 
-		if self.ifilter_select.GetValue().encode('utf8') == _('Accept only sentences:') and self.ifilter_sentences.GetValue() != _(
+		if self.ifilter_select.GetValue() == _('Accept only sentences:') and self.ifilter_sentences.GetValue() != _(
 				'nothing'):
 			filter_type = 'accept'
 			filtering = ''
@@ -452,7 +474,7 @@ class addkplex(wx.Dialog):
 		ofilter_type = _('none')
 		ofiltering = _('nothing')
 
-		if self.ofilter_select.GetValue().encode('utf8') == _('Accept only sentences:') and self.ofilter_sentences.GetValue() != _(
+		if self.ofilter_select.GetValue() == _('Accept only sentences:') and self.ofilter_sentences.GetValue() != _(
 				'nothing'):
 			ofilter_type = 'accept'
 			ofiltering = ''
@@ -477,8 +499,12 @@ class addkplex(wx.Dialog):
 		if self.optional.GetValue() == 1:
 			optio = '1'
 		
-		self.add_kplex_out = ['None', name, type_conn, in_out, port_address, bauds_port, filter_type, filtering,
+		#activ = True
+		#activ = self.activ.GetValue() == 1
+		
+		self.add_kplex_out = [self.activ_v, name, type_conn, in_out, port_address, bauds_port, filter_type, filtering,
 							  ofilter_type, ofiltering, optio, self.index]
+							  
 		self.result = self.add_kplex_out
 		self.Destroy()
 

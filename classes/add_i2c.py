@@ -30,6 +30,8 @@ class addI2c(wx.Dialog):
 		wx.Dialog.__init__(self, None, title=title, size=(450,400))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
+
 		self.conf = parent.conf
 		self.home = parent.home
 		self.currentpath = parent.currentpath
@@ -141,9 +143,7 @@ class addI2c(wx.Dialog):
 
 	def printRtimulibResults(self,rtimulib):
 		try:
-			print(1)
 			temp_list = eval(rtimulib)
-			print(temp_list)
 		except:
 			temp_list = []
 		if temp_list:

@@ -74,10 +74,10 @@ class MainFrame(wx.Frame):
 			self.output.SetValue('')
 			if self.option=='c': 
 				try: output=subprocess.check_output(['kal', '-c', self.channel, '-e', self.ppm])
-				except Exception, e: output = _("Error: ")+str(e)
+				except Exception as e: output = _("Error: ")+str(e)
 			if self.option=='b': 
 				try: output=subprocess.check_output(['kal', '-s', self.band, '-e', self.ppm])
-				except Exception, e: output = _("Error: ")+str(e)
+				except Exception as e: output = _("Error: ")+str(e)
 			self.output.SetValue(output)
 			self.SetStatusText(_('Finished'))
 

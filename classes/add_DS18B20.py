@@ -35,6 +35,7 @@ class addDS18B20(wx.Dialog):
 		wx.Dialog.__init__(self, None, title = title, size=(430, 250))
 
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		wx.StaticText(panel, label=_('Signal K key'), pos=(10, 10))
 		self.SKkey = wx.TextCtrl(panel, style=wx.CB_READONLY, size=(300, 30), pos=(10, 35))

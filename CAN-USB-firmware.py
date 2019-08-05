@@ -53,25 +53,23 @@ for device in iter(monitor.poll, None):
 	if device.action == 'add':
 		value = device.get('DEVPATH')
 		port = value[len(value) - value.find('/tty'):]
-		port = port[port.rfind('/') + 1:]
+		port = '/dev/'+port[port.rfind('/') + 1:]
 		print(port)
 		try:
-			ser = serial.Serial('/dev/'+port, 9600, timeout=0.5)
+			ser = serial.Serial(port, 9600, timeout=0.5)
 		except:
 			print('Can not open serial device (CAN-USB) connected on: '+port)
 			sys.exit(0)
-		ser.write('0')
+		ser.write(('0').encode())
 		time.sleep(0.2)
-		sertext=ser.readline()
+		sertext=ser.readline().decode()
 		if len(sertext)>=1:
-			#time.sleep(0.2)
-			#ser.write('0')
 			c='0'
 			while c!='9':
 				i=20
 				while i>0:
 					if ser.inWaiting():
-						sertext=ser.readline()
+						sertext=ser.readline().decode()
 						print(sertext[:-1])
 					else:
 						i-=1
@@ -82,17 +80,16 @@ for device in iter(monitor.poll, None):
 						while i>0:
 							try:
 								c = sys.stdin.read(1)
+								#print(i,c)
 								if c in ['1','2','3','4','5','6','7','8','9','0']:
-									ser.write(c)
+									ser.write(c.encode())
 									i=-5
-									#print 'ser.write('+c+')',i
-
 							except IOError:
-								#print 'not ready',i
-								time.sleep(.1)
+								print('Error')
+
+							time.sleep(.1)
 							i-=1
 						if i>-2:
-							ser.write('0')
-							#print 'ser.write(0)'
+							ser.write(('0').encode())
 		sys.exit(0)
 

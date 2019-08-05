@@ -16,14 +16,15 @@
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
 import wx, ujson, re, requests
-from .conf import Conf
-from .SK_settings import SK_settings
+from classes.conf import Conf
+from classes.SK_settings import SK_settings
 
 class selectKey(wx.Dialog):
 	def __init__(self, oldkey, selectvessels):
 		wx.Dialog.__init__(self, None, title=_('Select Signal K key'), size=(710, 460))
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 		panel = wx.Panel(self)
+		panel.SetBackgroundColour(wx.Colour(230,230,230,255))
 
 		conf = Conf()
 		sk_folder = conf.get('GENERAL', 'sk_folder')

@@ -155,7 +155,7 @@ class MainFrame(wx.Frame):
 		self.lang_item2 = self.lang.Append(wx.ID_ANY, _('Catalan'), _('Set Catalan language'), kind=wx.ITEM_CHECK)
 		self.Bind(wx.EVT_MENU, self.lang_ca, self.lang_item2)
 		self.lang_item5 = self.lang.Append(wx.ID_ANY, _('Dutch'), _('Set Dutch language'), kind=wx.ITEM_CHECK)
-		self.Bind(wx.EVT_MENU, self.lang_nl, self.lang_item5)       
+		self.Bind(wx.EVT_MENU, self.lang_nl, self.lang_item5)
 		self.lang_item1 = self.lang.Append(wx.ID_ANY, _('English'), _('Set English language'), kind=wx.ITEM_CHECK)
 		self.Bind(wx.EVT_MENU, self.lang_en, self.lang_item1)
 		self.lang_item10 = self.lang.Append(wx.ID_ANY, _('Finnish'), _('Set Finnish language'), kind=wx.ITEM_CHECK)
@@ -181,7 +181,7 @@ class MainFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.update_opencpn_plugins, self.opencpn_item2)
 		self.update.AppendSeparator()
 		self.system_item2 = self.update.Append(wx.ID_ANY, _('Set default OpenPlotter desktop'), _('Run this after a major update'))
-		self.Bind(wx.EVT_MENU, self.default_desktop, self.system_item2)     
+		self.Bind(wx.EVT_MENU, self.default_desktop, self.system_item2)
 		self.update.AppendSeparator()
 		self.openplotter_item1 = self.update.Append(wx.ID_ANY, _('Update OpenPlotter'), _('Apply latest changes on OpenPlotter and update the system if necessary'))
 		self.Bind(wx.EVT_MENU, self.update_openplotter, self.openplotter_item1)
@@ -288,14 +288,14 @@ class MainFrame(wx.Frame):
 			folder = self.tools_py[menuId][2]
 			file = folder+'.py'
 			if os.path.isfile(self.conf_folder + '/tools/'+folder+'/'+file):
-				subprocess.call(['pkill', '-9', '-f', file])                    
+				subprocess.call(['pkill', '-9', '-f', file])
 				if res == 2:
 					subprocess.Popen(['python3', self.conf_folder + '/tools/'+folder+'/'+file])
 				elif res == 1:
 					subprocess.Popen(['python3', self.conf_folder + '/tools/'+folder+'/'+file, 'settings'])
 			else:
 				if os.path.isfile(self.currentpath + '/tools/'+folder+'/'+file):
-					subprocess.call(['pkill', '-9', '-f', file])                    
+					subprocess.call(['pkill', '-9', '-f', file])
 					if res == 2:
 						subprocess.Popen(['python3', self.currentpath + '/tools/'+folder+'/'+file])
 					elif res == 1:
@@ -884,10 +884,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		h_set.Add(self.bridge, 0, wx.TOP | wx.BOTTOM | wx.EXPAND, 6)
 
 		self.wifi_button_apply1 = wx.Button(self.p_wifi, label=_('Apply')+' 1')
-		self.wifi_button_apply1.Bind(wx.EVT_BUTTON, self.on_wifi_apply1)        
+		self.wifi_button_apply1.Bind(wx.EVT_BUTTON, self.on_wifi_apply1)
 
 		self.drivers_button = wx.Button(self.p_wifi, label=_('Install drivers'))
-		self.drivers_button.Bind(wx.EVT_BUTTON, self.on_drivers_button)         
+		self.drivers_button.Bind(wx.EVT_BUTTON, self.on_drivers_button)
 		
 		h_button0 = wx.BoxSizer(wx.HORIZONTAL)
 		h_button0.Add(self.wifi_button_apply1, 0, wx.EXPAND, 0)
@@ -959,7 +959,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		
 		v_leftside = wx.BoxSizer(wx.VERTICAL)
 		v_leftside.Add(v_leftbox, 0, wx.LEFT | wx.EXPAND, 10)
-		v_leftside.AddSpacer(5)     
+		v_leftside.AddSpacer(5)
 		v_leftside.Add(v_leftbox2, 1, wx.LEFT | wx.EXPAND, 10)
 
 		
@@ -978,9 +978,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		h_rbutton.Add(self.button_net_status, 0, wx.RIGHT | wx.EXPAND, 10)
 
 		v_rigthbox = wx.StaticBoxSizer(rigthbox, wx.VERTICAL)   
-		v_rigthbox.AddSpacer(5)     
+		v_rigthbox.AddSpacer(5)
 		v_rigthbox.Add(self.ip_info, 1, wx.LEFT | wx.EXPAND, 10)
-		v_rigthbox.AddSpacer(6)     
+		v_rigthbox.AddSpacer(6)
 		v_rigthbox.Add(h_rbutton, 0, wx.LEFT | wx.EXPAND, 10)
 		v_rigthbox.AddSpacer(6)
 
@@ -992,7 +992,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		v_box = wx.BoxSizer(wx.VERTICAL)
 		v_box.Add(h_box, 1, wx.LEFT | wx.EXPAND, 0)
 		
-		self.p_wifi.SetSizer(v_box)     
+		self.p_wifi.SetSizer(v_box)
 		
 	def find_line_split_set(self,data,search,_setvalue,pos):
 		i=data.find(search)
@@ -1023,12 +1023,12 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		except:
 			pass
 
-		self.available_share = [_('none')]
+		self.available_share = [_('none'),'auto']
 		unavailable_net = ['wlan9','lo']
 		if self.bridge.GetValue():
 			unavailable_net.append('eth0')
 
-		for i in network_info.split():      
+		for i in network_info.split():
 			if i in unavailable_net:
 				pass
 			else:
@@ -1036,7 +1036,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		self.share.Clear()
 		for i in self.available_share:
-			self.share.Append(i)                
+			self.share.Append(i)
 		
 		type=''
 		phy=''
@@ -1058,16 +1058,20 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 					AP = ni.find('* AP\n')
 					GHz = ni.find('Band 2:')
 					if AP > -1:
-						self.available_ap_device.append([mac+' '+type, mac, type, GHz, wlan])
+							self.available_ap_device.append([mac+' '+type, mac, type, GHz, wlan])
 				else:
 					type = 'on board'
 					if 'Raspberry Pi 3 Model B Plus' in self.rpimodel or 'Raspberry Pi 4 Model B R' in self.rpimodel:
 						GHz = 1
 					else:
 						GHz = -1
-					self.available_ap_device.append([mac+' '+type, mac, type, GHz, wlan])
+					do_exist = False
+					for j in self.available_ap_device:
+						if j[1] == mac: do_exist = True
+					if not do_exist:
+						self.available_ap_device.append([mac+' '+type, mac, type, GHz, wlan])
 
-		if 'Raspberry Pi 3 Model B R' in self.rpimodel and len(self.available_ap_device) == 2:
+		if not ('Raspberry Pi 2' in self.rpimodel) and len(self.available_ap_device) == 2:
 			for i in self.available_ap_device:
 				if 'on board' == i[2]:
 					type = 'AP and Station'
@@ -1084,29 +1088,23 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 	def read_wifi_conf(self):
 		self.conf_network = self.conf_folder + '/Network'
-		self.bak_net_sys = ''
-
-		if os.path.isdir(self.conf_network):
-			self.bak_net_sys = os.listdir(self.conf_network)
-			if len(self.bak_net_sys)>0: 
-				self.bak_net_sys = self.bak_net_sys[0]
-			else:
-				self.bak_net_sys = ''
+		self.AP_aktiv = False
+		self.bak_passw = ''
+		self.bak_share = ''
+		self.hostapd_interface = ''
+		self.hostapd_bridge = ''
+		#read settings from hostapd.conf  GHz, bridge, ssid, password, channel and check if AP is activ
+		try:
+			wififile = open(self.conf_network+'/hostapd/hostapd.conf', 'r', 2000)
+			bak = wififile.read()
+			wififile.close()
+			self.AP_aktiv = True
+		except:
+			bak=''
 		
-		self.bak_passw=''
-		self.bak_share=''
-		self.hostapd_interface=''
-		self.hostapd_bridge=''
-		if self.bak_net_sys!='' and self.bak_net_sys!='default':
+		#on AP
+		if self.AP_aktiv:
 			self.ap_enable2()
-		
-			#read settings from hostapd.conf  GHz, bridge, ssid, password, channel
-			try:
-				wififile = open(self.conf_network+'/hostapd/hostapd.conf', 'r', 2000)
-				bak = wififile.read()
-				wififile.close()
-			except:
-				bak=''
 			if len(bak)>0:
 				self.find_line_split_set(bak,"wpa_passphrase",self.passw,1)
 				self.bak_passw=self.passw.GetValue()
@@ -1123,7 +1121,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				
 				self.wifi_channel.Clear()
 				for i in self.wifi_channel_list:
-					self.wifi_channel.Append(i)             
+					self.wifi_channel.Append(i)
 				self.find_line_split_set(bak,"channel",self.wifi_channel,1)
 				
 				i=bak.find("bridge=br0")
@@ -1135,31 +1133,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 						self.bridge.SetValue(True)
 			self.read_network_interfaces()
 
-			#search selected AP device 
-			found = False
-			#if 'uap' == self.hostapd_interface:
-			#   for i in self.available_ap_device:
-			#       if 'AP and Station' == i[2]:
-			#           self.ap_device.SetStringSelection(i[0])
-			#           self.ap_5.Disable()
-			#           if i[3]>=1: self.ap_5.Enable()
-			#           found = True;
-			#else:
 			try:
 				wififile = open(self.conf_network+'/udev/rules.d/72-wireless.rules', 'r', 2000)
 				bak = wififile.read()
 				wififile.close()
 			except:
 				bak=''
-
-			if '__ap' in bak:
-				for i in self.available_ap_device:
-					if 'AP and Station' == i[2]:
-						self.ap_device.SetStringSelection(i[0])
-						self.on_ap_device(0)
-						#self.ap_5.Disable()
-						#if i[3]>=1: self.ap_5.Enable()
-						found = True;
+			found = False
 			if 'brcmfmac' in bak:
 				for i in self.available_ap_device:
 					if 'on board' == i[2]:
@@ -1175,6 +1155,19 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 						if i[3]>=1: self.ap_5.Enable()
 						found = True;
 			if not found:
+				try:
+					wififile = open(self.conf_network+'/.openplotter/start1.sh', 'r', 2000)
+					bak2 = wififile.read()
+					wififile.close()
+				except:
+					bak2 = ''
+				if '__ap' in bak2:
+					for i in self.available_ap_device:
+						if 'AP and Station' == i[2]:
+							self.ap_device.SetStringSelection(i[0])
+							self.on_ap_device(0)
+							found = True;
+			if not found:
 				self.ap_device.SetStringSelection(_('none'))
 				self.ap_disable()
 			else:
@@ -1184,7 +1177,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			
 			i=' '
 			try:
-				wififile = open(self.conf_network+'/../start-ap-managed-wifi.sh', 'r', 2000)
+				wififile = open(self.conf_network+'/.openplotter/start-ap-managed-wifi.sh', 'r', 2000)
 				bak = wififile.read()
 				wififile.close()
 			except:
@@ -1197,15 +1190,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				self.share.SetValue(i)
 			else:
 				self.share.SetValue(_('none'))
-			
+		
+		#on client only
 		else:
 			self.ap_disable()
 			self.read_network_interfaces()
+			self.ap_device.SetStringSelection(_('none'))
 
-
-		for i in self.available_ap_device:
-			if i[0] == self.bak_net_sys:
-				self.ap_device.SetValue(i[1])
 		self.on_refresh_ip_info('')
 
 	def ap_disable(self):
@@ -1227,8 +1218,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 	
 	def ap_enable(self):
 		self.bridge.Enable()
-		if 'AP and Station' in self.ap_device.GetValue():
-			self.bridge.Disable()
+		#if 'AP and Station' in self.ap_device.GetValue():
+		#	self.bridge.Disable()
 		
 	def ap_enable2(self):
 		self.share.Enable()
@@ -1292,8 +1283,19 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 					text = 'br0'
 		process = subprocess.Popen(['bash', self.currentpath+'/Network/.openplotter/iptables.sh',share,text])
 
+	def wifi_apply2_Message(self):
+		dlg = wx.MessageDialog(None, _(
+			'Changes will be applied after next reboot.\n\nIf something goes wrong and you are on a headless system,\nyou may not be able to reconnect again.\n\nAre you sure?'),
+			_('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
+		if dlg.ShowModal() == wx.ID_YES:
+			dlg.Destroy()
+			return True
+		else:
+			dlg.Destroy()
+			return False
+
 	def on_wifi_apply2(self, e):
-		if 'none' != self.ap_device.GetValue():
+		if self.AP_aktiv:
 			if '*****' in self.passw.GetValue():
 				passw = self.bak_passw
 			else:
@@ -1303,31 +1305,23 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			channel = self.wifi_channel.GetValue()
 			share = self.share.GetValue()
 			
-			if self.bak_net_sys!='' and self.bak_net_sys!='default':
+			#check length
+			if self.AP_aktiv:
 				if (len(ssid) > 32 or len(passw) < 8):
 					self.ShowStatusBarRED(_('Your SSID must have a maximum of 32 characters and your password a minimum of 8.'))
 					return
 
-			used_interfaces=[self.hostapd_interface]
-			if self.hostapd_bridge!='':
-				used_interfaces.append('eth0')
-			if share in used_interfaces:
-				self.ShowStatusBarRED(_('The device you want to share is in use (bridge or AP).'))
-				return
-								
-			dlg = wx.MessageDialog(None, _(
-				'Changes will be applied after next reboot.\n\nIf something goes wrong and you are on a headless system,\nyou may not be able to reconnect again.\n\nAre you sure?'),
-				_('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-			if dlg.ShowModal() != wx.ID_YES:
-				dlg.Destroy()
-				return
-			
-			if os.path.isfile(self.conf_network+'/'+self.bak_net_sys+'/hostapd/hostapd.conf'):
-				wififile = open(self.conf_network+'/'+self.bak_net_sys+'/hostapd/hostapd.conf', 'r', 2000)
+			#everything checked give warning
+			if not self.wifi_apply2_Message(): return
+
+			#set hostapd
+			hostapd_file = self.conf_network+'/hostapd/hostapd.conf'
+			if os.path.isfile(hostapd_file):
+				wififile = open(hostapd_file, 'r', 2000)
 				lines = wififile.readlines()
 				wififile.close()
 				
-				wififile = open(self.conf_network+'/'+self.bak_net_sys+'/hostapd/hostapd.conf', 'w')
+				wififile = open(hostapd_file, 'w')
 				for line in lines:
 					if 0<=line.find("wpa_passphrase"): line = "wpa_passphrase="+passw+'\n'
 					if 0<=line.find("channel"): line = "channel="+channel+'\n'
@@ -1338,19 +1332,27 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 					wififile.write(line)
 				wififile.close()
 			
-			if os.path.isfile(self.conf_network+'/'+self.bak_net_sys+'/.openplotter/Network/start-ap-managed-wifi.sh'):
+			#set start script
+			script_file = self.conf_network+'/.openplotter/start-ap-managed-wifi.sh'
+			if os.path.isfile(script_file):
 				if self.bak_share!=share:
-					wififile = open(self.conf_network+'/'+self.bak_net_sys+'/.openplotter/Network/start-ap-managed-wifi.sh', 'r', 2000)
+					wififile = open(script_file, 'r', 2000)
 					lines = wififile.readlines()
 					wififile.close()
 
-					wififile = open(self.conf_network+'/'+self.bak_net_sys+'/.openplotter/Network/start-ap-managed-wifi.sh', 'w')
+					wififile = open(script_file, 'w')
 					for line in lines:
-						if 0<=line.find("internet="): line = "internet="+share
+						if 0<=line.find("internet="): line = "internet="+share+"\n"
 						wififile.write(line)
 					wififile.close()
+
+			#install files
 			process = subprocess.Popen(['bash', self.currentpath+'/Network/install.sh'], cwd = self.conf_network)
+
+		#on no AP
 		else:
+			if not self.wifi_apply2_Message(): return
+			#set back to default
 			process = subprocess.Popen(['bash', self.currentpath+'/Network/install.sh','uninstall'], cwd = self.conf_network)
 	
 	#rightbox
@@ -1365,13 +1367,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				pass
 			else:
 				out +='   '+ str(ip) + str(port)+'\n'
-		return out      
+		return out
 			
 	def on_refresh_ip_info(self, e):
 		ip_hostname = subprocess.check_output(['hostname']).decode('utf-8')[:-1]
 		ip_info = subprocess.check_output(['hostname', '-I']).decode('utf-8')
 		out = _(' Multiplexed NMEA 0183:\n')
-		ips = ip_info.split()       
+		ips = ip_info.split()
 		out += self.on_show_ip_info_txt('10110',ips,ip_hostname)
 		out += _('\n Signal K Server:\n')
 		out += self.on_show_ip_info_txt('3000',ips,ip_hostname)
@@ -1710,13 +1712,9 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		
 	def reset_sensors(self, e=0):
 		self.stop_sensors()
-		print(1)
 		self.read_i2c()
-		print(2)
 		self.read_pypilot()
-		print(3)
 		self.start_sensors()
-		print(4)
 
 	###########################################I2C
 
@@ -1826,7 +1824,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				return
 			new_sensor = []
 			for item in self.i2c_sensors_def:
-				if name == item[0]:                    
+				if name == item[0]:
 					new_sensor.append(name)
 					if 'rtimulib' in item[1]:
 						new_sensor.append((item[1]+address))
@@ -2132,10 +2130,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		remotemqtt0 = wx.BoxSizer(wx.HORIZONTAL)
 		remotemqtt0.Add(self.remotemqtt, 0, wx.TOP | wx.BOTTOM, 2)
-		remotemqtt0.AddSpacer(10)       
+		remotemqtt0.AddSpacer(10)
 		remotemqtt0.Add(serverremotemqttlabel, 0, wx.TOP | wx.BOTTOM, 6)
 		remotemqtt0.Add(self.serverremotemqtt, 1, wx.LEFT, 5)
-		remotemqtt0.AddSpacer(10)       
+		remotemqtt0.AddSpacer(10)
 		remotemqtt0.Add(portremotemqttlabel, 0, wx.TOP | wx.BOTTOM, 6)
 		remotemqtt0.Add(self.portremotemqtt, 0, wx.LEFT, 5)
 
@@ -2189,30 +2187,30 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		main = wx.BoxSizer(wx.VERTICAL)
 		main.Add(self.localmqtt, 0, wx.TOP | wx.BOTTOM, 2)
 		main.Add(localmqtt, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(10)      
+		main.AddSpacer(10)
 		main.Add(remotemqtt0, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(3)       
+		main.AddSpacer(3)
 		main.Add(remotemqtt, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(10)      
+		main.AddSpacer(10)
 		main.Add(twitter0, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(3)       
+		main.AddSpacer(3)
 		main.Add(twitter1, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(3)       
+		main.AddSpacer(3)
 		main.Add(twitter2, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddSpacer(10)      
+		main.AddSpacer(10)
 		main.Add(telegram0, 0, wx.RIGHT | wx.EXPAND, 5)
-		main.AddStretchSpacer(1)        
+		main.AddStretchSpacer(1)
 		main.Add(buttons, 0, wx.ALL | wx.EXPAND, 5)
 
 		self.p_credentials.SetSizer(main)
 
 	def on_encrypt(self, e):
 		add_nodes = []
-		remove_ids = []         
+		remove_ids = []
 		dlg = wx.MessageDialog(None, _(
 			'All current credentials will be deleted and actions that use them will stop working. Actions that need credentials should be defined in the Node-RED admin interface.\n\nAre you sure?'),
 							   _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-		if dlg.ShowModal() != wx.ID_YES:    
+		if dlg.ShowModal() != wx.ID_YES:
 			dlg.Destroy()
 			return
 
@@ -2258,11 +2256,11 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			time.sleep(1)
 		self.ShowStatusBarGREEN(_('Signal K server restarted')+' | '+_('Node-Red restarted'))
 
-	def on_decrypt(self, e):    
+	def on_decrypt(self, e):
 		dlg = wx.MessageDialog(None, _(
 			'Credentials created outside of OpenPlotter interface will be deleted and its nodes will stop working. Your new credentials will be stored without encryption, do not use your usual passwords.\n\nAre you sure?'),
 							   _('Question'), wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
-		if dlg.ShowModal() != wx.ID_YES:    
+		if dlg.ShowModal() != wx.ID_YES:
 			dlg.Destroy()
 			return
 
@@ -2913,7 +2911,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		self.remove_credentials = []
 		self.on_print_triggers()
 
-	def on_print_triggers(self):    
+	def on_print_triggers(self):
 		self.list_triggers.DeleteAllItems()
 		self.list_conditions.DeleteAllItems()
 		self.list_actions.DeleteAllItems()
@@ -3268,7 +3266,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		elif action == 6: dlg = ActionRunCommand(self,edit)
 		elif action == 7: 
 			if edit == 0:
-				dlg = ActionRunCommand(self,[self.currentpath+'/message','Hello',0])
+				dlg = ActionRunCommand(self,[self.currentpath+'/message',"'Hello'",0])
 			else:
 				dlg = ActionRunCommand(self,edit)
 		elif action == 8: dlg = ActionRunCommand(self,['sudo','reboot',0])
@@ -3500,8 +3498,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 		#find idnum for id
 		for i in shortcut:
 			if i[8] != '':
-				i[6] = idabs.index(i[8])            
-				idabs_parent[i[6]] = -1             
+				i[6] = idabs.index(i[8])
+				idabs_parent[i[6]] = -1
 
 		#print 'idabs_parent'
 		#for i in idabs_parent: print idabs_parent.index(i),i
@@ -3528,7 +3526,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 				if i[3] == j:
 					for ii in shortcut:
 						if ii[5] == i[6]:
-							if ii[3] == -1:                     
+							if ii[3] == -1:
 								ii[3] = j+1
 								ii[2] = i[2]
 
@@ -3610,7 +3608,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 							i['x'] = xstart + xstep * ii[3]
 							i['y'] = ystart + ystep * ii[4]
 							if i['y'] > ymax:
-								ymax = i['y']                       
+								ymax = i['y']
 					
 		self.nodes.write_flow(all_flows)
 		self.edit_credentials(self.add_credentials, self.remove_credentials)
@@ -4149,55 +4147,47 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 
 		# check kplex interfaces
 		try:
-			file = open(self.home +'/.kplex.conf', 'r')
-			file1 = open(self.home+'/.kplex.tmp', 'w')
+			kplexfile = open(self.home +'/.kplex.conf', 'r', 2000)
+			data = kplexfile.read()
+			kplexfile.close()
 		except:pass
 		else:
-			interface = ''
-			device = ''
-			while True:
-				line = file.readline()
-				if '[serial]' in line or interface != '':
-					if 'filename=' in line:
-						option, value = line.split('=')
-						device = value.strip()
-					if '[serial]' in line and interface == '':
-						interface = line
-						device = ''
-					elif not line or re.search('\[*\]', line) or '###' in line:
-						exists = False
-						for alias in self.Serialinst:
-							if alias == device and self.Serialinst[alias]['data'] == 'NMEA 0183' and self.Serialinst[alias]['assignment'] == '0': exists = True
-						if exists: 
-							file1.write(interface)
-						if not line: break
-						elif '[serial]' in line:
-							interface = line
-							device = ''
-						else: 
-							file1.write(line)
-							interface = ''
-							device = ''
-					else: interface += line
+			#split in kplex blocks
+			datas = data.split('[')
+			datanew = ''
+			for ikplex in datas:
+				if ikplex.split(']')[0] == 'serial':
+					exists = False
+					for alias in self.Serialinst:
+						if alias in ikplex and self.Serialinst[alias]['data'] == 'NMEA 0183' and self.Serialinst[alias]['assignment'] == '0': exists = True
+					#if one of the serial settings is equal -> it should stay
+					if exists:
+						datanew += '['+ikplex
+					#if one there is no serial everything should be deleted except comments
+					elif '###' in ikplex:
+						datanew += ikplex[ikplex.find('###'):]
 				else:
-					if not line: break
-					else: file1.write(line)
-			file.close()
-			file1.close()
-			if os.system('diff '+self.home+'/.kplex.tmp '+self.home+'/.kplex.conf > /dev/null'):
-				os.system('mv '+self.home+'/.kplex.tmp '+self.home+'/.kplex.conf')
-				msg = _('Restarting kplex... ')
-				seconds = 5
-				subprocess.call(['pkill', '-f', 'diagnostic-NMEA.py'])
-				subprocess.call(['pkill', '-f', 'kplex.py'])
-				subprocess.call(['pkill', '-15', 'kplex'])
-				for i in range(seconds, 0, -1):
-					self.ShowStatusBarYELLOW(msg+str(i))
-					time.sleep(1)
-				subprocess.Popen('kplex')
-				self.ShowStatusBarGREEN(_('Kplex restarted'))
-			else: os.system('rm -f '+self.home+'/.kplex.tmp')
+					datanew += '['+ikplex
 
+			#on changes write new conf and restart kplex
+			if datas != datanew:
+				try:
+					kplexfile = open(self.home +'/.kplex.conf', 'w', 2000)
+				except:pass
+				else:
+					kplexfile.write(datanew[1:])
+					kplexfile.close()
+					msg = _('Restarting kplex... ')
+					seconds = 5
+					subprocess.call(['pkill', '-f', 'diagnostic-NMEA.py'])
+					subprocess.call(['pkill', '-f', 'kplex.py'])
+					subprocess.call(['pkill', '-15', 'kplex'])
+					for i in range(seconds, 0, -1):
+						self.ShowStatusBarYELLOW(msg+str(i))
+						time.sleep(1)
+					subprocess.Popen('kplex')
+					self.ShowStatusBarGREEN(_('Kplex restarted'))
+			
 		# check SK devices
 		resetSK = False
 
@@ -4574,12 +4564,13 @@ along with this program.  If not, see http://www.gnu.org/licenses/"""
 			else: self.n2k_enable.SetValue(False)
 			out = self.conf.get('N2K', 'output') == '1'
 			self.n2k_out_enable.SetValue(out)
-			if self.SK_settings.ngt1_enabled:
+			if self.SK_settings.ngt1_enabled or out:
 				self.N2K_diagnostic_b.Disable()
-			if self.SK_settings.ngt1_enabled and out:
-				self.N2K_diagnostic_out_b.Disable()
-				self.SK_to_N2K.Disable()
 				self.SKcanTX2.Disable()
+			if out:
+				self.N2K_diagnostic_out_b.Disable()
+							
+						   
 		else: 
 			self.n2k_enable.Disable()
 			self.n2k_enable.SetValue(False)

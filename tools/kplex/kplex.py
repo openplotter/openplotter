@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -38,23 +38,25 @@ class MyFrame(wx.Frame):
 		self.op_folder = op_folder
 		self.help_bmp = wx.Bitmap(self.op_folder + "/static/icons/help-browser.png", wx.BITMAP_TYPE_ANY)
 		Language(self.conf)
-		wx.Frame.__init__(self, None, title=_('Kplex GUI - NMEA 0183 Multiplexer'), size=(710,460))
+		wx.Frame.__init__(self, None, title=_('Kplex GUI - NMEA 0183 Multiplexer'), size=(730,444))
+		self.SetBackgroundColour(wx.Colour(230,230,230,255))
+
 		self.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 		self.icon = wx.Icon(self.op_folder+'/static/icons/kplex.ico', wx.BITMAP_TYPE_ICO)
 		self.SetIcon(self.icon)
 
 		self.list_kplex = CheckListCtrl(self, 650, 152)
-		self.list_kplex.InsertColumn(0, _('Name'), width=130)
+		self.list_kplex.InsertColumn(0, _('Name'), width=110)
 		self.list_kplex.InsertColumn(1, _('Type'), width=45)
 		self.list_kplex.InsertColumn(2, _('io'), width=45)
 		self.list_kplex.InsertColumn(3, _('Port/Address'), width=95)
-		self.list_kplex.InsertColumn(4, _('Bauds/Port'), width=60)
+		self.list_kplex.InsertColumn(4, _('Bauds/Port'), width=80)
 		self.list_kplex.InsertColumn(5, _('inFilter'), width=55)
 		self.list_kplex.InsertColumn(6, _('Filtering'), width=80)
 		self.list_kplex.InsertColumn(7, _('outFilter'), width=60)
 		self.list_kplex.InsertColumn(8, _('Filtering'), width=80)
 		self.list_kplex.InsertColumn(9, _('Optional'), width=10)
-		self.list_kplex.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.edit_kplex)
+		self.list_kplex.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.on_edit_kplex)
 
 		diagnostic = wx.Button(self, label=_('Diagnostic'))
 		diagnostic.Bind(wx.EVT_BUTTON, self.on_diagnostic_kplex)
@@ -131,14 +133,8 @@ class MyFrame(wx.Frame):
 		self.read_kplex_conf()
 		self.ShowStatusBarBLACK('')
 
-	def edit_kplex(self, e):
-		idx = e.GetIndex()
-		edit = []
-		edit.append(self.list_kplex.IsChecked(idx))
-		for i in range(10):
-			edit.append(self.list_kplex.GetItem(idx, i).GetText())
-		edit.append(idx)
-		self.edit_add_kplex(edit)
+	def on_edit_kplex(self, e):
+		self.edit_add_kplex(self.kplex[e.GetIndex()])
 
 	def on_add_kplex(self, e):
 		self.edit_add_kplex(0)
@@ -204,7 +200,6 @@ class MyFrame(wx.Frame):
 							self.index += 1
 						if '#[' in item:
 							active = False
-							self.index += 1
 						else:
 							active = True
 					if 'direction=in' in item:
@@ -216,7 +211,7 @@ class MyFrame(wx.Frame):
 					if 'name=' in item and 'filename=' not in item:
 						name = self.extract_value(item)
 					if 'address=' in item or 'filename=' in item:
-						port_address = self.extract_value(item)
+						port_address = self.extract_value(item).replace('/dev/','')
 					if 'port=' in item or 'baud=' in item:
 						bauds_port = self.extract_value(item)
 					if 'ifilter=' in item and '-all' in item:
@@ -241,7 +236,7 @@ class MyFrame(wx.Frame):
 
 			self.set_list_kplex()
 
-		except: print 'ERROR reading kplex conf file'
+		except: print('ERROR reading kplex conf file')
 
 	def extract_value(self, data):
 		option, value = data.split('=')
@@ -253,38 +248,38 @@ class MyFrame(wx.Frame):
 		index = 1
 		for i in self.kplex:
 			if i[1]:
-				index = self.list_kplex.InsertStringItem(sys.maxint, i[1])
+				index = self.list_kplex.InsertItem(sys.maxsize, i[1])
 
-			if i[2]: self.list_kplex.SetStringItem(index, 1, i[2])
-			if i[3]: self.list_kplex.SetStringItem(index, 2, i[3])
-			else:    self.list_kplex.SetStringItem(index, 2, '127.0.0.1')
-			if i[4]: self.list_kplex.SetStringItem(index, 3, i[4])
-			if i[5]: self.list_kplex.SetStringItem(index, 4, i[5])
+			if i[2]: self.list_kplex.SetItem(index, 1, i[2])
+			if i[3]: self.list_kplex.SetItem(index, 2, i[3])
+			else:    self.list_kplex.SetItem(index, 2, '127.0.0.1')
+			if i[4]: self.list_kplex.SetItem(index, 3, i[4])
+			if i[5]: self.list_kplex.SetItem(index, 4, i[5])
 			if i[6]:
-				if i[6] == 'none': self.list_kplex.SetStringItem(index, 5, _('none'))
-				if i[6] == 'accept': self.list_kplex.SetStringItem(index, 5, _('accept'))
-				if i[6] == 'ignore': self.list_kplex.SetStringItem(index, 5, _('ignore'))
+				if i[6] == 'none': self.list_kplex.SetItem(index, 5, _('none'))
+				if i[6] == 'accept': self.list_kplex.SetItem(index, 5, _('accept'))
+				if i[6] == 'ignore': self.list_kplex.SetItem(index, 5, _('ignore'))
 			if i[7] == 'nothing':
-				self.list_kplex.SetStringItem(index, 6, _('nothing'))
+				self.list_kplex.SetItem(index, 6, _('nothing'))
 			else:
 				filters = i[7].replace(':-all', '')
 				filters = filters.replace('+', '')
 				filters = filters.replace('-', '')
 				filters = filters.replace(':', ',')
-				self.list_kplex.SetStringItem(index, 6, filters)
+				self.list_kplex.SetItem(index, 6, filters)
 			if i[8]:
-				if i[8] == 'none': self.list_kplex.SetStringItem(index, 7, _('none'))
-				if i[8] == 'accept': self.list_kplex.SetStringItem(index, 7, _('accept'))
-				if i[8] == 'ignore': self.list_kplex.SetStringItem(index, 7, _('ignore'))
+				if i[8] == 'none': self.list_kplex.SetItem(index, 7, _('none'))
+				if i[8] == 'accept': self.list_kplex.SetItem(index, 7, _('accept'))
+				if i[8] == 'ignore': self.list_kplex.SetItem(index, 7, _('ignore'))
 			if i[9] == 'nothing':
-				self.list_kplex.SetStringItem(index, 8, _('nothing'))
+				self.list_kplex.SetItem(index, 8, _('nothing'))
 			else:
 				filters = i[9].replace(':-all', '')
 				filters = filters.replace('+', '')
 				filters = filters.replace('-', '')
 				filters = filters.replace(':', ',')
-				self.list_kplex.SetStringItem(index, 8, filters)
-			self.list_kplex.SetStringItem(index, 9,i[10])
+				self.list_kplex.SetItem(index, 8, filters)
+			self.list_kplex.SetItem(index, 9,i[10])
 			if i[0]: 
 				self.list_kplex.CheckItem(index)
 				self.list_kplex.SetItemBackgroundColour(index,(102,205,170))
@@ -307,12 +302,12 @@ class MyFrame(wx.Frame):
 			if 'Serial' in item[2]:
 				data += state + '[serial]\n' + state + 'name=' + item[1] + '\n' + state + 'direction=' + item[
 					3] + '\n' + state + optional
-				data += state + 'filename=' + item[4] + '\n' + state + 'baud=' + item[5] + '\n'
+				data += state + 'filename=/dev/' + item[4] + '\n' + state + 'baud=' + item[5] + '\n'
 			if 'TCP' in item[2]:
 				data += state + '[tcp]\n' + state + 'name=' + item[1] + '\n' + state + 'direction=' + item[
 					3] + '\n' + state + optional
 				if item[1] == 'gpsd': data += state + 'gpsd=yes\n'
-				if item[3] <> 'out':
+				if item[3] != 'out':
 					data += state + 'mode=client\n'
 					data += state + 'persist=yes\n' + state + 'retry=10\n'
 				else:
@@ -385,9 +380,9 @@ class MyFrame(wx.Frame):
 					time.sleep(0.5)
 					subprocess.call(['pkill', '-f', 'diagnostic-NMEA.py'])
 					if self.kplex[i][3] == 'in' or self.kplex[i][3] == 'both':
-						subprocess.Popen(['python', self.op_folder+'/tools/kplex/diagnostic-NMEA.py', '10112'])
+						subprocess.Popen(['python3', self.op_folder+'/tools/kplex/diagnostic-NMEA.py', '10112'])
 					if self.kplex[i][3] == 'out' or self.kplex[i][3] == 'both':
-						subprocess.Popen(['python', self.op_folder+'/tools/kplex/diagnostic-NMEA.py', '10113'])
+						subprocess.Popen(['python3', self.op_folder+'/tools/kplex/diagnostic-NMEA.py', '10113'])
 
 	def ShowMessage(self, w_msg):
 		wx.MessageBox(w_msg, 'Info', wx.OK | wx.ICON_INFORMATION)

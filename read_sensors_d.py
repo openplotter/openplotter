@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # This file is part of Openplotter.
 # Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
@@ -85,10 +85,10 @@ def work_pypilot():
 	if mode == 'disabled':
 		print 'pypilot disabled  '
 		return
-        
+		
 	headingSK = conf.get('PYPILOT', 'translation_magnetic_h')
 	attitudeSK = conf.get('PYPILOT', 'translation_attitude')
-        
+		
 	SETTINGS_FILE = "RTIMULib"
 	s = RTIMU.Settings(SETTINGS_FILE)
 	imu = RTIMU.RTIMU(s)
@@ -145,14 +145,14 @@ def work_pypilot():
 		except:
 			time.sleep(1)
 			continue # not much to do without connection
-                
+				
 		try:
 			result = client.receive()
 		except:
 			print 'disconnected from pypilot'
 			client = False
 			continue
-                
+				
 		Erg = Translate(result)
 		SignalK='{"updates":[{"$source":"OPsensors.I2C.'+imuName+'","values":['
 		SignalK+=Erg[0:-1]+'}]}]}\n'
@@ -178,26 +178,26 @@ def work_pypilot():
 				break
 			time.sleep(dt)
 		tick1 = time.time()
-                
+				
 
-        # cleanup
-        print 'stopping pypilot pid:', pid
-        try:
-                os.kill(pid, 15)
-                time.sleep(1) # wait one second to shut down pypilot
-        except Exception, e:
-                print 'exception stopping pypilot', e
+	# cleanup
+	print 'stopping pypilot pid:', pid
+	try:
+		os.kill(pid, 15)
+		time.sleep(1) # wait one second to shut down pypilot
+	except Exception, e:
+		print 'exception stopping pypilot', e
 
-        try:
-                if os.waitpid(pid, os.WNOHANG)[0] == pid:
-                        print 'pypilot stopped: ok'
-                else:
-                        print 'killing pypilot pid:', pid
-                        os.kill(pid, 9) # try to kill with signal 9
-        except:
-                pass # pypilot already exited, or other exception
-                
-        print 'pypilot thread exiting'                
+	try:
+		if os.waitpid(pid, os.WNOHANG)[0] == pid:
+			print 'pypilot stopped: ok'
+		else:
+			print 'killing pypilot pid:', pid
+			os.kill(pid, 9) # try to kill with signal 9
+	except:
+		pass # pypilot already exited, or other exception
+			
+	print 'pypilot thread exiting'
 
 
 # read pressure, humidity, temperature and GENERATE SK
@@ -358,8 +358,8 @@ def work_MS5607():
 
 # read SPI adc and GENERATE SK
 def work_analog():
-        if read_sensors:
-                threading.Timer(rate_ana, work_analog).start()
+	if read_sensors:
+		threading.Timer(rate_ana, work_analog).start()
 	SignalK='{"updates":[{"$source":"OPsensors.SPI.MCP3008","values":[ '
 	Erg=''
 	send=False
@@ -438,17 +438,17 @@ if i2c_sensors:
 
 
 def cleanup(signal_number, frame):
-        global read_sensors
-        print 'read sensors got signal', signal_number, 'cleaning up'
-        read_sensors = False
+	global read_sensors
+	print 'read sensors got signal', signal_number, 'cleaning up'
+	read_sensors = False
 
 import signal
 
 threads = []
 def add_thread(func):
-        thread = threading.Thread(target=func)
-        thread.start()
-        threads.append(thread)
+	thread = threading.Thread(target=func)
+	thread.start()
+	threads.append(thread)
 
 
 # launch threads
@@ -464,19 +464,19 @@ add_thread(work_pypilot)
 
 # catch signals to cleanly exit
 for s in range(1, 16):
-        if s == 2: # disable this for debugging to allow keyboard interrupts
-                continue
-        if s != 9 and s != 13:
-                signal.signal(s, cleanup)
+	if s == 2: # disable this for debugging to allow keyboard interrupts
+		continue
+	if s != 9 and s != 13:
+		signal.signal(s, cleanup)
 #signal.signal(signal.SIGCHLD, cleanup)
-        
+		
 print 'read_sensors_d waiting for signal to exit '
 
 # sleep on conditional
 while read_sensors:
-        time.sleep(1)
+	time.sleep(1)
 
 print 'waiting for threads'
 for thread in threads:
-        thread.join()
+	thread.join()
 print 'read_sensors_d finished'

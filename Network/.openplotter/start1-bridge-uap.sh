@@ -1,12 +1,32 @@
 #!/bin/sh
-sleep 22
-sudo ifdown --force wlan0
-sudo ifdown --force br0
-sleep 4
-#sudo rm -f /var/run/wpa_supplicant/wlan0
-sudo ifup --force br0
-sleep 1
-sudo ifup --force wlan0
-sleep 2
-sudo systemctl restart dnsmasq
-sudo systemctl restart dhcpcd
+#sleep 30
+seconds=5
+sudo systemctl stop hostapd.service
+sudo systemctl stop dnsmasq.service
+sudo systemctl stop dhcpcd.service
+
+#when wlan9 exist it must be deleted first
+if [ -e /sys/class/net/wlan9 ]
+then
+    sudo iw dev wlan9 del
+fi
+
+#before adding an access point to the same device it must be turned off
+sudo ifconfig wlan0 down
+#adding wlan9 as access point to wlan0"
+sudo iw dev wlan0 interface add wlan9 type __ap
+#restart networkd for bridge eth0 to new wlan9
+sudo systemctl restart systemd-networkd
+#enable turned off wlan9
+sudo ifconfig wlan9 up
+#start services, mitigating race conditions
+#start access point
+sudo systemctl start hostapd.service
+sleep "${seconds}"
+#restart dhcpcd
+sudo systemctl restart dhcpcd.service
+sleep "${seconds}"
+#start dhcp server
+sudo systemctl start dnsmasq.service
+#set bridge to stp mode
+sudo sudo brctl stp br0 on
