@@ -31,6 +31,8 @@ if len(sys.argv)>1:
 		subprocess.Popen(['leafpad',home+'/.openplotter/tools/openplotter_analog.conf'])
 	exit
 else:
+	conf_analog=Conf_analog()
+
 	ads1115=Ads1115()
 
 	a_index = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
@@ -42,7 +44,7 @@ else:
 
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-	poll_interval = 1
+	poll_interval = 1000
 	rate_analog = 1
 	ADS1115='ADS1115_'
 
@@ -82,7 +84,7 @@ else:
 				for i in range(0,len(list_signalk1)):
 					Erg += '{"path": "'+list_signalk_path1[i]+'","value":'+list_signalk1[i]+'},'
 				SignalK +=Erg[0:-1]+']}]}\n'
-				sock.sendto(SignalK, ('127.0.0.1', 55557))
+				sock.sendto(SignalK.encode(), ('127.0.0.1', 55557))
 		else:
 			index+=1
 			if index>a_index_max: index=0

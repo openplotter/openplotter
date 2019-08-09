@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-#
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
 
-import wx, sys, os, ConfigParser, re, subprocess, socket
+import wx, sys, os, configparser, re, subprocess, socket
 
 ##########################################################################
 # You can access to all OpenPlotter classes
 home = os.path.expanduser('~')
 if 'root' in home:
 	home = '/home/'+os.path.expanduser(os.environ["SUDO_USER"])
-data_conf = ConfigParser.SafeConfigParser()
+data_conf = configparser.ConfigParser()
 data_conf.read(home+'/.openplotter/openplotter.conf')
 op_folder = data_conf.get('GENERAL', 'op_folder')
 sys.path.append(op_folder)
@@ -74,7 +74,7 @@ class MyFrame(wx.Frame):
 
 			# Getting info from OpenPlotter configuration file. When reading from demo tool conf file or OpenPlotter conf file, if section or option do not exist, they will be created with no value.
 			op_data_box = wx.StaticBox(panel, -1, _(' OpenPlotter config data '))
-			version = _('OpenPlotter version: ').decode('utf8')+self.conf.get('GENERAL', 'version')+' '+ self.conf.get('GENERAL', 'state')
+			version = _('OpenPlotter version: ')+self.conf.get('GENERAL', 'version')+' '+ self.conf.get('GENERAL', 'state')
 			text1 = wx.StaticText(panel, label = version)
 
 			sk_key_box = wx.StaticBox(panel, -1, _(' Working with Signal K '))
@@ -132,22 +132,10 @@ class MyFrame(wx.Frame):
 
 		def onEditSkkey(self,e):
 			key = self.SKkey.GetValue()
-			dlg = selectKey(key)
+			dlg = selectKey(key,0)
 			res = dlg.ShowModal()
-			if res == wx.ID_OK:
-				key = dlg.keys_list.GetValue()
-				if '*' in key:
-					wildcard = dlg.wildcard.GetValue()
-					if wildcard:
-						if not re.match('^[0-9a-zA-Z]+$', wildcard):
-							self.ShowMessage(_('Failed. * must contain only allowed characters.'))
-							dlg.Destroy()
-							return
-						key = key.replace('*',wildcard)
-					else:
-						self.ShowMessage(_('Failed. You have to provide a name for *.'))
-						dlg.Destroy()
-						return
+			if res == wx.OK:
+				key = dlg.selected_key.replace(':','.')
 				self.SKkey.SetValue(key)
 			dlg.Destroy()
 
@@ -159,7 +147,7 @@ class MyFrame(wx.Frame):
 			conf2.set('SIGNALK', 'data', data)
 			#Sending data to Signal K server. Port 55557 is used to send sensors data.
 			SignalK_delta = '{"updates":[{"$source":"OPdemo","values":[{"path":"'+key+'","value":"'+data+'"}]}]}\n'
-			self.sock.sendto(SignalK_delta, ('127.0.0.1', 55557))
+			self.sock.sendto(SignalK_delta.encode(), ('127.0.0.1', 55557))
 
 		def on_ok(self, e):
 			self.Close()
