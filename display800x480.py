@@ -21,7 +21,7 @@ if platform.machine()[0:3]!='arm':
 	print('this is not a raspberry pi -> no RPI display settings')
 else:
 	output = subprocess.check_output(['tvservice', '-d', '/dev/stdout'])
-	output = output[:128].decode()
+	output = output[:128]
 	try:
 		editfile = open('edid.dat', 'r', 5000)
 		bak = editfile.read()

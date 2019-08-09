@@ -25,7 +25,7 @@ class opencpnSettings:
 		conf = Conf()
 		home = conf.home
 		self.confFile = home+'/.opencpn/opencpn.conf'
-		self.confData = configparser.SafeConfigParser()
+		self.confData = configparser.ConfigParser()
 
 	def getConnectionState(self):
 		result = False

@@ -61,7 +61,7 @@ class Conf:
 			if self.data_conf.has_option(section,item):
 				result = self.data_conf.get(section, item)
 		if result == '':
-			self.data_conf.set(section, item, '')
+			self.set(section, item, '')
 			self.write()
 		return result
 
@@ -87,7 +87,7 @@ class Conf2:
 		if 'root' in self.home:
 			self.home = '/home/'+os.path.expanduser(os.environ["SUDO_USER"])
 		self.conf_file_path = self.home+'/.openplotter/tools/'+folder+'/'+file
-		self.data_conf = configparser.SafeConfigParser()
+		self.data_conf = configparser.ConfigParser()
 		if not os.path.isfile(self.conf_file_path):
 			with open(self.conf_file_path,'w') as f:
 				f.write('[GENERAL]')
@@ -97,31 +97,24 @@ class Conf2:
 		self.data_conf.read(self.conf_file_path)
 
 	def write(self):
-		with open(self.conf_file_path, 'wb') as configfile:
+		with open(self.conf_file_path, 'w') as configfile:
 			self.data_conf.write(configfile)
 
 	def get(self, section, item):
 		result = ''
-		try:
-			result = self.data_conf.get(section, item)
-		except configparser.NoSectionError:
-			self.read()
-			try:
-				self.data_conf.add_section(section)
-			except configparser.DuplicateSectionError: pass
-			self.data_conf.set(section, item, '')
-			self.write()
-		except configparser.NoOptionError:
+		if self.data_conf.has_section(section):
+			if self.data_conf.has_option(section,item):
+				result = self.data_conf.get(section, item)
+		if result == '':
 			self.set(section, item, '')
+			self.write()
 		return result
 
 	def set(self, section, item, value):
 		self.read()
-		try:
-			self.data_conf.set(section, item, value)
-		except configparser.NoSectionError:
+		if not self.has_section(section):
 			self.data_conf.add_section(section)
-			self.data_conf.set(section, item, value)
+		self.data_conf.set(section, item, value)
 		self.write()
 
 	def has_option(self, section, item):

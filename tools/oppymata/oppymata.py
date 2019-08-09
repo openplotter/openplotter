@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # This file is part of Openplotter.
-# Copyright (C) 2015 by sailoog <https://github.com/sailoog/openplotter>
-# 					  e-sailing <https://github.com/e-sailing/openplotter>
+# Copyright (C) 2019 by sailoog <https://github.com/sailoog/openplotter>
+#                     e-sailing <https://github.com/e-sailing/openplotter>
 # Openplotter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -14,8 +14,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Openplotter. If not, see <http://www.gnu.org/licenses/>.
+
+# This tool should read analog inputs of arduino 
+# convert the data and send it to the signal k server
+# The library PyMata is used (install: pip3 install PyMata)
+
 import signal, sys, time, socket, datetime, subprocess, os
 from PyMata.pymata import PyMata
+
+board = None
 
 op_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..')
 sys.path.append(op_folder+'/classes')
@@ -99,7 +106,7 @@ currentpath = conf.get('GENERAL', 'op_folder')
 if len(sys.argv)>1:
 	index=1
 	if sys.argv[1]=='settings':
-		print home+'/.openplotter/tools/openplotter_analog.conf'
+		print(home+'/.openplotter/tools/openplotter_analog.conf')
 		subprocess.Popen(['leafpad',home+'/.openplotter/tools/openplotter_analog.conf'])
 	exit
 else:
@@ -112,20 +119,8 @@ else:
 	index=0
 	SignalK=''
 
-if os.path.exists('/dev/ttyOP_FIRM') and index == 0:
-	output = subprocess.check_output(['python', currentpath+'/tools/oppymata/op_pymata_check.py'])
-	if 'Total Number' in output:
-		pass
-	else:
-		print 'some errors so second try'
-		output = subprocess.check_output(['python', currentpath+'/tools/oppymata/op_pymata_check.py'])
-		if 'Total Number' in output:
-			pass
-		else:
-			print 'No Firmata on /dev/ttyOP_FIRM'
-			sys.exit(0)
-		
-	board = PyMata("/dev/ttyOP_FIRM")		
+if os.path.exists('/dev/ttyOP_firm') and index == 0:
+	board = PyMata("/dev/ttyOP_firm")		
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 				
 	init()
@@ -141,15 +136,12 @@ if os.path.exists('/dev/ttyOP_FIRM') and index == 0:
 		if index > length:
 			index=0
 
-			SignalK = '{"updates": [{"$source":"OPserial.ARD.ANA","values":[ '
-			Erg=''
-			for i in channel_index:
-				Erg += '{"path": "'+SK_name[i]+'","value":'+str(interpolread(i,RawValue[i]))+'},'
-			
-			SignalK +=Erg[0:-1]+']}]}\n'
-			#print SignalK
-			sock.sendto(SignalK, ('127.0.0.1', 55559))
-			time.sleep(0.100)
+		SignalK = '{"updates": [{"$source":"OPserial.ARD.ANA.'+str(index)+'","values":[ '
+		Erg = '{"path": "'+SK_name[index]+'","value":'+str(interpolread(index,RawValue[index]))+'},'		
+		SignalK +=Erg[0:-1]+']}]}\n'
+		#print( SignalK)
+		sock.sendto(SignalK.encode(), ('127.0.0.1', 55559))
+		time.sleep(0.400)
 else:
-	print 'No serialport ttyOP_FIRM (Arduino with Firmata) found.'
-	print 'Have you add the Arduino port in USB manager?'
+	print('No serialport ttyOP_firm (Arduino with Firmata) found.')
+	print('Have you add the Arduino port in USB manager?')

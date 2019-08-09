@@ -300,7 +300,7 @@ class MyFrame(wx.Frame):
 			except:
 				self.ShowStatusBarRED(_('Failed. Wrong PPM'))
 				return
-			self.gqrx_conf = configparser.SafeConfigParser()
+			self.gqrx_conf = configparser.ConfigParser()
 			self.gqrx_conf.read(self.home+'/.config/gqrx/default.conf')
 			try:
 				self.gqrx_conf.set('input', 'corr_freq', str(ppm2))

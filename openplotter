@@ -397,8 +397,8 @@ class MainFrame(wx.Frame):
 			self.ShowStatusBarRED(_('It was not possible to connect to Github.'))
 			return
 		try:
-			data_conf = configparser.SafeConfigParser()
-			data_conf.readfp(io.StringIO(r_stable.text))
+			data_conf = configparser.ConfigParser()
+			data_conf.read_string(r_stable.text)
 			vr = data_conf.get('GENERAL','version')
 			sr = data_conf.get('GENERAL','state')
 			vr_list = vr.split('.')
@@ -415,8 +415,8 @@ class MainFrame(wx.Frame):
 		elif remote_xxx == local_xxx and remote_oxx == local_oxx and remote_oox > local_oox: check_beta = False
 		if check_beta:
 			try:
-				data_conf = configparser.SafeConfigParser()
-				data_conf.readfp(io.StringIO(r_beta.text))
+				data_conf = configparser.ConfigParser()
+				data_conf.read_string(r_beta.text)
 				vr = data_conf.get('GENERAL','version')
 				sr = data_conf.get('GENERAL','state')
 				vr_list = vr.split('.')
